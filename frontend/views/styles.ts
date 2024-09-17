@@ -25,4 +25,9 @@ export const styles = StyleSheet.create({
     color: '#333', 
     textAlign: 'center',
   },
+  addButton: {
+    position: 'absolute', 
+    right: 30, 
+    bottom: 30, 
+  }
 });

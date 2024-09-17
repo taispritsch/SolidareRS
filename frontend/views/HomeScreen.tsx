@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { styles } from "./styles"
 import { Header } from '@/components/Header';
 import DynamicCard from '@/components/DynamicCard ';
-import { Icon, MD3Colors } from 'react-native-paper';
+import { Icon, IconButton, MD3Colors } from 'react-native-paper';
 
 const HomeScreen = () => {
   const handlePress = (city: string) => {
@@ -16,7 +16,7 @@ const HomeScreen = () => {
       <View style={styles.content}>
         <View style={styles.iconAndTextContainer}>
           <Icon
-            source="map"
+            source="map-outline"
             color={'#0041A3'}
             size={30}
           />
@@ -30,6 +30,15 @@ const HomeScreen = () => {
             <DynamicCard title="Porto Alegre" onPress={() => handlePress('Porto Alegre')} />
           </View>
         </ScrollView>
+        <IconButton
+          style={styles.addButton}
+          icon="plus"
+          iconColor={'#FFFFFF'}
+          size={40}
+          onPress={() => console.log('Pressed')}
+          mode='contained'
+          containerColor='#0041A3'
+        />
       </View>
     </View>
   );
