@@ -20,16 +20,16 @@ const styles = StyleSheet.create({
     paddingTop: 80,
     paddingLeft: 30,
     paddingRight: 30,
-    alignItems: 'center', // Centraliza verticalmente
+    alignItems: 'center', 
     padding: 10,
-    elevation: 3, // Sombra (opcional, no Android)
-    shadowColor: '#000', // Sombra (opcional, no iOS)
-    shadowOffset: { width: 0, height: 2 }, // Sombra (opcional, no iOS)
-    shadowOpacity: 0.1, // Sombra (opcional, no iOS)
-    shadowRadius: 2, // Sombra (opcional, no iOS)
+    elevation: 3, 
+    shadowColor: '#000', 
+    shadowOffset: { width: 0, height: 2 }, 
+    shadowOpacity: 0.1, 
+    shadowRadius: 2, 
   },
   logo: {
-    width: 60, // Ajuste o tamanho do logo conforme necessário
+    width: 60, 
     height: 60,
   },
   title: {
