@@ -14,7 +14,8 @@ const DynamicCard: React.FC<DynamicCardProps> = ({ title, onPress }) => {
         <Text style={styles.title}>{title}</Text>
         <IconButton
           icon="chevron-right"
-          size={30} 
+          size={35} 
+          iconColor={'#0041A3'}
           onPress={onPress}
         />
       </View>
@@ -32,6 +33,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 20,
     backgroundColor: '#FFFFFF',
+    height: 80,
   },
   cardContent: {
     flexDirection: 'row',
@@ -39,7 +41,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#000',
   },

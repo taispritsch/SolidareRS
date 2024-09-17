@@ -2,15 +2,11 @@ import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import { Colors } from '../constants/Colors'; 
 
-interface HeaderProps {
-  title: string;
-}
-
-const Header: React.FC<HeaderProps> = ({ title }) => {
+export function Header(){
     return (
     <View style={[styles.header, { backgroundColor: Colors.backgroundHeader }]}>
       <Image source={require('@/assets/images/logo-header.png')} style={styles.logo} />
-      <Text style={[styles.title, { color: Colors.text }]}>{title}</Text>
+      <Text style={[styles.title, { color: Colors.text }]}>Bem-vindo ao SolidareRS.</Text>
     </View>
   );
 };
@@ -42,4 +38,3 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Header;
