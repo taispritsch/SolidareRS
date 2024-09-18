@@ -4,10 +4,13 @@ import { styles } from "./styles"
 import { Header } from '@/components/Header';
 import DynamicCard from '@/components/DynamicCard ';
 import { Icon, IconButton, MD3Colors } from 'react-native-paper';
+import { useRouter } from 'expo-router';
 
 const HomeScreen = () => {
+  const router = useRouter();
   const handlePress = (city: string) => {
-    console.log(`Clicou em ${city}`);
+    console.log('Pressed on ' + city);
+    
   };
 
   return (
@@ -24,7 +27,7 @@ const HomeScreen = () => {
         </View>
         <ScrollView>
           <View style={{ padding: 20 }}>
-            <DynamicCard title="Lajeado" onPress={() => handlePress('Lajeado')} />
+            <DynamicCard title="Lajeado" onPress={() => router.push('/WelcomeScreen')} />
             <DynamicCard title="Estrela" onPress={() => handlePress('Estrela')} />
             <DynamicCard title="Arroio do Meio" onPress={() => handlePress('Arroio do Meio')} />
             <DynamicCard title="Porto Alegre" onPress={() => handlePress('Porto Alegre')} />
