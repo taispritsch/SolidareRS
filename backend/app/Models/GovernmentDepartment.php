@@ -10,6 +10,7 @@ class GovernmentDepartment extends Model
     protected $fillable = [
         'name',
         'address_id',
+        'phone',
     ];
 
     public function address(): BelongsTo
