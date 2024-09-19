@@ -1,6 +1,20 @@
 import { router, Stack } from "expo-router"
 import { Colors } from '../constants/Colors';
 
+const sharedHeaderStyle = {
+    headerShown: true,
+    headerTintColor: '#FFFFFF',
+    headerStyle: {
+        backgroundColor: Colors.backgroundHeader,
+
+    },
+    headerTitleStyle: {
+        fontWeight: 'bold',
+        fontSize: 20,
+    },
+    headerTitleAlign: 'center',
+};
+
 const RootLayout = () => {
     return (
         <Stack>
@@ -16,20 +30,20 @@ const RootLayout = () => {
                 }
             } />
 
-            <Stack.Screen name="UserScreen" options={({ route }) => ({
-                headerTitle: route.params.title,
-                headerShown: true,
-                headerTintColor: '#FFFFFF',
-                headerStyle: {
-                    backgroundColor: Colors.backgroundHeader,
-                },
-                headerTitleStyle: {
-                    fontWeight: 'bold',
-                    fontSize: 20,
-
-                },
-                headerTitleAlign: 'center',
-            })} />
+            <Stack.Screen
+                name="UserScreen"
+                options={({ route }) => ({
+                    ...sharedHeaderStyle,
+                    headerTitle: route.params.title,
+                })}
+            />
+            <Stack.Screen
+                name="CityHallForm"
+                options={({ route }) => ({
+                    ...sharedHeaderStyle,
+                    headerTitle: 'Novo órgão público',
+                })}
+            />
         </Stack>
     );
 };

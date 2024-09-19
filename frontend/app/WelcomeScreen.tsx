@@ -1,7 +1,7 @@
 import { Header } from '@/components/Header';
 import React from 'react';
 import { View, Text, ScrollView } from "react-native";
-import { styles } from './styles';
+import { styles } from './styles.tsx';
 import DynamicCard from '@/components/DynamicCard ';
 import { router, useLocalSearchParams } from 'expo-router';
 

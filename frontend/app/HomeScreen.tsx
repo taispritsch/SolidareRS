@@ -5,6 +5,7 @@ import { Header } from '@/components/Header';
 import DynamicCard from '@/components/DynamicCard ';
 import { Icon, IconButton, MD3Colors } from 'react-native-paper';
 import { useRouter } from 'expo-router';
+import { Colors } from '@/constants/Colors';
 
 const HomeScreen = () => {
   const router = useRouter();
@@ -37,9 +38,9 @@ const HomeScreen = () => {
           icon="plus"
           iconColor={'#FFFFFF'}
           size={40}
-          onPress={() => console.log('Pressed')}
+          onPress={() => router.push('/CityHallForm')}
           mode='contained'
-          containerColor='#0041A3'
+          containerColor={Colors.backgroundButton}
         />
       </View>
     </View>
