@@ -19,7 +19,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 40,
     flexDirection: 'row', 
-    alignItems: 'flex-start', 
+    alignItems: 'center', 
     gap: 10, 
   },
   title: {

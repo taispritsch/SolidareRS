@@ -9,8 +9,7 @@ import { useRouter } from 'expo-router';
 const HomeScreen = () => {
   const router = useRouter();
   const handlePress = (city: string) => {
-    console.log('Pressed on ' + city);
-    
+    router.push({ pathname: '/WelcomeScreen', params: { title: city }  });
   };
 
   return (
@@ -27,7 +26,7 @@ const HomeScreen = () => {
         </View>
         <ScrollView>
           <View style={{ padding: 20 }}>
-            <DynamicCard title="Lajeado" onPress={() => router.push('/WelcomeScreen')} />
+            <DynamicCard title="Lajeado" onPress={() => handlePress('Lajeado')} />
             <DynamicCard title="Estrela" onPress={() => handlePress('Estrela')} />
             <DynamicCard title="Arroio do Meio" onPress={() => handlePress('Arroio do Meio')} />
             <DynamicCard title="Porto Alegre" onPress={() => handlePress('Porto Alegre')} />

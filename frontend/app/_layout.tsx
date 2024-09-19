@@ -1,4 +1,5 @@
-import { Stack } from "expo-router"
+import { router, Stack } from "expo-router"
+import { Colors } from '../constants/Colors';
 
 const RootLayout = () => {
     return (
@@ -8,7 +9,27 @@ const RootLayout = () => {
                     headerShown: false
                 }
             } />
-            <Stack.Screen name="WelcomeScreen" />
+
+            <Stack.Screen name="WelcomeScreen" options={
+                {
+                    headerShown: false
+                }
+            } />
+
+            <Stack.Screen name="UserScreen" options={({ route }) => ({
+                headerTitle: route.params.title,
+                headerShown: true,
+                headerTintColor: '#FFFFFF',
+                headerStyle: {
+                    backgroundColor: Colors.backgroundHeader,
+                },
+                headerTitleStyle: {
+                    fontWeight: 'bold',
+                    fontSize: 20,
+
+                },
+                headerTitleAlign: 'center',
+            })} />
         </Stack>
     );
 };
