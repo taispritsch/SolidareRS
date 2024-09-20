@@ -19,4 +19,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 
-Route::get('/send-welcome-email', 'App\Http\Controllers\UserController@sendWelcomeEmail');
+/* Route::get('/send-welcome-email', 'App\Http\Controllers\UserController@sendWelcomeEmail'); */
+
+Route::post('/users', 'App\Http\Controllers\UserController@store');
+Route::get('/users/{governmentDepartmentId}', 'App\Http\Controllers\UserController@getUsersByGovernmentDepartment');
