@@ -1,14 +1,12 @@
 import { Header } from '@/components/Header';
 import React from 'react';
 import { View, Text, ScrollView } from "react-native";
-import { styles } from './styles.tsx';
+import { styles } from './styles';
 import DynamicCard from '@/components/DynamicCard ';
 import { router, useLocalSearchParams } from 'expo-router';
 
 const WelcomeScreen = () => {
     const governmentName = useLocalSearchParams().title;
-
-    console.log(governmentName);
 
     return (
         <View style={styles.container}>

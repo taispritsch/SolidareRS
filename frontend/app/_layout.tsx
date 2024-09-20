@@ -37,6 +37,16 @@ const RootLayout = () => {
                     headerTitle: route.params.title,
                 })}
             />
+
+            <Stack.Screen
+                name="UserForm"
+                options={({ route }) => ({
+                    ...sharedHeaderStyle,
+                    headerTitle: route.params.title,
+                })}
+            />
+
+
             <Stack.Screen
                 name="CityHallForm"
                 options={({ route }) => ({
