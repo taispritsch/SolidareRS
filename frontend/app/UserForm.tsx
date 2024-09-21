@@ -9,27 +9,17 @@ const UserForm = () => {
     const governmentName = useLocalSearchParams().title;
 
     const [isSwitchOn, setIsSwitchOn] = React.useState(true);
-
     const [name, setName] = React.useState('');
-
     const [email, setEmail] = React.useState('');
-
     const [nameError, setNameError] = React.useState(false);
-
     const [emailError, setEmailError] = React.useState(false);
-
     const [loading, setLoading] = React.useState(false);
 
     const onToggleSwitch = () => setIsSwitchOn(!isSwitchOn);
-
     const onInputName = (text: string) => setName(text);
-
     const onInputEmail = (text: string) => setEmail(text);
-
     const defineNameError = (status: boolean) => setNameError(status);
-
     const defineEmailError = (status: boolean) => setEmailError(status);
-
     const onLoading = () => setLoading(!loading);
 
     function validateFields() {
@@ -69,7 +59,7 @@ const UserForm = () => {
 
         onLoading();
 
-        const response = await fetch('http://192.168.0.13:8000/api/users', {
+        const response = await fetch('http://192.168.0.106:8000/api/users', {
             method: 'POST',
             headers: {
                 Accept: "application/json",

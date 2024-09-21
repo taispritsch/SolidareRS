@@ -1,71 +1,291 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Alert } from "react-native";
 import { Button, TextInput } from 'react-native-paper';
-import { styles } from "./styles"
+import { styles } from "./styles";
 import { Colors } from '../constants/Colors';
+import { router, useLocalSearchParams } from 'expo-router';
 
 const CityHallForm = () => {
+    const { id, mode } = useLocalSearchParams();
+
+    const [name, setName] = useState('');
+    const [phone, setPhone] = useState('');
+    const [zip_code, setCep] = useState('');
+    const [city, setCity] = useState('');
+    const [street, setRua] = useState('');
+    const [neighborhood, setBairro] = useState('');
+    const [number, setNumero] = useState('');
+    const [complemento, setComplemento] = useState('');
+
+    const [nameError, setNameError] = useState(false);
+    const [phoneError, setPhoneError] = useState(false);
+    const [cepError, setCepError] = useState(false);
+    const [cityError, setCityError] = useState(false);
+    const [streetError, setStreetError] = useState(false);
+    const [neighborhoodError, setNeighborhoodError] = useState(false);
+    const [numberError, setNumberError] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        if (mode === 'edit' && id) {
+            fetch(`http://192.168.0.106:8000/api/government-departments/${id}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.address) {
+                        setName(data.name);
+                        setPhone(data.phone || ''); 
+                        setCep(data.address.zip_code || ''); 
+                        setRua(data.address.street || '');
+                        setBairro(data.address.neighborhood || '');
+                        setNumero(data.address.number || '');
+                        setComplemento(data.address.complement || '');
+                        setCity(data.address.city.name);
+                    } else {
+                        Alert.alert('Erro', 'Dados de endereço não encontrados.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao buscar os dados:', error);
+                    Alert.alert('Erro', 'Falha ao carregar os dados. Tente novamente.');
+                });
+        }
+    }, [mode, id]);
+    
+
+    const formatPhoneNumber = (text: string) => {
+        const cleaned = text.replace(/\D/g, '');
+
+        // formatação (DDD) XXXXX-XXXX
+        if (cleaned.length <= 2) {
+            return `(${cleaned}`;
+        } else if (cleaned.length <= 6) {
+            return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2)}`;
+        } else if (cleaned.length <= 10) {
+            return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 6)}-${cleaned.slice(6, 10)}`;
+        } else {
+            return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7, 11)}`;
+        }
+    };
+
+    const handleCepChange = async (text: string) => {
+        const formattedText = text.replace(/\D/g, '').slice(0, 8);
+        setCep(formattedText.replace(/(\d{5})(\d{1,3})/, '$1-$2'));
+
+        if (formattedText.length === 8) {
+            try {
+                const response = await fetch(`https://viacep.com.br/ws/${formattedText}/json/`);
+                const data = await response.json();
+
+                setRua(data.logradouro || '');
+                setBairro(data.bairro || '');
+                setCity(data.localidade || '');
+
+            } catch (error) {
+                console.error('Erro ao buscar o CEP:', error);
+            }
+        } else {
+            setCity('');
+        }
+    };
+
+    const validateFields = () => {
+        let valid = true;
+
+        if (name === '') {
+            setNameError(true);
+            valid = false;
+        } else {
+            setNameError(false);
+        }
+
+        if (phone === '') {
+            setPhoneError(true);
+            valid = false;
+        } else {
+            setPhoneError(false);
+        }
+
+        if (zip_code === '') {
+            setCepError(true);
+            valid = false;
+        } else {
+            setCepError(false);
+        }
+
+        if (city === '') {
+            setCityError(true);
+            valid = false;
+        } else {
+            setCityError(false);
+        }
+
+        if (street === '') {
+            setStreetError(true);
+            valid = false;
+        } else {
+            setStreetError(false);
+        }
+
+        if (neighborhood === '') {
+            setNeighborhoodError(true);
+            valid = false;
+        } else {
+            setNeighborhoodError(false);
+        }
+
+        if (number === '') {
+            setNumberError(true);
+            valid = false;
+        } else {
+            setNumberError(false);
+        }
+
+        return valid;
+    };
+
+    const handleSubmit = async () => {
+        if (!validateFields()) {
+            return;
+        }
+
+        const data = {
+            name,
+            phone,
+            zip_code,
+            street,
+            neighborhood,
+            number,
+            complement: complemento,
+            city_id: 1, 
+        };
+
+        setLoading(true);
+
+        try {
+            const method = mode === 'edit' ? 'PUT' : 'POST';
+            const url = mode === 'edit' 
+                ? `http://192.168.0.106:8000/api/government-departments/${id}` 
+                : 'http://192.168.0.106:8000/api/government-departments';
+
+            const response = await fetch(url, {
+                method,
+                headers: {
+                    Accept: "application/json",
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error('Erro no backend:', errorData);
+                Alert.alert('Erro', 'Falha ao salvar o órgão público. Verifique os dados e tente novamente.');
+                return;
+            }
+
+            const responseData = await response.json();
+            console.log('Resposta do backend:', responseData);
+            router.back();
+            router.setParams({ showSnackbar: 'true' });
+        } catch (error) {
+            console.error('Erro ao enviar a requisição:', error);
+            Alert.alert('Erro', 'Falha na conexão. Tente novamente mais tarde.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <View style={styles.container}>
             <View style={styles.content}>
-                <Text style={style.title}>Adicionando órgão público</Text>
+                <Text style={style.title}>
+                    {mode === 'edit' ? 'Editando órgão público' : 'Adicionando órgão público'}
+                </Text>
                 <ScrollView>
                     <View style={style.form}>
-                        <TextInput
+                    <TextInput
                             mode="outlined"
                             label="Nome*"
                             placeholder="Nome"
+                            value={name}
+                            onChangeText={text => setName(text)}
                             style={style.textInput}
                             selectionColor={Colors.backgroundButton}
                             activeOutlineColor={Colors.backgroundButton}
+                            error={nameError}
                         />
                         <TextInput
                             mode="outlined"
                             label="Celular*"
                             placeholder="Celular"
+                            value={phone}
+                            keyboardType="numeric"
+                            onChangeText={text => setPhone(formatPhoneNumber(text))}
                             style={style.textInput}
                             activeOutlineColor={Colors.backgroundButton}
+                            error={phoneError}
                         />
                         <TextInput
                             mode="outlined"
                             label="CEP*"
                             placeholder="CEP"
+                            value={zip_code}
+                            onChangeText={handleCepChange}
                             style={style.textInput}
                             activeOutlineColor={Colors.backgroundButton}
+                            keyboardType="numeric"
+                            maxLength={9}
+                            error={cepError}
                         />
                         <TextInput
                             mode="outlined"
                             label="Cidade*"
                             placeholder="Cidade"
+                            value={city}
+                            editable={false}
                             style={style.textInput}
                             activeOutlineColor={Colors.backgroundButton}
+                            error={cityError}
                         />
                         <TextInput
                             mode="outlined"
                             label="Rua*"
                             placeholder="Rua"
+                            value={street}
+                            onChangeText={text => setRua(text)}
                             style={style.textInput}
                             activeOutlineColor={Colors.backgroundButton}
+                            error={streetError}
                         />
                         <TextInput
                             mode="outlined"
                             label="Bairro*"
                             placeholder="Bairro"
+                            value={neighborhood}
+                            onChangeText={text => setBairro(text)}
                             style={style.textInput}
                             activeOutlineColor={Colors.backgroundButton}
+                            error={neighborhoodError}
                         />
-                        <View style={style.formBlock}>
+
+                        <View style={style.block}>
                             <TextInput
                                 mode="outlined"
-                                label="Rua*"
-                                placeholder="Rua"
+                                label="Número*"
+                                placeholder="Número"
+                                keyboardType="numeric"
+                                value={number}
+                                onChangeText={text => setNumero(text)}
                                 style={style.textInput}
                                 activeOutlineColor={Colors.backgroundButton}
+                                error={numberError}
                             />
                             <TextInput
                                 mode="outlined"
-                                label="Bairro*"
-                                placeholder="Bairro"
+                                label="Complemento"
+                                placeholder="Complemento"
+                                value={complemento}
+                                onChangeText={text => setComplemento(text)}
                                 style={style.textInput}
                                 activeOutlineColor={Colors.backgroundButton}
                             />
@@ -73,16 +293,17 @@ const CityHallForm = () => {
                     </View>
                 </ScrollView>
                 <View style={style.button}>
-                <Button
-                    mode="contained"
-                    onPress={() => console.log('Pressed')}
-                    buttonColor={Colors.backgroundButton}
-                    contentStyle={{ height: 50 }}
-                >
-                    Salvar
-                </Button>
+                    <Button
+                        mode="contained"
+                        buttonColor={Colors.backgroundButton}
+                        onPress={handleSubmit}
+                        contentStyle={{ height: 50 }}
+                        loading={loading}
+                        disabled={loading}
+                    >
+                        Salvar
+                    </Button>
                 </View>
-                
             </View>
         </View>
     );
@@ -103,14 +324,12 @@ const style = StyleSheet.create({
         paddingTop: 40,
     },
     textInput: {
-        borderColor: 'red',
         flex: 1
     },
-    formBlock: {
+    block: {
         display: 'flex',
         flexDirection: 'row',
         gap: 20,
-        width: '100%',
     },
     button: {
         marginBottom: 40,

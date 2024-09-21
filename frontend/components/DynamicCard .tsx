@@ -7,10 +7,20 @@ interface DynamicCardProps {
   icon?: string;
   description?: string;
   hasOptionMenu?: boolean;
+  menuOptions?: string[];
   onPress: () => void;
+  onEditPress?: () => void;
 }
 
-const DynamicCard: React.FC<DynamicCardProps> = ({ title, icon, description, hasOptionMenu, onPress }) => {
+const DynamicCard: React.FC<DynamicCardProps> = ({
+  title,
+  icon,
+  description,
+  hasOptionMenu,
+  menuOptions = [],
+  onPress,
+  onEditPress, 
+}) =>  {
 
   const [visible, setVisible] = React.useState(false);
 
@@ -67,10 +77,14 @@ const DynamicCard: React.FC<DynamicCardProps> = ({ title, icon, description, has
                     iconColor={'#0041A3'}
                     onPress={openMenu}
                   />
-                }>
-                <Menu.Item
-                  onPress={() => { }} title="Editar" />
-                <Menu.Item onPress={() => { }} title="Excluir" />
+                }
+              >
+                {menuOptions.includes('editar') && (
+                  <Menu.Item onPress={onEditPress} title="Editar" /> 
+                )}
+                {menuOptions.includes('excluir') && (
+                  <Menu.Item onPress={() => { /* acao excluir */ }} title="Excluir" />
+                )}
               </Menu>
             </View>
           )}

@@ -21,7 +21,7 @@ const UserScreen = ({ title }: UserScreenProps) => {
     const onDismissSnackBar = () => setVisible(false);
 
     async function getUsers() {
-        const response = await fetch(`http://192.168.0.13:8000/api/users/${1}`, {
+        const response = await fetch(`http://192.168.0.106:8000/api/users/${3}`, {
             method: 'GET',
             headers: {
                 Accept: "application/json",
@@ -62,10 +62,14 @@ const UserScreen = ({ title }: UserScreenProps) => {
                 <ScrollView>
                     <View style={{ padding: 20 }}>
                         {users.map((user: any, index) => (
-                            <DynamicCard key={index} title={user.name} description={user.email} hasOptionMenu onPress={() => console.log('Locais')} />
+                            <DynamicCard 
+                            key={index} 
+                            title={user.name} 
+                            description={user.email} 
+                            hasOptionMenu 
+                            menuOptions={['editar', 'excluir']}
+                            onPress={() => console.log('Locais')} />
                         ))}
-                        {/* <DynamicCard title="Gabrielli" description="gabrielli.sartori@universo.univates.br" hasOptionMenu onPress={() => console.log('Locais')} />
-                        <DynamicCard title="Taís" description="gabrielli.sartori@universo.univates.br" hasOptionMenu onPress={() => console.log('Usuários')} /> */}
                     </View>
                 </ScrollView>
 

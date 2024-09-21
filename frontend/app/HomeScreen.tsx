@@ -1,16 +1,58 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { styles } from "./styles"
 import { Header } from '@/components/Header';
 import DynamicCard from '@/components/DynamicCard ';
-import { Icon, IconButton, MD3Colors } from 'react-native-paper';
-import { useRouter } from 'expo-router';
+import { Icon, IconButton, MD3Colors, Snackbar } from 'react-native-paper';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Colors } from '@/constants/Colors';
 
 const HomeScreen = () => {
+  const [governmentDepartments, setGovernmentDepartments] = React.useState([]);
+
+  const governmentName = useLocalSearchParams().title;
+
+  const showSnackbar = useLocalSearchParams().showSnackbar;
+
+  const [visible, setVisible] = React.useState(false);
+
+  const onDismissSnackBar = () => setVisible(false);
+
+  async function getGovernmentDepartments() {
+    const response = await fetch(`http://192.168.0.106:8000/api/government-departments`, {
+      method: 'GET',
+      headers: {
+        Accept: "application/json",
+        'Content-Type': 'application/json',
+      },
+    }).then(response => response.json()).then(data => {
+
+      const array = data.map((item: any) => {
+        return {
+          id: item.id,
+          name: item.name,
+        }
+      });
+
+      setGovernmentDepartments(array);
+
+    }).catch(error => console.error(error));
+  }
+
+
+  React.useEffect(() => {
+    getGovernmentDepartments();
+
+    if (showSnackbar) {
+      setVisible(true);
+      getGovernmentDepartments();
+    }
+
+  }, [showSnackbar]);
   const router = useRouter();
+
   const handlePress = (city: string) => {
-    router.push({ pathname: '/WelcomeScreen', params: { title: city }  });
+    router.push({ pathname: '/WelcomeScreen', params: { title: city } });
   };
 
   return (
@@ -27,12 +69,30 @@ const HomeScreen = () => {
         </View>
         <ScrollView>
           <View style={{ padding: 20 }}>
-            <DynamicCard title="Lajeado" onPress={() => handlePress('Lajeado')} />
-            <DynamicCard title="Estrela" onPress={() => handlePress('Estrela')} />
-            <DynamicCard title="Arroio do Meio" onPress={() => handlePress('Arroio do Meio')} />
-            <DynamicCard title="Porto Alegre" onPress={() => handlePress('Porto Alegre')} />
+            {governmentDepartments.map((governmentDepartment: any, index) => (
+              <DynamicCard 
+              key={index} 
+              title={governmentDepartment.name}
+              hasOptionMenu 
+              menuOptions={['editar']}
+              onPress={() => handlePress('Lajeado')}
+              onEditPress={() => router.push(`/CityHallForm?id=${governmentDepartment.id}&mode=edit`)}
+              />
+            ))}
           </View>
         </ScrollView>
+        <Snackbar
+          visible={visible}
+          onDismiss={onDismissSnackBar}
+          duration={1500}
+          action={{
+            label: 'Fechar',
+            onPress: () => {
+              onDismissSnackBar();
+            },
+          }}>
+          Prefeitura criada com sucesso!
+        </Snackbar>
         <IconButton
           style={styles.addButton}
           icon="plus"
