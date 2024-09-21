@@ -107,6 +107,7 @@ const styles = StyleSheet.create({
     height: 80,
   },
   cardContent: {
+    display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

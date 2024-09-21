@@ -21,7 +21,7 @@ const UserScreen = ({ title }: UserScreenProps) => {
     const onDismissSnackBar = () => setVisible(false);
 
     async function getUsers() {
-        const response = await fetch(`http://192.168.0.106:8000/api/users/${3}`, {
+        const response = await fetch(`http://192.168.0.106:8000/api/users/${4}`, {
             method: 'GET',
             headers: {
                 Accept: "application/json",

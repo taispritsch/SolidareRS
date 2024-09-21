@@ -1,72 +1,121 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image } from "react-native";
+import { View, KeyboardAvoidingView, StyleSheet, Image, Alert, ScrollView, Platform } from "react-native";
 import { styles } from './styles';
 import { Button, TextInput } from 'react-native-paper';
 import { Colors } from '@/constants/Colors';
+import { router } from 'expo-router';
 
 const LoginScreen = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
 
-    return (
-        <View style={style.login}>
-            <View style={style.imageContainer}>
-                <Image
-                    style={style.image}
-                    source={require('../assets/images/logo.png')}
-                />
-            </View>
+    const handleLogin = async () => {
+        try {
+            const response = await fetch('http://192.168.0.106:8000/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email,
+                    password,
+                }),
+            });
 
-            <View style={style.form}>
-                <View style={style.labels}>
-                    <TextInput
-                        label="E-mail"
-                        value={email}
-                        onChangeText={setEmail}
-                        mode="outlined"
-                        activeOutlineColor={Colors.backgroundButton}
-                        selectionColor={Colors.backgroundButton}
-                    />
-                    <View style={style.reset}>
-                        <TextInput
-                            label="Senha"
-                            value={password}
-                            mode="outlined"
-                            onChangeText={setPassword}
-                            secureTextEntry={!showPassword}
-                            selectionColor={Colors.backgroundButton}
-                            activeOutlineColor={Colors.backgroundButton}
-                            right={
-                                <TextInput.Icon
-                                    icon={showPassword ? 'eye-off' : 'eye'}
-                                    onPress={() => setShowPassword(!showPassword)}
-                                    color="#0041A3"
-                                />
-                            }
+            if (!response.ok) {
+                const errorData = await response.json();
+                Alert.alert('Erro', errorData.message || 'Erro ao fazer login.');
+                return;
+            }
+
+            const data = await response.json();
+            console.log('Login bem-sucedido:', data);
+
+            router.push('/HomeScreen');
+        } catch (error) {
+            console.error('Erro ao enviar a requisição:', error);
+            Alert.alert('Erro', 'Falha na conexão. Tente novamente mais tarde.');
+        }
+    };
+
+    return (
+        <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={{ flex: 1 }}
+        >
+            <ScrollView contentContainerStyle={{ flexGrow: 1 }} bounces={false}>
+                <View style={style.login}>
+                    <View style={style.imageContainer}>
+                        <Image
+                            style={style.image}
+                            source={require('../assets/images/logo.png')}
                         />
-                        <Button
-                            onPress={() => console.log('Redefinir senha')}
-                            mode="text"
-                            compact
-                        >
-                            Redefinir senha
-                        </Button>
                     </View>
 
-                </View>
+                    <View style={style.form}>
+                        <View style={style.labels}>
+                            <TextInput
+                                label="E-mail"
+                                value={email}
+                                onChangeText={setEmail}
+                                mode="outlined"
+                                autoCapitalize="none"
+                                theme={{
+                                    roundness: 8, 
+                                }}
+                                activeOutlineColor={Colors.backgroundButton}
+                                selectionColor={Colors.backgroundButton}
+                            />
+                            <View style={style.reset}>
+                                <TextInput
+                                    label="Senha"
+                                    value={password}
+                                    mode="outlined"
+                                    onChangeText={setPassword}
+                                    secureTextEntry={!showPassword}
+                                    selectionColor={Colors.backgroundButton}
+                                    activeOutlineColor={Colors.backgroundButton}
+                                    right={
+                                        <TextInput.Icon
+                                            icon={showPassword ? 'eye-off' : 'eye'}
+                                            onPress={() => setShowPassword(!showPassword)}
+                                            color="#0041A3"
+                                        />
+                                    }
+                                    theme={{
+                                        roundness: 8, 
+                                    }}
+                                />
+                                <View style={style.resetButtonContainer}>
+                                    <Button
+                                        onPress={() => console.log('Redefinir senha')}
+                                        textColor={Colors.backgroundButton}  
+                                        rippleColor="transparent"  
+                                        mode="text"
+                                        compact
+                                    >
+                                        Redefinir senha
+                                    </Button>
+                                </View>
+                            </View>
 
-                <Button
-                    mode="contained"
-                    onPress={() => console.log('Entrar')}
-                    style={style.loginButton}
-                    buttonColor={Colors.backgroundButton}
-                    contentStyle={{ height: 50 }}
-                >
-                    Entrar
-                </Button>
-            </View>
-        </View>
+                        </View>
+
+                        <Button
+                            mode="contained"
+                            //onPress={() => router.push(`/HomeScreen`)}
+                            onPress={() => handleLogin()}
+                            style={style.loginButton}
+                            buttonColor={Colors.backgroundButton}
+                            contentStyle={{ height: 50 }}
+                        >
+                            Entrar
+                        </Button>
+                    </View>
+                </View>
+            </ScrollView>
+        </KeyboardAvoidingView>
     );
 };
 
@@ -83,7 +132,7 @@ const style = StyleSheet.create({
         justifyContent: 'center',
     },
     image: {
-        width: '70%', 
+        width: '65%',
         resizeMode: 'contain',
     },
     form: {
@@ -105,10 +154,14 @@ const style = StyleSheet.create({
         gap: 40,
     },
     reset: {
-display: 'flex',
+        display: 'flex',
     },
     resetButton: {
         textAlign: 'right',
+    },
+    resetButtonContainer:{
+        alignItems: 'flex-end',
+        color: 'red',
     },
     loginButton: {
         marginTop: 40,

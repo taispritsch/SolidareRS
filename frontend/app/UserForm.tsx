@@ -54,7 +54,7 @@ const UserForm = () => {
             name,
             email,
             status: isSwitchOn ? 'active' : 'inactive',
-            government_department_id: 1
+            government_department_id: 4
         }
 
         onLoading();

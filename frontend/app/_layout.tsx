@@ -29,6 +29,11 @@ const RootLayout = () => {
                     headerShown: false
                 }
             } />
+             <Stack.Screen name="HomeScreen" options={
+                {
+                    headerShown: false
+                }
+            } />
 
             <Stack.Screen
                 name="UserScreen"
