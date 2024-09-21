@@ -25,4 +25,23 @@ class CreateGovernmentDepartmentService
 
         return $department;
     }
+
+    public function update(GovernmentDepartment $department, array $inputs): GovernmentDepartment
+    {
+        $address = $department->address;
+        $address->update([
+            'street' => $inputs['street'],
+            'neighborhood' => $inputs['neighborhood'],
+            'number' => $inputs['number'],
+            'zip_code' => $inputs['zip_code'],
+            'city_id' => $inputs['city_id'],
+        ]);
+
+        $department->update([
+            'name' => $inputs['name'],
+            'phone' => $inputs['phone'],
+        ]);
+
+        return $department;
+    }
 }
