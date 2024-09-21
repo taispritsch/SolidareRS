@@ -35,6 +35,7 @@ const RootLayout = () => {
                 options={({ route }) => ({
                     ...sharedHeaderStyle,
                     headerTitle: route.params.title,
+                    headerBackTitleVisible: false,
                 })}
             />
 
@@ -43,6 +44,7 @@ const RootLayout = () => {
                 options={({ route }) => ({
                     ...sharedHeaderStyle,
                     headerTitle: route.params.title,
+                    headerBackTitleVisible: false,
                 })}
             />
 
@@ -52,6 +54,7 @@ const RootLayout = () => {
                 options={({ route }) => ({
                     ...sharedHeaderStyle,
                     headerTitle: 'Novo órgão público',
+                    headerBackTitleVisible: false,
                 })}
             />
         </Stack>
