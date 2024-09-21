@@ -19,6 +19,7 @@ class CreateGovernmentDepartmentService
 
         $department = GovernmentDepartment::create([
             'name' => $inputs['name'],
+            'phone' => $inputs['phone'],
             'address_id' => $address->id, 
         ]);
 
