@@ -12,7 +12,7 @@ const LoginScreen = () => {
 
     const handleLogin = async () => {
         try {
-            const response = await fetch('http://192.168.0.106:8000/api/login', {
+            const response = await fetch(`${process.env.EXPO_PUBLIC_ENDPOINT_API}/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -30,9 +30,15 @@ const LoginScreen = () => {
             }
 
             const data = await response.json();
-            console.log('Login bem-sucedido:', data);
 
-            router.push('/HomeScreen');
+            const governmentDepartment = data.user.government_department_has_users[0].government_department;
+
+            if (data.user.is_admin) {
+                router.push('/HomeScreen');
+            } else {
+                router.push({ pathname: '/WelcomeScreen', params: { title: governmentDepartment.name, id: governmentDepartment.id, userName: data.user.name } });
+            }
+
         } catch (error) {
             console.error('Erro ao enviar a requisição:', error);
             Alert.alert('Erro', 'Falha na conexão. Tente novamente mais tarde.');
@@ -62,7 +68,7 @@ const LoginScreen = () => {
                                 mode="outlined"
                                 autoCapitalize="none"
                                 theme={{
-                                    roundness: 8, 
+                                    roundness: 8,
                                 }}
                                 activeOutlineColor={Colors.backgroundButton}
                                 selectionColor={Colors.backgroundButton}
@@ -84,14 +90,14 @@ const LoginScreen = () => {
                                         />
                                     }
                                     theme={{
-                                        roundness: 8, 
+                                        roundness: 8,
                                     }}
                                 />
                                 <View style={style.resetButtonContainer}>
                                     <Button
                                         onPress={() => console.log('Redefinir senha')}
-                                        textColor={Colors.backgroundButton}  
-                                        rippleColor="transparent"  
+                                        textColor={Colors.backgroundButton}
+                                        rippleColor="transparent"
                                         mode="text"
                                         compact
                                     >
@@ -144,6 +150,7 @@ const style = StyleSheet.create({
         borderTopRightRadius: 40,
         shadowColor: '#0041A3',
         shadowOpacity: 0.25,
+        elevation: 0.25,
         borderWidth: 2,
         borderColor: '#0041A3',
         paddingTop: 80,
@@ -159,7 +166,7 @@ const style = StyleSheet.create({
     resetButton: {
         textAlign: 'right',
     },
-    resetButtonContainer:{
+    resetButtonContainer: {
         alignItems: 'flex-end',
         color: 'red',
     },

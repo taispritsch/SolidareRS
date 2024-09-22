@@ -20,7 +20,7 @@ class CreateUserService
             'user_id' => $user->id,
         ]);
 
-        $this->sendWelcomeEmailService->handle($user->email);
+        $this->sendWelcomeEmailService->handle($user);
 
         return $user;
     }

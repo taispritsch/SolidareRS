@@ -3,16 +3,24 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRequest;
-use App\Mail\WelcomeToSolidareEmail;
 use App\Models\GovernmentDepartment;
+use App\Models\GovernmentDepartmentHasUsers;
 use App\Models\User;
 use App\Services\CreateUserService;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 
 class UserController extends Controller
 {
     public function __construct(private CreateUserService $createUserService) {}
+
+    public function show(User $user)
+    {
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        return response()->json($user, 200);
+    }
 
     public function store(UserRequest $request)
     {
@@ -48,10 +56,45 @@ class UserController extends Controller
         return response()->json($users, 200);
     }
 
-
-
-    /* public function sendWelcomeEmail(string $email)
+    public function destroy(User $user)
     {
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        DB::beginTransaction();
+        try {
+            GovernmentDepartmentHasUsers::where('user_id', $user->id)->delete();
+
+            $user->delete();
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+
+        return response()->json(['message' => 'User deleted'], 200);
+    }
+
+    public function update(UserRequest $request, User $user)
+    {
+        $inputs = $request->validated();
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        $user->update($inputs);
+
+        return response()->json($user, 200);
+    }
+
+
+
+    /* public function sendWelcomeEmail()
+    {
+        $email = 'gabrielli.sartori@universo.univates.br';
         Mail::to($email)->send(new WelcomeToSolidareEmail());
     } */
 }

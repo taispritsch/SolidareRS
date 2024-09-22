@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { View, Text, ScrollView } from "react-native";
+import { View, Text, ScrollView, Alert } from "react-native";
 import { styles } from './styles';
 import DynamicCard from '@/components/DynamicCard ';
 import { Icon, IconButton, Snackbar } from 'react-native-paper';
@@ -12,6 +12,7 @@ interface UserScreenProps {
 
 const UserScreen = ({ title }: UserScreenProps) => {
     const governmentName = useLocalSearchParams().title;
+    const governmentId = useLocalSearchParams().id;
     const showSnackbar = useLocalSearchParams().showSnackbar;
 
     const [users, setUsers] = React.useState([]);
@@ -20,26 +21,76 @@ const UserScreen = ({ title }: UserScreenProps) => {
 
     const onDismissSnackBar = () => setVisible(false);
 
+    async function showDeleteAlert(id: BigInteger) {
+        Alert.alert(
+            "Excluir usuário",
+            "Deseja realmente excluir esse usuário?",
+            [
+                {
+                    text: "Cancelar",
+                    onPress: () => {},
+                    style: "cancel"
+                },
+                { text: "Excluir", onPress: () => { deleteUser(id) } }
+            ]
+        );
+    }
+
+
+    async function deleteUser(id: BigInteger) {
+        try {
+            const response = await fetch(`${process.env.EXPO_PUBLIC_ENDPOINT_API}/users/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    Accept: "application/json",
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                Alert.alert('Erro', errorData.message || 'Erro ao excluir usuário.');
+                return;
+            }
+
+            getUsers();
+        } catch (error) {
+            console.error('Erro ao enviar a requisição:', error);
+            Alert.alert('Erro', 'Falha na conexão. Tente novamente mais tarde.');
+        }
+    }
+
     async function getUsers() {
-        const response = await fetch(`http://192.168.0.106:8000/api/users/${4}`, {
-            method: 'GET',
-            headers: {
-                Accept: "application/json",
-                'Content-Type': 'application/json',
-            },
-        }).then(response => response.json()).then(data => {
+        try {
+            const response = await fetch(`${process.env.EXPO_PUBLIC_ENDPOINT_API}/users/${governmentId}/government-department`, {
+                method: 'GET',
+                headers: {
+                    Accept: "application/json",
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                Alert.alert('Erro', errorData.message || 'Erro ao buscar usuários.');
+                return;
+            }
+
+            const data = await response.json();
 
             const array = data.map((item: any) => {
                 return {
+                    id: item.id,
                     name: item.name,
                     email: item.email,
                 }
             });
 
             setUsers(array);
-
-        }).catch(error => console.error(error));
-
+        } catch (error) {
+            console.error('Erro ao enviar a requisição:', error);
+            Alert.alert('Erro', 'Falha na conexão. Tente novamente mais tarde.');
+        }
     }
 
     React.useEffect(() => {
@@ -62,13 +113,16 @@ const UserScreen = ({ title }: UserScreenProps) => {
                 <ScrollView>
                     <View style={{ padding: 20 }}>
                         {users.map((user: any, index) => (
-                            <DynamicCard 
-                            key={index} 
-                            title={user.name} 
-                            description={user.email} 
-                            hasOptionMenu 
-                            menuOptions={['editar', 'excluir']}
-                            onPress={() => console.log('Locais')} />
+                            <DynamicCard
+                                key={index}
+                                title={user.name}
+                                description={user.email}
+                                hasOptionMenu
+                                menuOptions={['editar', 'excluir']}
+                                onDeletPress={() => showDeleteAlert(user.id)}
+                                onEditPress={() => router.push({ pathname: '/UserForm', params: { title: governmentName, id: governmentId, userId: user.id } })}
+                                onPress={() => router.push({ pathname: '/UserForm', params: { title: governmentName, id: governmentId, userId: user.id } })}
+                            />
                         ))}
                     </View>
                 </ScrollView>
@@ -91,7 +145,7 @@ const UserScreen = ({ title }: UserScreenProps) => {
                     icon="plus"
                     iconColor={'#FFFFFF'}
                     size={40}
-                    onPress={() => router.push({ pathname: '/UserForm', params: { title: governmentName } })}
+                    onPress={() => router.push({ pathname: '/UserForm', params: { title: governmentName, id: governmentId } })}
                     mode='contained'
                     containerColor={Colors.backgroundButton}
                 />

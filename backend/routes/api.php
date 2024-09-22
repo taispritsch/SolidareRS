@@ -35,7 +35,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/government-departments/{id}', [GovernmentDepartmentController::class, 'update']);
 //});
 
-/* Route::get('/send-welcome-email', 'App\Http\Controllers\UserController@sendWelcomeEmail'); */
 
-Route::post('/users', [UserController::class, 'store']);
-Route::get('/users/{governmentDepartmentId}', [UserController::class, 'getUsersByGovernmentDepartment']);
+Route::prefix('users')->group(function () {
+    Route::get('{user}', [UserController::class, 'show']);
+    Route::get('{governmentDepartmentId}/government-department', [UserController::class, 'getUsersByGovernmentDepartment']);
+    Route::post('', [UserController::class, 'store']);
+    Route::put('{user}', [UserController::class, 'update']);
+    Route::delete('{user}', [UserController::class, 'destroy']);
+});
+
+/* Route::get('/send-welcome-email', 'App\Http\Controllers\UserController@sendWelcomeEmail'); */

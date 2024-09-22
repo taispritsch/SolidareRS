@@ -19,7 +19,7 @@ const HomeScreen = () => {
   const onDismissSnackBar = () => setVisible(false);
 
   async function getGovernmentDepartments() {
-    const response = await fetch(`http://192.168.0.106:8000/api/government-departments`, {
+    const response = await fetch(`${process.env.EXPO_PUBLIC_ENDPOINT_API}/government-departments`, {
       method: 'GET',
       headers: {
         Accept: "application/json",
@@ -51,8 +51,13 @@ const HomeScreen = () => {
   }, [showSnackbar]);
   const router = useRouter();
 
-  const handlePress = (city: string) => {
-    router.push({ pathname: '/WelcomeScreen', params: { title: city } });
+  interface GovernmentDepartment {
+    name: string;
+    id: string;
+  }
+
+  const handlePress = (governmentDepartment: GovernmentDepartment) => {
+    router.push({ pathname: '/WelcomeScreen', params: { title: governmentDepartment.name, id: governmentDepartment.id } });
   };
 
   return (
@@ -70,13 +75,13 @@ const HomeScreen = () => {
         <ScrollView>
           <View style={{ padding: 20 }}>
             {governmentDepartments.map((governmentDepartment: any, index) => (
-              <DynamicCard 
-              key={index} 
-              title={governmentDepartment.name}
-              hasOptionMenu 
-              menuOptions={['editar']}
-              onPress={() => handlePress('Lajeado')}
-              onEditPress={() => router.push(`/CityHallForm?id=${governmentDepartment.id}&mode=edit`)}
+              <DynamicCard
+                key={index}
+                title={governmentDepartment.name}
+                hasOptionMenu
+                menuOptions={['editar']}
+                onPress={() => handlePress(governmentDepartment)}
+                onEditPress={() => router.push(`/CityHallForm?id=${governmentDepartment.id}&mode=edit`)}
               />
             ))}
           </View>

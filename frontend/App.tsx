@@ -1,4 +1,4 @@
-import React from 'react';
+/* import React from 'react';
 import HomeScreen from './app/HomeScreen';
 
 export default function App() {
@@ -6,3 +6,4 @@ export default function App() {
     <HomeScreen></HomeScreen>
   );
 }
+ */

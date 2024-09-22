@@ -164,8 +164,8 @@ const CityHallForm = () => {
         try {
             const method = mode === 'edit' ? 'PUT' : 'POST';
             const url = mode === 'edit' 
-                ? `http://192.168.0.106:8000/api/government-departments/${id}` 
-                : 'http://192.168.0.106:8000/api/government-departments';
+                ? `${process.env.EXPO_PUBLIC_ENDPOINT_API}/government-departments/${id}` 
+                : `${process.env.EXPO_PUBLIC_ENDPOINT_API}/government-departments`;
 
             const response = await fetch(url, {
                 method,

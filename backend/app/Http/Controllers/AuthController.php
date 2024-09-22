@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,9 +17,12 @@ class AuthController extends Controller
 
         if (Auth::attempt($request->only('email', 'password'))) {
             $user = Auth::user();
+
+            $userModal = User::find($user->id)->load('governmentDepartmentHasUsers.governmentDepartment');
+
             return response()->json([
                 'message' => 'Login bem-sucedido.',
-                'user' => $user,
+                'user' => $userModal,
             ]);
         }
 

@@ -1,12 +1,13 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, ViewComponent } from "react-native";
+import { View, Text, StyleSheet, ScrollView, ViewComponent, Alert } from "react-native";
 import { Button, Snackbar, Switch, TextInput } from 'react-native-paper';
 import { styles } from "./styles"
 import { Colors } from '../constants/Colors';
 import { router, useLocalSearchParams } from 'expo-router';
 
 const UserForm = () => {
-    const governmentName = useLocalSearchParams().title;
+    const governmentId = useLocalSearchParams().id;
+    const userId = useLocalSearchParams().userId;
 
     const [isSwitchOn, setIsSwitchOn] = React.useState(true);
     const [name, setName] = React.useState('');
@@ -20,7 +21,8 @@ const UserForm = () => {
     const onInputEmail = (text: string) => setEmail(text);
     const defineNameError = (status: boolean) => setNameError(status);
     const defineEmailError = (status: boolean) => setEmailError(status);
-    const onLoading = () => setLoading(!loading);
+    const onLoading = () => setLoading(true);
+    const offLoading = () => setLoading(false);
 
     function validateFields() {
         if (name === '' && email === '') {
@@ -45,6 +47,44 @@ const UserForm = () => {
         return true;
     }
 
+    async function editUser() {
+        if (!validateFields()) {
+            return;
+        }
+
+        const data = {
+            name,
+            email,
+            status: isSwitchOn ? 'active' : 'inactive',
+        }
+
+        try {
+            onLoading();
+
+            const response = await fetch(`${process.env.EXPO_PUBLIC_ENDPOINT_API}/users/${userId}`, {
+                method: 'PUT',
+                headers: {
+                    Accept: "application/json",
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+                offLoading();
+                const errorData = await response.json();
+                Alert.alert('Erro', errorData.message || 'Erro ao salvar usuário.');
+                return;
+            }
+
+            router.back();
+            router.setParams({ showSnackbar: 'true' });
+        } catch (error) {
+            console.error('Erro ao enviar a requisição:', error);
+            Alert.alert('Erro', 'Falha na conexão. Tente novamente mais tarde.');
+        }
+    }
+
     async function handleSave() {
         if (!validateFields()) {
             return;
@@ -54,25 +94,68 @@ const UserForm = () => {
             name,
             email,
             status: isSwitchOn ? 'active' : 'inactive',
-            government_department_id: 4
+            government_department_id: governmentId
         }
 
-        onLoading();
+        try {
+            onLoading();
+            
+            const response = await fetch(`${process.env.EXPO_PUBLIC_ENDPOINT_API}/users`, {
+                method: 'POST',
+                headers: {
+                    Accept: "application/json",
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            });
 
-        const response = await fetch('http://192.168.0.106:8000/api/users', {
-            method: 'POST',
-            headers: {
-                Accept: "application/json",
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-        }).then(response => response.json()).then(data => {
+            if (!response.ok) {
+                offLoading();
+                const errorData = await response.json();
+                Alert.alert('Erro', errorData.message || 'Erro ao salvar usuário.');
+                return;
+            }
+
             router.back();
             router.setParams({ showSnackbar: 'true' });
-        }).catch(error => console.error(error));
-
-        console.log(response);
+        } catch (error) {
+            console.error('Erro ao enviar a requisição:', error);
+            Alert.alert('Erro', 'Falha na conexão. Tente novamente mais tarde.');
+        }
     }
+
+    async function getUser() {
+        try {
+            const response = await fetch(`${process.env.EXPO_PUBLIC_ENDPOINT_API}/users/${userId}`, {
+                method: 'GET',
+                headers: {
+                    Accept: "application/json",
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                Alert.alert('Erro', errorData.message || 'Erro ao buscar usuário.');
+                return;
+            }
+
+            const data = await response.json();
+
+            setName(data.name);
+            setEmail(data.email);
+            setIsSwitchOn(data.status === 'active');
+        } catch (error) {
+            console.error('Erro ao enviar a requisição:', error);
+            Alert.alert('Erro', 'Falha na conexão. Tente novamente mais tarde.');
+        }
+    }
+
+    React.useEffect(() => {
+        if (userId) {
+            getUser();
+        }
+    }, []);
 
     return (
         <View style={styles.container}>
@@ -118,7 +201,7 @@ const UserForm = () => {
                 <View style={style.button}>
                     <Button
                         mode="contained"
-                        onPress={() => handleSave()}
+                        onPress={() => userId ? editUser() : handleSave()}
                         buttonColor={Colors.backgroundButton}
                         contentStyle={{ height: 50 }}
                         loading={loading}

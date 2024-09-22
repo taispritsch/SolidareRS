@@ -34,8 +34,8 @@ export const styles = StyleSheet.create({
     textAlign: 'center',
   },
   addButton: {
-    position: 'absolute', 
-    right: 30, 
-    bottom: 30, 
+    position: 'relative', 
+    alignSelf: 'flex-end',
+    bottom: 20,
   }
 });

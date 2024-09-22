@@ -3,12 +3,13 @@
 namespace App\Services;
 
 use App\Mail\WelcomeToSolidareEmail;
+use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 
 class SendWelcomeEmailService
 {
-    public function handle(string $email): void
+    public function handle(User $user): void
     {
-        Mail::to($email)->send(new WelcomeToSolidareEmail());
+        Mail::to($user->email)->send(new WelcomeToSolidareEmail($user));
     }
 }

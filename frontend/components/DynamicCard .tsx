@@ -10,6 +10,7 @@ interface DynamicCardProps {
   menuOptions?: string[];
   onPress: () => void;
   onEditPress?: () => void;
+  onDeletPress?: () => void;
 }
 
 const DynamicCard: React.FC<DynamicCardProps> = ({
@@ -19,8 +20,9 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
   hasOptionMenu,
   menuOptions = [],
   onPress,
-  onEditPress, 
-}) =>  {
+  onEditPress,
+  onDeletPress,
+}) => {
 
   const [visible, setVisible] = React.useState(false);
 
@@ -80,10 +82,10 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
                 }
               >
                 {menuOptions.includes('editar') && (
-                  <Menu.Item onPress={onEditPress} title="Editar" /> 
+                  <Menu.Item onPress={() => { closeMenu(); onEditPress && onEditPress(); }} title="Editar" />
                 )}
                 {menuOptions.includes('excluir') && (
-                  <Menu.Item onPress={() => { /* acao excluir */ }} title="Excluir" />
+                  <Menu.Item onPress={() => { closeMenu(); onDeletPress && onDeletPress(); }} title="Excluir" />
                 )}
               </Menu>
             </View>
@@ -101,8 +103,6 @@ const styles = StyleSheet.create({
     borderRadius: 7,
     borderLeftWidth: 10,
     marginVertical: 10,
-    paddingVertical: 5,
-    paddingHorizontal: 20,
     backgroundColor: '#FFFFFF',
     height: 80,
   },
@@ -111,10 +111,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    alignContent: 'center',
+    height: '100%'
   },
   cardContentTitle: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginLeft: 20
   },
   title: {
     fontSize: 18,

@@ -23,11 +23,23 @@ class UserRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'name' => 'required|string',
-            'email' => 'required|email|unique:users',
-            'status' => 'required|string',
-            'government_department_id' => 'required|integer',
-        ];
+        switch ($this->method()) {
+            case 'POST':
+                return [
+                    'name' => 'required|string',
+                    'email' => 'required|email|unique:users,email',
+                    'status' => 'required|in:active,inactive',
+                    'government_department_id' => 'required|exists:government_departments,id',
+                ];
+            case 'PUT':
+            case 'PATCH':
+                return [
+                    'name' => 'required|string',
+                    'email' => 'required|email|unique:users,email,' . $this->user->id,
+                    'status' => 'required|in:active,inactive',
+                ];
+            default:
+                return [];
+        }
     }
 }
