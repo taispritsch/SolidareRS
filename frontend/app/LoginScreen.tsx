@@ -4,45 +4,44 @@ import { styles } from './styles';
 import { Button, TextInput } from 'react-native-paper';
 import { Colors } from '@/constants/Colors';
 import { router } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
+import axiosInstance from '@/services/axios';
 
 const LoginScreen = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const handleLogin = async () => {
         try {
-            const response = await fetch(`${process.env.EXPO_PUBLIC_ENDPOINT_API}/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    email,
-                    password,
-                }),
+            setLoading(true);
+
+            const response = await axiosInstance.post('login', {
+                email,
+                password,
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                Alert.alert('Erro', errorData.message || 'Erro ao fazer login.');
-                return;
-            }
+            const data = response.data;
 
-            const data = await response.json();
+            await SecureStore.setItemAsync('token', data.token);
 
-            const governmentDepartment = data.user.government_department_has_users[0].government_department;
 
             if (data.user.is_admin) {
-                router.push('/HomeScreen');
+                router.push({ pathname: '/HomeScreen', params: { userName: data.user.name } });
             } else {
+                const governmentDepartment = data.user.government_department_has_users[0].government_department;
+
                 router.push({ pathname: '/WelcomeScreen', params: { title: governmentDepartment.name, id: governmentDepartment.id, userName: data.user.name } });
             }
 
+            setLoading(false);
         } catch (error) {
             console.error('Erro ao enviar a requisição:', error);
-            Alert.alert('Erro', 'Falha na conexão. Tente novamente mais tarde.');
+            Alert.alert('Erro', 'Erro ao fazer login.');
         }
+
+        setLoading(false);
     };
 
     return (
@@ -95,7 +94,7 @@ const LoginScreen = () => {
                                 />
                                 <View style={style.resetButtonContainer}>
                                     <Button
-                                        onPress={() => console.log('Redefinir senha')}
+                                        onPress={() => router.push('/ResetPasswordForm')}
                                         textColor={Colors.backgroundButton}
                                         rippleColor="transparent"
                                         mode="text"
@@ -110,13 +109,14 @@ const LoginScreen = () => {
 
                         <Button
                             mode="contained"
-                            //onPress={() => router.push(`/HomeScreen`)}
                             onPress={() => handleLogin()}
                             style={style.loginButton}
                             buttonColor={Colors.backgroundButton}
                             contentStyle={{ height: 50 }}
+                            loading={loading}
+                            disabled={loading}
                         >
-                            Entrar
+                            {loading ? 'Aguarde, estamos fazendo login...' : 'Entrar'}
                         </Button>
                     </View>
                 </View>
