@@ -26,7 +26,7 @@ class UserController extends Controller
     {
         $inputs = $request->validated();
 
-        $inputs['password'] = '123456';
+        $inputs['password'] = env('USER_PASSWORD_DEFAULT');
 
         DB::beginTransaction();
         try {
@@ -41,16 +41,14 @@ class UserController extends Controller
         return response()->json($user, 201);
     }
 
-    public function getUsersByGovernmentDepartment(int $governmentDepartmentId)
+    public function getUsersByGovernmentDepartment(GovernmentDepartment $governmentDepartment)
     {
-        $governmentDepartment = GovernmentDepartment::find($governmentDepartmentId);
-
         if (!$governmentDepartment) {
             return response()->json(['message' => 'Department not found'], 404);
         }
 
-        $users = User::whereHas('governmentDepartmentHasUsers', function ($query) use ($governmentDepartmentId) {
-            $query->where('government_department_id', $governmentDepartmentId);
+        $users = User::whereHas('governmentDepartmentHasUsers', function ($query) use ($governmentDepartment) {
+            $query->where('government_department_id', $governmentDepartment->id);
         })->get();
 
         return response()->json($users, 200);
