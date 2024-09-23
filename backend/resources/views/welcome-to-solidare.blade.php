@@ -141,7 +141,7 @@
 <body class="card">
     <header class="header">
         <div class="header-content">
-            <img src="{{ url('/images/maos-segurando-coracao.png') }}" alt="SolidareRS">
+            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/maos-segurando-coracao.png'))) }}" alt="SolidareRS" width="50" height="50">
             <h1 class="header-title"> Bem-vindo ao SolidareRS</h1>
         </div>
     </header>
