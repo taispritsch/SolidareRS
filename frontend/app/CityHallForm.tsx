@@ -178,7 +178,7 @@ const CityHallForm = () => {
             });
 
             router.back();
-            router.setParams({ showSnackbar: 'true' });
+            router.setParams({ showSnackbar: 'true', action: mode === 'edit' ? 'edit' : 'create' });
         } catch (error : any) {
             console.error('Erro ao enviar a requisição:', error.response.data);
             Alert.alert('Erro', 'Falha na conexão. Tente novamente mais tarde.');

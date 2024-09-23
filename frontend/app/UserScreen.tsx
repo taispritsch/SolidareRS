@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { View, Text, ScrollView, Alert } from "react-native";
 import { styles } from './styles';
 import DynamicCard from '@/components/DynamicCard ';
@@ -15,7 +15,9 @@ interface UserScreenProps {
 const UserScreen = ({ title }: UserScreenProps) => {
     const governmentName = useLocalSearchParams().title;
     const governmentId = useLocalSearchParams().id;
-    const showSnackbar = useLocalSearchParams().showSnackbar;
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+
+    const { showSnackbar, action } = useLocalSearchParams();
 
     const [users, setUsers] = React.useState([]);
 
@@ -71,13 +73,17 @@ const UserScreen = ({ title }: UserScreenProps) => {
 
     React.useEffect(() => {
         if (showSnackbar) {
+            if (action === 'create') {
+                setSnackbarMessage('Usuário criado com sucesso!');
+              } else if (action === 'edit') {
+                setSnackbarMessage('Usuário editado com sucesso!');
+              }
             setVisible(true);
         }
 
         getUsers();
 
-
-    }, [showSnackbar]);
+    }, [showSnackbar, action]);
 
     return (
         <View style={styles.container}>
@@ -113,7 +119,7 @@ const UserScreen = ({ title }: UserScreenProps) => {
                             onDismissSnackBar();
                         },
                     }}>
-                    Usuário salvo com sucesso!
+                    {snackbarMessage}
                 </Snackbar>
 
                 <IconButton

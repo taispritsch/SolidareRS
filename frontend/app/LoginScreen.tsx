@@ -12,8 +12,35 @@ const LoginScreen = () => {
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [emailError, setEmailError] = useState(false);
+    const [passwordError, setPasswordError] = useState(false);
+
+    const validateFields = () => {
+        let valid = true;
+
+        if (email === '') {
+            setEmailError(true);
+            valid = false;
+        } else {
+            setEmailError(false);
+        }
+
+        if (password === '') {
+            setPasswordError(true);
+            valid = false;
+        } else {
+            setPasswordError(false);
+        }
+
+        return valid;
+    };
 
     const handleLogin = async () => {
+        if (!validateFields()) {
+            Alert.alert('Erro', 'Por favor, preencha todos os campos.');
+            return;
+        }
+
         try {
             setLoading(true);
 
@@ -66,6 +93,7 @@ const LoginScreen = () => {
                                 onChangeText={setEmail}
                                 mode="outlined"
                                 autoCapitalize="none"
+                                error={emailError}
                                 theme={{
                                     roundness: 8,
                                 }}
@@ -77,6 +105,7 @@ const LoginScreen = () => {
                                     label="Senha"
                                     value={password}
                                     mode="outlined"
+                                    error={passwordError}
                                     onChangeText={setPassword}
                                     secureTextEntry={!showPassword}
                                     selectionColor={Colors.backgroundButton}
@@ -151,7 +180,7 @@ const style = StyleSheet.create({
         shadowColor: '#0041A3',
         shadowOpacity: 0.25,
         elevation: 0.25,
-        borderWidth: 2,
+        borderWidth: 1,
         borderColor: '#0041A3',
         paddingTop: 80,
     },

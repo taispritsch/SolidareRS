@@ -10,12 +10,10 @@ import axiosInstance from '@/services/axios';
 
 const HomeScreen = () => {
   const [governmentDepartments, setGovernmentDepartments] = React.useState([]);
-
-  const userName = useLocalSearchParams().userName;
-
-  const showSnackbar = useLocalSearchParams().showSnackbar;
-
   const [visible, setVisible] = React.useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+
+  const { userName, showSnackbar, action } = useLocalSearchParams();
 
   const onDismissSnackBar = () => setVisible(false);
 
@@ -43,11 +41,17 @@ const HomeScreen = () => {
     getGovernmentDepartments();
 
     if (showSnackbar) {
+      if (action === 'create') {
+        setSnackbarMessage('Órgão público criado com sucesso!');
+      } else if (action === 'edit') {
+        setSnackbarMessage('Órgão público editado com sucesso!');
+      }
       setVisible(true);
       getGovernmentDepartments();
     }
 
-  }, [showSnackbar]);
+  }, [showSnackbar, action]);
+
   const router = useRouter();
 
   interface GovernmentDepartment {
@@ -94,8 +98,9 @@ const HomeScreen = () => {
             onPress: () => {
               onDismissSnackBar();
             },
-          }}>
-          Prefeitura criada com sucesso!
+          }}
+        >
+          {snackbarMessage}
         </Snackbar>
         <IconButton
           style={styles.addButton}

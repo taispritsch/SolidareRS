@@ -65,7 +65,7 @@ const UserForm = () => {
             await axiosInstance.put(`users/${userId}`, data);
 
             router.back();
-            router.setParams({ showSnackbar: 'true' });
+            router.setParams({ showSnackbar: 'true', action: 'edit' });
         } catch (error) {
             console.error('Erro ao enviar a requisição:', error);
             Alert.alert('Erro', 'Erro ao salvar usuário.');
@@ -92,7 +92,7 @@ const UserForm = () => {
             await axiosInstance.post('users', data);
 
             router.back();
-            router.setParams({ showSnackbar: 'true' });
+            router.setParams({ showSnackbar: 'true', action: 'create' });
         } catch (error) {
             console.error('Erro ao enviar a requisição:', error);
             Alert.alert('Erro', 'Erro ao salvar usuário.');
