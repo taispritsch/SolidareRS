@@ -179,7 +179,7 @@ const style = StyleSheet.create({
         borderTopRightRadius: 40,
         shadowColor: '#0041A3',
         shadowOpacity: 0.25,
-        elevation: 0.25,
+        elevation: 24,
         borderWidth: 1,
         borderColor: '#0041A3',
         paddingTop: 80,
