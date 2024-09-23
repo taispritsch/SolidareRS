@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import { styles } from "./styles"
 import { Header } from '@/components/Header';
 import DynamicCard from '@/components/DynamicCard ';
 import { Icon, IconButton, MD3Colors, Snackbar } from 'react-native-paper';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Colors } from '@/constants/Colors';
+import axiosInstance from '@/services/axios';
 
 const HomeScreen = () => {
   const [governmentDepartments, setGovernmentDepartments] = React.useState([]);
 
-  const governmentName = useLocalSearchParams().title;
+  const userName = useLocalSearchParams().userName;
 
   const showSnackbar = useLocalSearchParams().showSnackbar;
 
@@ -19,15 +20,10 @@ const HomeScreen = () => {
   const onDismissSnackBar = () => setVisible(false);
 
   async function getGovernmentDepartments() {
-    const response = await fetch(`${process.env.EXPO_PUBLIC_ENDPOINT_API}/government-departments`, {
-      method: 'GET',
-      headers: {
-        Accept: "application/json",
-        'Content-Type': 'application/json',
-      },
-    }).then(response => response.json()).then(data => {
+    try {
+      const response = await axiosInstance.get('government-departments');
 
-      const array = data.map((item: any) => {
+      const array = response.data.map((item: any) => {
         return {
           id: item.id,
           name: item.name,
@@ -35,8 +31,11 @@ const HomeScreen = () => {
       });
 
       setGovernmentDepartments(array);
+    } catch (error) {
+      console.error('Erro ao enviar a requisição:', error);
+      Alert.alert('Erro', 'Não foi possível carregar os órgãos públicos.');
+    }
 
-    }).catch(error => console.error(error));
   }
 
 
@@ -57,7 +56,7 @@ const HomeScreen = () => {
   }
 
   const handlePress = (governmentDepartment: GovernmentDepartment) => {
-    router.push({ pathname: '/WelcomeScreen', params: { title: governmentDepartment.name, id: governmentDepartment.id } });
+    router.push({ pathname: '/WelcomeScreen', params: { title: governmentDepartment.name, id: governmentDepartment.id, userName: userName } });
   };
 
   return (

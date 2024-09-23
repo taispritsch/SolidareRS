@@ -4,6 +4,7 @@ import { Button, Snackbar, Switch, TextInput } from 'react-native-paper';
 import { styles } from "./styles"
 import { Colors } from '../constants/Colors';
 import { router, useLocalSearchParams } from 'expo-router';
+import axiosInstance from '@/services/axios';
 
 const UserForm = () => {
     const governmentId = useLocalSearchParams().id;
@@ -61,28 +62,16 @@ const UserForm = () => {
         try {
             onLoading();
 
-            const response = await fetch(`${process.env.EXPO_PUBLIC_ENDPOINT_API}/users/${userId}`, {
-                method: 'PUT',
-                headers: {
-                    Accept: "application/json",
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            });
-
-            if (!response.ok) {
-                offLoading();
-                const errorData = await response.json();
-                Alert.alert('Erro', errorData.message || 'Erro ao salvar usuário.');
-                return;
-            }
+            await axiosInstance.put(`users/${userId}`, data);
 
             router.back();
             router.setParams({ showSnackbar: 'true' });
         } catch (error) {
             console.error('Erro ao enviar a requisição:', error);
-            Alert.alert('Erro', 'Falha na conexão. Tente novamente mais tarde.');
+            Alert.alert('Erro', 'Erro ao salvar usuário.');
         }
+
+        offLoading();
     }
 
     async function handleSave() {
@@ -99,55 +88,31 @@ const UserForm = () => {
 
         try {
             onLoading();
-            
-            const response = await fetch(`${process.env.EXPO_PUBLIC_ENDPOINT_API}/users`, {
-                method: 'POST',
-                headers: {
-                    Accept: "application/json",
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            });
 
-            if (!response.ok) {
-                offLoading();
-                const errorData = await response.json();
-                Alert.alert('Erro', errorData.message || 'Erro ao salvar usuário.');
-                return;
-            }
+            await axiosInstance.post('users', data);
 
             router.back();
             router.setParams({ showSnackbar: 'true' });
         } catch (error) {
             console.error('Erro ao enviar a requisição:', error);
-            Alert.alert('Erro', 'Falha na conexão. Tente novamente mais tarde.');
+            Alert.alert('Erro', 'Erro ao salvar usuário.');
         }
+
+        offLoading();
     }
 
     async function getUser() {
         try {
-            const response = await fetch(`${process.env.EXPO_PUBLIC_ENDPOINT_API}/users/${userId}`, {
-                method: 'GET',
-                headers: {
-                    Accept: "application/json",
-                    'Content-Type': 'application/json',
-                },
-            });
+            const response = await axiosInstance.get(`users/${userId}`);
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                Alert.alert('Erro', errorData.message || 'Erro ao buscar usuário.');
-                return;
-            }
-
-            const data = await response.json();
+            const data = response.data;
 
             setName(data.name);
             setEmail(data.email);
             setIsSwitchOn(data.status === 'active');
         } catch (error) {
             console.error('Erro ao enviar a requisição:', error);
-            Alert.alert('Erro', 'Falha na conexão. Tente novamente mais tarde.');
+            Alert.alert('Erro', 'Erro ao carregar usuário.');
         }
     }
 

@@ -5,6 +5,8 @@ import DynamicCard from '@/components/DynamicCard ';
 import { Icon, IconButton, Snackbar } from 'react-native-paper';
 import { Colors } from '@/constants/Colors';
 import { router, useLocalSearchParams } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
+import axiosInstance from '@/services/axios';
 
 interface UserScreenProps {
     title: string;
@@ -39,46 +41,20 @@ const UserScreen = ({ title }: UserScreenProps) => {
 
     async function deleteUser(id: BigInteger) {
         try {
-            const response = await fetch(`${process.env.EXPO_PUBLIC_ENDPOINT_API}/users/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    Accept: "application/json",
-                    'Content-Type': 'application/json',
-                },
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                Alert.alert('Erro', errorData.message || 'Erro ao excluir usuário.');
-                return;
-            }
+            await axiosInstance.delete(`users/${id}`);
 
             getUsers();
         } catch (error) {
             console.error('Erro ao enviar a requisição:', error);
-            Alert.alert('Erro', 'Falha na conexão. Tente novamente mais tarde.');
+            Alert.alert('Erro', 'Não foi possível excluir o usuário.');
         }
     }
 
     async function getUsers() {
         try {
-            const response = await fetch(`${process.env.EXPO_PUBLIC_ENDPOINT_API}/users/${governmentId}/government-department`, {
-                method: 'GET',
-                headers: {
-                    Accept: "application/json",
-                    'Content-Type': 'application/json',
-                },
-            });
+            const response = await axiosInstance.get(`users/${governmentId}/government-department`);
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                Alert.alert('Erro', errorData.message || 'Erro ao buscar usuários.');
-                return;
-            }
-
-            const data = await response.json();
-
-            const array = data.map((item: any) => {
+            const array = response.data.map((item: any) => {
                 return {
                     id: item.id,
                     name: item.name,
@@ -89,7 +65,7 @@ const UserScreen = ({ title }: UserScreenProps) => {
             setUsers(array);
         } catch (error) {
             console.error('Erro ao enviar a requisição:', error);
-            Alert.alert('Erro', 'Falha na conexão. Tente novamente mais tarde.');
+            Alert.alert('Erro', 'Não foi possível carregar os usuários.');
         }
     }
 
@@ -137,7 +113,7 @@ const UserScreen = ({ title }: UserScreenProps) => {
                             onDismissSnackBar();
                         },
                     }}>
-                    Usuário criado com sucesso!
+                    Usuário salvo com sucesso!
                 </Snackbar>
 
                 <IconButton

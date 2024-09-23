@@ -15,7 +15,7 @@ const WelcomeScreen = () => {
             <Header />
             <View style={styles.content}>
                 <View style={styles.iconAndTextContainer}>
-                    <Text style={styles.title}>Olá { userName }</Text>
+                    <Text style={styles.title}>Olá{ userName ? `, ${userName}` : '' }!</Text>
                 </View>
                 <ScrollView>
                     <View style={{ padding: 20 }}>

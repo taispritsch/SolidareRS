@@ -4,6 +4,7 @@ import { Button, TextInput } from 'react-native-paper';
 import { styles } from "./styles";
 import { Colors } from '../constants/Colors';
 import { router, useLocalSearchParams } from 'expo-router';
+import axiosInstance from '@/services/axios';
 
 const CityHallForm = () => {
     const { id, mode } = useLocalSearchParams();
@@ -26,31 +27,31 @@ const CityHallForm = () => {
     const [numberError, setNumberError] = useState(false);
     const [loading, setLoading] = useState(false);
 
+    async function getGovernmentDepartment() {
+        try {
+            const response = await axiosInstance.get(`government-departments/${id}`)
+
+            setName(response.data.name);
+            setPhone(response.data.phone || '');
+            setCep(response.data.address.zip_code || '');
+            setRua(response.data.address.street || '');
+            setBairro(response.data.address.neighborhood || '');
+            setNumero(response.data.address.number || '');
+            setComplemento(response.data.address.complement || '');
+            setCity(response.data.address.city.name);
+
+        } catch (error) {
+            console.error('Erro ao buscar os dados:', error);
+            Alert.alert('Erro', 'Falha ao carregar os dados. Tente novamente.');
+        }
+    }
+
     useEffect(() => {
         if (mode === 'edit' && id) {
-            fetch(`http://192.168.0.106:8000/api/government-departments/${id}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.address) {
-                        setName(data.name);
-                        setPhone(data.phone || ''); 
-                        setCep(data.address.zip_code || ''); 
-                        setRua(data.address.street || '');
-                        setBairro(data.address.neighborhood || '');
-                        setNumero(data.address.number || '');
-                        setComplemento(data.address.complement || '');
-                        setCity(data.address.city.name);
-                    } else {
-                        Alert.alert('Erro', 'Dados de endereço não encontrados.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Erro ao buscar os dados:', error);
-                    Alert.alert('Erro', 'Falha ao carregar os dados. Tente novamente.');
-                });
+            getGovernmentDepartment();
         }
-    }, [mode, id]);
-    
+    }, []);
+
 
     const formatPhoneNumber = (text: string) => {
         const cleaned = text.replace(/\D/g, '');
@@ -156,39 +157,28 @@ const CityHallForm = () => {
             neighborhood,
             number,
             complement: complemento,
-            city_id: 1, 
+            city_id: 1,
         };
 
         setLoading(true);
 
         try {
             const method = mode === 'edit' ? 'PUT' : 'POST';
-            const url = mode === 'edit' 
-                ? `${process.env.EXPO_PUBLIC_ENDPOINT_API}/government-departments/${id}` 
-                : `${process.env.EXPO_PUBLIC_ENDPOINT_API}/government-departments`;
+            const url = mode === 'edit'
+                ? `government-departments/${id}`
+                : 'government-departments';
 
-            const response = await fetch(url, {
+            
+            const response = await axiosInstance({
                 method,
-                headers: {
-                    Accept: "application/json",
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
+                url,
+                data,
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                console.error('Erro no backend:', errorData);
-                Alert.alert('Erro', 'Falha ao salvar o órgão público. Verifique os dados e tente novamente.');
-                return;
-            }
-
-            const responseData = await response.json();
-            console.log('Resposta do backend:', responseData);
             router.back();
             router.setParams({ showSnackbar: 'true' });
-        } catch (error) {
-            console.error('Erro ao enviar a requisição:', error);
+        } catch (error : any) {
+            console.error('Erro ao enviar a requisição:', error.response.data);
             Alert.alert('Erro', 'Falha na conexão. Tente novamente mais tarde.');
         } finally {
             setLoading(false);
@@ -203,7 +193,7 @@ const CityHallForm = () => {
                 </Text>
                 <ScrollView>
                     <View style={style.form}>
-                    <TextInput
+                        <TextInput
                             mode="outlined"
                             label="Nome*"
                             placeholder="Nome"

@@ -29,7 +29,7 @@ const RootLayout = () => {
                     headerShown: false
                 }
             } />
-             <Stack.Screen name="HomeScreen" options={
+            <Stack.Screen name="HomeScreen" options={
                 {
                     headerShown: false
                 }
@@ -62,6 +62,12 @@ const RootLayout = () => {
                     headerBackTitleVisible: false,
                 })}
             />
+
+            <Stack.Screen name="ResetPasswordForm" options={
+                {
+                    headerShown: false
+                }
+            } />
         </Stack>
     );
 };
