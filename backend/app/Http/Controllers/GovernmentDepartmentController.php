@@ -41,7 +41,7 @@ class GovernmentDepartmentController extends Controller
             return response()->json(['message' => 'Órgão público não encontrado.'], 404);
         }
 
-        return response()->json($governmentDepartment);
+        return response()->json($governmentDepartment->load('address.city'));
     }
 
     public function update(GovernmentDepartmentRequest $request, GovernmentDepartment $governmentDepartment)
