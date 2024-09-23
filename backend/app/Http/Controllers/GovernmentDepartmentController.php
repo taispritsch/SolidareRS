@@ -35,29 +35,22 @@ class GovernmentDepartmentController extends Controller
         return response()->json($department, 201);
     }
 
-    public function show($id)
+    public function show(GovernmentDepartment $governmentDepartment)
     {
-       $department = GovernmentDepartment::with('address.city')->find($id);
+        if (!$governmentDepartment) {
+            return response()->json(['message' => 'Órgão público não encontrado.'], 404);
+        }
 
-       if (!$department) {
-          return response()->json(['message' => 'Órgão público não encontrado.'], 404);
-       }
-
-       return response()->json($department);
+        return response()->json($governmentDepartment);
     }
 
-    public function update(GovernmentDepartmentRequest $request, $id)
+    public function update(GovernmentDepartmentRequest $request, GovernmentDepartment $governmentDepartment)
     {
         $inputs = $request->validated();
 
         DB::beginTransaction();
         try {
-            $department = GovernmentDepartment::with('address')->find($id);
-            if (!$department) {
-                return response()->json(['message' => 'Órgão público não encontrado.'], 404);
-            }
-
-            $department = $this->createGovernmentDepartmentService->update($department, $inputs);
+            $department = $this->createGovernmentDepartmentService->update($governmentDepartment, $inputs);
 
             DB::commit();
         } catch (\Exception $e) {
