@@ -38,15 +38,6 @@ const HomeScreen = () => {
 
 
   React.useEffect(() => {
-    const backAction = () => {
-      return true; 
-    };
-
-    const backHandler = BackHandler.addEventListener(
-      'hardwareBackPress',
-      backAction
-    );
-
     getGovernmentDepartments();
 
     if (showSnackbar) {
