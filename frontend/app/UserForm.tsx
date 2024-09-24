@@ -93,9 +93,9 @@ const UserForm = () => {
 
             router.back();
             router.setParams({ showSnackbar: 'true', action: 'create' });
-        } catch (error) {
+        } catch (error: any) {
             console.error('Erro ao enviar a requisição:', error);
-            Alert.alert('Erro', 'Erro ao salvar usuário.');
+            Alert.alert('Erro', error.response.data.message);
         }
 
         offLoading();

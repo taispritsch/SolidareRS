@@ -63,9 +63,9 @@ const LoginScreen = () => {
             }
 
             setLoading(false);
-        } catch (error) {
-            console.error('Erro ao enviar a requisição:', error);
-            Alert.alert('Erro', 'Erro ao fazer login.');
+        } catch (error: any) {
+            console.error('Erro ao enviar a requisição:', error.response.data.message);
+            Alert.alert('Erro', error.response.data.message);
         }
 
         setLoading(false);
