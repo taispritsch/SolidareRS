@@ -53,7 +53,6 @@ const LoginScreen = () => {
 
             await SecureStore.setItemAsync('token', data.token);
 
-
             if (data.user.is_admin) {
                 router.replace({ pathname: '/HomeScreen', params: { userName: data.user.name } });
             } else {

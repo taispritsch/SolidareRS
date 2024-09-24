@@ -18,6 +18,12 @@ const sharedHeaderStyle = {
 const RootLayout = () => {
     return (
         <Stack>
+            <Stack.Screen name="LoginScreen" options={
+                {
+                    headerShown: false
+                }
+            } />
+
             <Stack.Screen name="index" options={
                 {
                     headerShown: false

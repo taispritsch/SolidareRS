@@ -4,7 +4,7 @@ import { styles } from "./styles"
 import { Header } from '@/components/Header';
 import DynamicCard from '@/components/DynamicCard ';
 import { Icon, IconButton, MD3Colors, Snackbar } from 'react-native-paper';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Colors } from '@/constants/Colors';
 import axiosInstance from '@/services/axios';
 
@@ -47,10 +47,34 @@ const HomeScreen = () => {
         setSnackbarMessage('Órgão público editado com sucesso!');
       }
       setVisible(true);
-      getGovernmentDepartments();
     }
 
   }, [showSnackbar, action]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        Alert.alert(
+          'Sair',
+          'Deseja realmente sair?',
+          [
+            {
+              text: 'Cancelar',
+              style: 'cancel'
+            },
+            { text: 'Sair', onPress: () => { BackHandler.exitApp(), router.replace({ pathname: '/LoginScreen' }) } }
+          ]
+        );
+        return true;
+      };
+
+      getGovernmentDepartments();
+
+      BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+      return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+    }, [])
+  );
 
   const router = useRouter();
 
