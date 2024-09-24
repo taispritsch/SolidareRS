@@ -6,13 +6,27 @@ import DynamicCard from '@/components/DynamicCard ';
 import { router, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import axiosInstance from '@/services/axios';
 import * as SecureStore from 'expo-secure-store';
-import { FAB, Portal, Provider } from 'react-native-paper';
+import { FAB, Portal, Provider, Snackbar } from 'react-native-paper';
 
 const WelcomeScreen = () => {
     const [open, setOpen] = useState(false);
     const governmentName = useLocalSearchParams().title;
     const governmentId = useLocalSearchParams().id;
-    const userName = useLocalSearchParams().userName;
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const { userName, showSnackbar, action } = useLocalSearchParams();
+    const [visible, setVisible] = React.useState(false);
+
+    const onDismissSnackBar = () => setVisible(false);
+
+    React.useEffect(() => {
+        if (showSnackbar) {
+            if (action === 'edit') {
+                setSnackbarMessage('Órgão público editado com sucesso!');
+            }
+            setVisible(true);
+        }
+
+    }, [showSnackbar, action]);
 
     useFocusEffect(
         React.useCallback(() => {
@@ -67,7 +81,19 @@ const WelcomeScreen = () => {
                             <DynamicCard title="Usuários" icon="account-multiple" onPress={() => router.push({ pathname: '/UserScreen', params: { title: governmentName, id: governmentId } })} />
                         </View>
                     </ScrollView>
-
+                    <Snackbar
+                        visible={visible}
+                        onDismiss={onDismissSnackBar}
+                        duration={1500}
+                        action={{
+                            label: 'Fechar',
+                            onPress: () => {
+                                onDismissSnackBar();
+                            },
+                        }}
+                    >
+                        {snackbarMessage}
+                    </Snackbar>
                     <Portal>
                         <FAB.Group
                             open={open}
