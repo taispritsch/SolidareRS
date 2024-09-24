@@ -31,7 +31,8 @@ const RootLayout = () => {
             } />
             <Stack.Screen name="HomeScreen" options={
                 {
-                    headerShown: false
+                    headerShown: false,
+                    gestureEnabled: false,
                 }
             } />
 

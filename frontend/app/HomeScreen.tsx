@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert, BackHandler } from 'react-native';
 import { styles } from "./styles"
 import { Header } from '@/components/Header';
 import DynamicCard from '@/components/DynamicCard ';
@@ -38,6 +38,15 @@ const HomeScreen = () => {
 
 
   React.useEffect(() => {
+    const backAction = () => {
+      return true; 
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      'hardwareBackPress',
+      backAction
+    );
+
     getGovernmentDepartments();
 
     if (showSnackbar) {
