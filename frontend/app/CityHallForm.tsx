@@ -44,7 +44,7 @@ const CityHallForm = () => {
 
         } catch (error) {
             console.error('Erro ao buscar os dados:', error);
-            Alert.alert('Erro', 'Falha ao carregar os dados. Tente novamente.');
+            Alert.alert('Erro', 'Erro ao buscar os dados');
         }
     }
 
@@ -171,7 +171,7 @@ const CityHallForm = () => {
                 : 'government-departments';
 
             
-            const response = await axiosInstance({
+            await axiosInstance({
                 method,
                 url,
                 data,
@@ -181,7 +181,7 @@ const CityHallForm = () => {
             router.setParams({ showSnackbar: 'true', action: mode === 'edit' ? 'edit' : 'create' });
         } catch (error : any) {
             console.error('Erro ao enviar a requisição:', error.response.data);
-            Alert.alert('Erro', 'Falha na conexão. Tente novamente mais tarde.');
+            Alert.alert('Erro', error.response.data.message);
         } finally {
             setLoading(false);
         }

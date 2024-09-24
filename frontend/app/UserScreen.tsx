@@ -4,7 +4,7 @@ import { styles } from './styles';
 import DynamicCard from '@/components/DynamicCard ';
 import { Icon, IconButton, Snackbar } from 'react-native-paper';
 import { Colors } from '@/constants/Colors';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import axiosInstance from '@/services/axios';
 
@@ -81,9 +81,13 @@ const UserScreen = ({ title }: UserScreenProps) => {
             setVisible(true);
         }
 
-        getUsers();
-
     }, [showSnackbar, action]);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            getUsers();
+        }, [])
+    );
 
     return (
         <View style={styles.container}>

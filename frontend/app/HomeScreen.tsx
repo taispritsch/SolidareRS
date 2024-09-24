@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Alert } from 'react-native';
+import { View, Text, ScrollView, Alert, BackHandler } from 'react-native';
 import { styles } from "./styles"
 import { Header } from '@/components/Header';
 import DynamicCard from '@/components/DynamicCard ';
-import { FAB, Portal, Icon, Snackbar, Provider } from 'react-native-paper';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { FAB, Icon, Provider, Portal, Snackbar } from 'react-native-paper';
+import { useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import axiosInstance from '@/services/axios';
 import * as SecureStore from 'expo-secure-store';
 
@@ -48,10 +48,34 @@ const HomeScreen = () => {
         setSnackbarMessage('Órgão público editado com sucesso!');
       }
       setVisible(true);
-      getGovernmentDepartments();
     }
 
   }, [showSnackbar, action]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        Alert.alert(
+          'Sair',
+          'Deseja realmente sair?',
+          [
+            {
+              text: 'Cancelar',
+              style: 'cancel'
+            },
+            { text: 'Sair', onPress: () => { BackHandler.exitApp(), router.replace({ pathname: '/LoginScreen' }) } }
+          ]
+        );
+        return true;
+      };
+
+      getGovernmentDepartments();
+
+      BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+      return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+    }, [])
+  );
 
   const router = useRouter();
 

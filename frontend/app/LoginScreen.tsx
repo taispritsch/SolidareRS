@@ -53,19 +53,18 @@ const LoginScreen = () => {
 
             await SecureStore.setItemAsync('token', data.token);
 
-
             if (data.user.is_admin) {
-                router.push({ pathname: '/HomeScreen', params: { userName: data.user.name } });
+                router.replace({ pathname: '/HomeScreen', params: { userName: data.user.name } });
             } else {
                 const governmentDepartment = data.user.government_department_has_users[0].government_department;
 
-                router.push({ pathname: '/WelcomeScreen', params: { title: governmentDepartment.name, id: governmentDepartment.id, userName: data.user.name } });
+                router.replace({ pathname: '/WelcomeScreen', params: { title: governmentDepartment.name, id: governmentDepartment.id, userName: data.user.name } });
             }
 
             setLoading(false);
-        } catch (error) {
-            console.error('Erro ao enviar a requisição:', error);
-            Alert.alert('Erro', 'Erro ao fazer login.');
+        } catch (error: any) {
+            console.error('Erro ao enviar a requisição:', error.response.data.message);
+            Alert.alert('Erro', error.response.data.message);
         }
 
         setLoading(false);
