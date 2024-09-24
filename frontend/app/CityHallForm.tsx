@@ -42,9 +42,9 @@ const CityHallForm = () => {
             setComplemento(response.data.address.complement || '');
             setCity(response.data.address.city.name);
 
-        } catch (error) {
+        } catch (error: any) {
             console.error('Erro ao buscar os dados:', error);
-            Alert.alert('Erro', 'Erro ao buscar os dados');
+            Alert.alert('Erro', error.response.data.message);
         }
     }
 
@@ -146,10 +146,28 @@ const CityHallForm = () => {
         return valid;
     };
 
+    const getCityId = async () => {
+        try {
+            const response = await axiosInstance.get('cities', {
+                params: {
+                    name: city,
+                },
+            });
+
+            return response.data.id;
+
+        } catch (error: any) {
+            console.error('Erro ao buscar a cidade:', error);
+            Alert.alert('Erro', error.response.data.message);
+        }
+    }
+
     const handleSubmit = async () => {
         if (!validateFields()) {
             return;
         }
+
+        const cityId = await getCityId();
 
         const data = {
             name,
@@ -159,7 +177,7 @@ const CityHallForm = () => {
             neighborhood,
             number,
             complement: complemento,
-            city_id: 1,
+            city_id: cityId,
         };
 
         setLoading(true);

@@ -45,7 +45,7 @@ const WelcomeScreen = () => {
             if (response.status === 200) {
                 await SecureStore.deleteItemAsync('token');
                 Alert.alert('Sucesso', 'Logout bem-sucedido');
-                router.push('/LoginScreen');
+                router.replace('/LoginScreen');
             }
         } catch (error) {
             console.error('Erro ao fazer logout:', error);

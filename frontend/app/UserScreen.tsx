@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { View, Text, ScrollView, Alert } from "react-native";
 import { styles } from './styles';
 import DynamicCard from '@/components/DynamicCard ';
-import { Icon, IconButton, Snackbar } from 'react-native-paper';
+import { FAB, Icon, IconButton, Portal, Snackbar } from 'react-native-paper';
 import { Colors } from '@/constants/Colors';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
@@ -32,7 +32,7 @@ const UserScreen = ({ title }: UserScreenProps) => {
             [
                 {
                     text: "Cancelar",
-                    onPress: () => {},
+                    onPress: () => { },
                     style: "cancel"
                 },
                 { text: "Excluir", onPress: () => { deleteUser(id) } }
@@ -75,9 +75,9 @@ const UserScreen = ({ title }: UserScreenProps) => {
         if (showSnackbar) {
             if (action === 'create') {
                 setSnackbarMessage('Usuário criado com sucesso!');
-              } else if (action === 'edit') {
+            } else if (action === 'edit') {
                 setSnackbarMessage('Usuário editado com sucesso!');
-              }
+            }
             setVisible(true);
         }
 
@@ -126,14 +126,13 @@ const UserScreen = ({ title }: UserScreenProps) => {
                     {snackbarMessage}
                 </Snackbar>
 
-                <IconButton
-                    style={styles.addButton}
-                    icon="plus"
-                    iconColor={'#FFFFFF'}
-                    size={40}
-                    onPress={() => router.push({ pathname: '/UserForm', params: { title: governmentName, id: governmentId } })}
-                    mode='contained'
-                    containerColor={Colors.backgroundButton}
+                <FAB
+                    icon='plus'
+                    onPress={() => {
+                        router.push({ pathname: '/UserForm', params: { title: governmentName, id: governmentId } })
+                    }}
+                    color='#FFFFFF'
+                    style={{ backgroundColor: '#133567', ...styles.addButton }}
                 />
             </View>
         </View>

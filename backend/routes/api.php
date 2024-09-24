@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GovernmentDepartmentController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CityController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,10 +32,12 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::delete('{user}', [UserController::class, 'destroy']);
     });
 
-    Route::prefix('government-departments')->middleware('is.admin')->group(function () {
-        Route::get('', [GovernmentDepartmentController::class, 'index']);
+    Route::prefix('government-departments')->group(function () {
+        Route::get('', [GovernmentDepartmentController::class, 'index'])->middleware('is.admin');
         Route::get('{governmentDepartment}', [GovernmentDepartmentController::class, 'show']);
-        Route::post('', [GovernmentDepartmentController::class, 'store']);
+        Route::post('', [GovernmentDepartmentController::class, 'store'])->middleware('is.admin');
         Route::put('{governmentDepartment}', [GovernmentDepartmentController::class, 'update']);
     });
+
+    Route::get('cities', [CityController::class, 'getCityByName']);
 });
