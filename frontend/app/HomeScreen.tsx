@@ -1,17 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, BackHandler } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, ScrollView, Alert } from 'react-native';
 import { styles } from "./styles"
 import { Header } from '@/components/Header';
 import DynamicCard from '@/components/DynamicCard ';
-import { Icon, IconButton, MD3Colors, Snackbar } from 'react-native-paper';
+import { FAB, Portal, Icon, Snackbar, Provider } from 'react-native-paper';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Colors } from '@/constants/Colors';
 import axiosInstance from '@/services/axios';
+import * as SecureStore from 'expo-secure-store';
 
 const HomeScreen = () => {
   const [governmentDepartments, setGovernmentDepartments] = React.useState([]);
   const [visible, setVisible] = React.useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [open, setOpen] = useState(false);
 
   const { userName, showSnackbar, action } = useLocalSearchParams();
 
@@ -63,56 +64,95 @@ const HomeScreen = () => {
     router.push({ pathname: '/WelcomeScreen', params: { title: governmentDepartment.name, id: governmentDepartment.id, userName: userName } });
   };
 
+  const handleLogout = async () => {
+    try {
+      const response = await axiosInstance.post('logout');
+      if (response.status === 200) {
+        await SecureStore.deleteItemAsync('token');
+        Alert.alert('Sucesso', 'Logout bem-sucedido');
+        router.push('/LoginScreen');
+      }
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+      Alert.alert('Erro', 'Falha ao fazer logout.');
+    }
+  };
+
   return (
-    <View style={styles.container}>
-      <Header />
-      <View style={styles.content}>
-        <View style={styles.iconAndTextContainer}>
-          <Icon
-            source="map-outline"
-            color={'#0041A3'}
-            size={30}
-          />
-          <Text style={styles.title}>Órgãos públicos</Text>
-        </View>
-        <ScrollView>
-          <View style={{ padding: 20 }}>
-            {governmentDepartments.map((governmentDepartment: any, index) => (
-              <DynamicCard
-                key={index}
-                title={governmentDepartment.name}
-                hasOptionMenu
-                menuOptions={['editar']}
-                onPress={() => handlePress(governmentDepartment)}
-                onEditPress={() => router.push(`/CityHallForm?id=${governmentDepartment.id}&mode=edit`)}
-              />
-            ))}
+    <Provider>
+      <View style={styles.container}>
+        <Header />
+        <View style={styles.content}>
+          <View style={styles.iconAndTextContainer}>
+            <Icon
+              source="map-outline"
+              color={'#0041A3'}
+              size={30}
+            />
+            <Text style={styles.title}>Órgãos públicos</Text>
           </View>
-        </ScrollView>
-        <Snackbar
-          visible={visible}
-          onDismiss={onDismissSnackBar}
-          duration={1500}
-          action={{
-            label: 'Fechar',
-            onPress: () => {
-              onDismissSnackBar();
-            },
-          }}
-        >
-          {snackbarMessage}
-        </Snackbar>
-        <IconButton
-          style={styles.addButton}
-          icon="plus"
-          iconColor={'#FFFFFF'}
-          size={40}
-          onPress={() => router.push('/CityHallForm')}
-          mode='contained'
-          containerColor={Colors.backgroundButton}
-        />
+          <ScrollView>
+            <View style={{ padding: 20 }}>
+              {governmentDepartments.map((governmentDepartment: any, index) => (
+                <DynamicCard
+                  key={index}
+                  title={governmentDepartment.name}
+                  hasOptionMenu
+                  menuOptions={['editar']}
+                  onPress={() => handlePress(governmentDepartment)}
+                  onEditPress={() => router.push(`/CityHallForm?id=${governmentDepartment.id}&mode=edit`)}
+                />
+              ))}
+            </View>
+          </ScrollView>
+          <Snackbar
+            visible={visible}
+            onDismiss={onDismissSnackBar}
+            duration={1500}
+            action={{
+              label: 'Fechar',
+              onPress: () => {
+                onDismissSnackBar();
+              },
+            }}
+          >
+            {snackbarMessage}
+          </Snackbar>
+          <Portal>
+            <FAB.Group
+              open={open}
+              icon={open ? 'minus' : 'plus'}
+              visible={true}
+              actions={[
+                {
+                  icon: 'plus',
+                  label: 'Adicionar',
+                  onPress: () => router.push('/CityHallForm'),
+                  style: {
+                    backgroundColor: '#0041A3',
+                  },
+                },
+                {
+                  icon: 'logout',
+                  label: 'Sair',
+                  onPress: handleLogout,
+                  style: {
+                    backgroundColor: '#0041A3',
+                  },
+                },
+              ]}
+              onStateChange={({ open }) => setOpen(open)}
+              onPress={() => {
+                if (open) {
+                  setOpen(false);
+                }
+              }}
+              fabStyle={{ backgroundColor: '#133567' }}
+            />
+          </Portal>
+        </View>
       </View>
-    </View>
+    </Provider>
   );
 };
 

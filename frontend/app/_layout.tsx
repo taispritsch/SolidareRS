@@ -24,6 +24,12 @@ const RootLayout = () => {
                 }
             } />
 
+            <Stack.Screen name="LoginScreen" options={
+                {
+                    headerShown: false
+                }
+            } />
+
             <Stack.Screen name="WelcomeScreen" options={
                 {
                     headerShown: false
