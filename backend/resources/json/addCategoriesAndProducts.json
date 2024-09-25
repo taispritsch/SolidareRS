@@ -1,0 +1,485 @@
+[
+    {
+        "Móveis e eletrodomésticos": {
+            "products": [
+                "Fogão",
+                "Cozinha",
+                "Mesa",
+                "Geladeira",
+                "Cadeira",
+                "Sofá",
+                "Máquina de lavar",
+                "Televisão",
+                "Cama",
+                "Roupeiro",
+                "Microondas",
+                "Forno elétrico"
+            ]
+        }
+    },
+    {
+        "Alimentos": {
+            "products": [
+                "Pão",
+                "Carnes",
+                "Ovos",
+                "Leite",
+                "Café",
+                "Açúcar",
+                "Feijão",
+                "Arroz",
+                "Frutas",
+                "Sal",
+                "Óleo",
+                "Legumes",
+                "Verduras",
+                "Achocolatado",
+                "Água",
+                "Farinha de trigo",
+                "Farinha de milho",
+                "Bolachas/Biscoitos",
+                "Queijo",
+                "Presunto"
+            ]
+        }
+    },
+    {
+        "Cama e banho": {
+            "products": [
+                "Lençol",
+                "Travesseiro",
+                "Fronha",
+                "Toalha de banho",
+                "Toalha de rosto",
+                "Cobertor",
+                "Colchão"
+            ]
+        }
+    },
+    {
+        "Material de higiene pessoal": {
+            "products": [
+                "Sabonete",
+                "Shampoo",
+                "Condicionador",
+                "Pasta de dente",
+                "Escova de dente",
+                "Escova de cabelo",
+                "Absorvente",
+                "Fralda geriátrica",
+                "Fralda infantil",
+                "Fio dental",
+                "Cotonete",
+                "Lenço de papel",
+                "Papel higiênico",
+                "Lenço umedecido",
+                "Lâminas de barbear"
+            ]
+        }
+    },
+    {
+        "Roupas e calçados": {
+            "children": {
+                "Adulto Feminino": {
+                    "products": [
+                        {
+                            "calças": [
+                                "34",
+                                "36",
+                                "38",
+                                "40",
+                                "42",
+                                "44",
+                                "46",
+                                "48",
+                                "50",
+                                "52",
+                                "54",
+                                "56"
+                            ]
+                        },
+                        {
+                            "camisetas": [
+                                "PP",
+                                "P",
+                                "M",
+                                "G",
+                                "GG"
+                            ]
+                        },
+                        {
+                            "jaquetas": [
+                                "PP",
+                                "P",
+                                "M",
+                                "G",
+                                "GG"
+                            ]
+                        },
+                        {
+                            "meia": [
+                                "34-36",
+                                "37-39",
+                                "40-42"
+                            ]
+                        },
+                        {
+                            "roupas íntimas": [
+                                "PP",
+                                "P",
+                                "M",
+                                "G",
+                                "GG"
+                            ]
+                        },
+                        {
+                            "vestidos": [
+                                "PP",
+                                "P",
+                                "M",
+                                "G",
+                                "GG"
+                            ]
+                        },
+                        {
+                            "saias": [
+                                "PP",
+                                "P",
+                                "M",
+                                "G",
+                                "GG"
+                            ]
+                        },
+                        {
+                            "calçados": [
+                                "34",
+                                "35",
+                                "36",
+                                "37",
+                                "38",
+                                "39",
+                                "40",
+                                "41",
+                                "42"
+                            ]
+                        }
+                    ]
+                },
+                "Adulto Masculino": {
+                    "products": [
+                        {
+                            "calças": [
+                                "36",
+                                "38",
+                                "40",
+                                "42",
+                                "44",
+                                "46",
+                                "48",
+                                "50",
+                                "52",
+                                "54",
+                                "56"
+                            ]
+                        },
+                        {
+                            "camisetas": [
+                                "PP",
+                                "P",
+                                "M",
+                                "G",
+                                "GG"
+                            ]
+                        },
+                        {
+                            "jaquetas": [
+                                "PP",
+                                "P",
+                                "M",
+                                "G",
+                                "GG"
+                            ]
+                        },
+                        {
+                            "meia": [
+                                "34-36",
+                                "37-39",
+                                "40-42"
+                            ]
+                        },
+                        {
+                            "roupas íntimas": [
+                                "PP",
+                                "P",
+                                "M",
+                                "G",
+                                "GG"
+                            ]
+                        },
+                        {
+                            "calçados": [
+                                "37",
+                                "38",
+                                "39",
+                                "40",
+                                "41",
+                                "42",
+                                "43",
+                                "44",
+                                "45"
+                            ]
+                        }
+                    ]
+                },
+                "Infantil Feminino": {
+                    "products": [
+                        {
+                            "calças": [
+                                "2",
+                                "4",
+                                "6",
+                                "8",
+                                "10",
+                                "12",
+                                "14",
+                                "16"
+                            ]
+                        },
+                        {
+                            "camisetas": [
+                                "2",
+                                "4",
+                                "6",
+                                "8",
+                                "10",
+                                "12",
+                                "14",
+                                "16"
+                            ]
+                        },
+                        {
+                            "jaquetas": [
+                                "2",
+                                "4",
+                                "6",
+                                "8",
+                                "10",
+                                "12",
+                                "14",
+                                "16"
+                            ]
+                        },
+                        {
+                            "meia": [
+                                "22-24",
+                                "25-27",
+                                "28-30",
+                                "31-33",
+                                "34-36"
+                            ]
+                        },
+                        {
+                            "roupas íntimas": [
+                                "2",
+                                "4",
+                                "6",
+                                "8",
+                                "10",
+                                "12",
+                                "14",
+                                "16"
+                            ]
+                        },
+                        {
+                            "calçados": [
+                                "22",
+                                "23",
+                                "24",
+                                "25",
+                                "26",
+                                "27",
+                                "28",
+                                "29",
+                                "30",
+                                "31",
+                                "32",
+                                "33",
+                                "34",
+                                "35"
+                            ]
+                        },
+                        {
+                            "vestidos": [
+                                "2",
+                                "4",
+                                "6",
+                                "8",
+                                "10",
+                                "12",
+                                "14",
+                                "16"
+                            ]
+                        },
+                        {
+                            "saias": [
+                                "2",
+                                "4",
+                                "6",
+                                "8",
+                                "10",
+                                "12",
+                                "14",
+                                "16"
+                            ]
+                        }
+                    ]
+                },
+                "Infantil Masculino": {
+                    "products": [
+                        {
+                            "calças": [
+                                "2",
+                                "4",
+                                "6",
+                                "8",
+                                "10",
+                                "12",
+                                "14",
+                                "16"
+                            ]
+                        },
+                        {
+                            "camisetas": [
+                                "2",
+                                "4",
+                                "6",
+                                "8",
+                                "10",
+                                "12",
+                                "14",
+                                "16"
+                            ]
+                        },
+                        {
+                            "jaquetas": [
+                                "2",
+                                "4",
+                                "6",
+                                "8",
+                                "10",
+                                "12",
+                                "14",
+                                "16"
+                            ]
+                        },
+                        {
+                            "meia": [
+                                "22-24",
+                                "25-27",
+                                "28-30",
+                                "31-33",
+                                "34-36"
+                            ]
+                        },
+                        {
+                            "roupas íntimas": [
+                                "2",
+                                "4",
+                                "6",
+                                "8",
+                                "10",
+                                "12",
+                                "14",
+                                "16"
+                            ]
+                        },
+                        {
+                            "calçados": [
+                                "22",
+                                "23",
+                                "24",
+                                "25",
+                                "26",
+                                "27",
+                                "28",
+                                "29",
+                                "30",
+                                "31",
+                                "32",
+                                "33",
+                                "34",
+                                "35"
+                            ]
+                        }
+                    ]
+                },
+                "Bebê": {
+                    "products": [
+                        {
+                            "calças": [
+                                "RN",
+                                "P",
+                                "M",
+                                "G",
+                                "GG"
+                            ]
+                        },
+                        {
+                            "camisetas": [
+                                "RN",
+                                "P",
+                                "M",
+                                "G",
+                                "GG"
+                            ]
+                        },
+                        {
+                            "jaquetas": [
+                                "RN",
+                                "P",
+                                "M",
+                                "G",
+                                "GG"
+                            ]
+                        },
+                        {
+                            "meia": [
+                                "RN",
+                                "P",
+                                "M",
+                                "G",
+                                "GG"
+                            ]
+                        },
+                        {
+                            "roupas íntimas": [
+                                "RN",
+                                "P",
+                                "M",
+                                "G",
+                                "GG"
+                            ]
+                        },
+                        {
+                            "calçados": [
+                                "RN",
+                                "P",
+                                "M",
+                                "G",
+                                "GG"
+                            ]
+                        },
+                        {
+                            "tiptop": [
+                                "RN",
+                                "P",
+                                "M",
+                                "G"
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
+    }
+]
