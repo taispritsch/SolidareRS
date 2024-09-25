@@ -147,6 +147,7 @@ const HomeScreen = () => {
               open={open}
               icon={open ? 'minus' : 'plus'}
               visible={true}
+              color='#FFFFFF'
               actions={[
                 {
                   icon: 'plus',

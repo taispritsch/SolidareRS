@@ -125,7 +125,7 @@ const UserForm = () => {
     return (
         <View style={styles.container}>
             <View style={styles.content}>
-                <Text style={style.title}>Novo usuário</Text>
+                <Text style={style.title}>{userId ? 'Editando' : 'Novo'} usuário</Text>
                 <ScrollView>
                     <View style={style.form}>
                         <TextInput

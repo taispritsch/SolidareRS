@@ -99,6 +99,7 @@ const WelcomeScreen = () => {
                             open={open}
                             icon={open ? 'minus' : 'plus'}
                             visible={true}
+                            color='#FFFFFF'
                             actions={[
                                 {
                                     icon: 'pencil',
