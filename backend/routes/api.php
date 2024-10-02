@@ -6,6 +6,7 @@ use App\Http\Controllers\GovernmentDepartmentController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CityController;
+use App\Http\Controllers\DonationPlaceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,6 +38,14 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('{governmentDepartment}', [GovernmentDepartmentController::class, 'show']);
         Route::post('', [GovernmentDepartmentController::class, 'store'])->middleware('is.admin');
         Route::put('{governmentDepartment}', [GovernmentDepartmentController::class, 'update']);
+    });
+
+    Route::prefix('donation-places')->group(function () {
+        Route::get('{governmentDepartment}/government-department', [DonationPlaceController::class, 'getAllPlacesByGovernmentDepartment']);
+        Route::get('{donationPlace}', [DonationPlaceController::class, 'show']);
+        Route::post('', [DonationPlaceController::class, 'store']);
+        Route::put('{donationPlace}', [DonationPlaceController::class, 'update']);
+        Route::delete('{donationPlace}', [DonationPlaceController::class, 'destroy']);
     });
 
     Route::get('cities', [CityController::class, 'getCityByName']);

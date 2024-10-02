@@ -77,8 +77,16 @@ const WelcomeScreen = () => {
                     </View>
                     <ScrollView>
                         <View style={{ padding: 20 }}>
-                            <DynamicCard title="Locais" icon="map-outline" onPress={() => console.log('Locais')} />
-                            <DynamicCard title="Usuários" icon="account-multiple" onPress={() => router.push({ pathname: '/UserScreen', params: { title: governmentName, id: governmentId } })} />
+                            <DynamicCard
+                                title="Locais"
+                                icon="map-outline"
+                                onPress={() => router.push({ pathname: '/PlaceScreen', params: { title: governmentName, id: governmentId } })}
+                            />
+                            <DynamicCard
+                                title="Usuários"
+                                icon="account-multiple"
+                                onPress={() => router.push({ pathname: '/UserScreen', params: { title: governmentName, id: governmentId } })}
+                            />
                         </View>
                     </ScrollView>
                     <Snackbar

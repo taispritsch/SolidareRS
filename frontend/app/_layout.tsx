@@ -75,6 +75,27 @@ const RootLayout = () => {
                     headerShown: false
                 }
             } />
+
+            <Stack.Screen name="PlaceScreen" options={({ route }) => ({
+                ...sharedHeaderStyle,
+                headerTitle: route.params.title,
+                headerBackTitleVisible: false,
+            })}
+            />
+
+            <Stack.Screen name="PlaceForm" options={({ route }) => ({
+                ...sharedHeaderStyle,
+                headerTitle: route.params.title,
+                headerBackTitleVisible: false,
+            })}
+            />
+
+            <Stack.Screen name="PlaceOptionsScreen" options={({ route }) => ({
+                ...sharedHeaderStyle,
+                headerTitle: route.params.title,
+                headerBackTitleVisible: false,
+            })}
+            />
         </Stack>
     );
 };
