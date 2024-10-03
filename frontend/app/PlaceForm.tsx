@@ -20,6 +20,7 @@ const PlaceForm = () => {
     const [complement, setComplement] = useState('');
     const [acceptsDonations, setAcceptsDonations] = useState(true);
     const [acceptsVolunteers, setAcceptsVolunteers] = useState(true);
+    const [phone, setPhone] = useState('');
 
     const onToggleSwitchDonations = () => setAcceptsDonations(!acceptsDonations);
     const onToggleSwitchVolunteers = () => setAcceptsVolunteers(!acceptsVolunteers);
@@ -30,13 +31,12 @@ const PlaceForm = () => {
     const [streetError, setStreetError] = useState(false);
     const [neighborhoodError, setNeighborhoodError] = useState(false);
     const [numberError, setNumberError] = useState(false);
+    const [phoneError, setPhoneError] = useState(false);
     const [loading, setLoading] = useState(false);
 
     async function getDonationPlaces() {
         try {
             const response = await axiosInstance.get(`donation-places/${id}`);
-
-            console.log(response.data);
 
             setDescription(response.data.description);
             setZipCode(response.data.address.zip_code || '');
@@ -45,8 +45,15 @@ const PlaceForm = () => {
             setNumber(response.data.address.number || '');
             setComplement(response.data.address.complement || '');
             setCity(response.data.address.city.name);
-            setAcceptsDonations(response.data.accepts_donations);
-            setAcceptsVolunteers(response.data.accepts_volunteers);
+            setPhone(response.data.phone);
+
+            if (!response.data.accept_donation) {
+                setAcceptsDonations(false);
+            }
+
+            if (!response.data.accept_volunteers) {
+                setAcceptsVolunteers(false);
+            }
 
         } catch (error: any) {
             console.error('Erro ao buscar os dados:', error);
@@ -59,6 +66,21 @@ const PlaceForm = () => {
             getDonationPlaces();
         }
     }, []);
+
+    const formatPhoneNumber = (text: string) => {
+        const cleaned = text.replace(/\D/g, '');
+
+        // formatação (DDD) XXXXX-XXXX
+        if (cleaned.length <= 2) {
+            return `(${cleaned}`;
+        } else if (cleaned.length <= 6) {
+            return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2)}`;
+        } else if (cleaned.length <= 10) {
+            return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 6)}-${cleaned.slice(6, 10)}`;
+        } else {
+            return `(${cleaned.slice(0, 2)}) ${cleaned.slice(2, 7)}-${cleaned.slice(7, 11)}`;
+        }
+    };
 
     const handleCepChange = async (text: string) => {
         const formattedText = text.replace(/\D/g, '').slice(0, 8);
@@ -126,6 +148,13 @@ const PlaceForm = () => {
             setNumberError(false);
         }
 
+        if (phone === '') {
+            setPhoneError(true);
+            valid = false;
+        } else {
+            setPhoneError(false);
+        }
+
         return valid;
     };
 
@@ -162,7 +191,8 @@ const PlaceForm = () => {
             city_id: cityId,
             accept_donation: acceptsDonations,
             accept_volunteers: acceptsVolunteers,
-            government_department_id: governmentDepartmentId
+            government_department_id: governmentDepartmentId,
+            phone
         };
 
         setLoading(true);
@@ -208,6 +238,17 @@ const PlaceForm = () => {
                             selectionColor={Colors.backgroundButton}
                             activeOutlineColor={Colors.backgroundButton}
                             error={descriptionError}
+                        />
+                        <TextInput
+                            mode="outlined"
+                            label="Celular*"
+                            placeholder="Celular"
+                            value={phone}
+                            keyboardType="numeric"
+                            onChangeText={text => setPhone(formatPhoneNumber(text))}
+                            style={style.textInput}
+                            activeOutlineColor={Colors.backgroundButton}
+                            error={phoneError}
                         />
                         <TextInput
                             mode="outlined"

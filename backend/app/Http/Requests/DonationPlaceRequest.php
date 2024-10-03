@@ -14,6 +14,7 @@ class DonationPlaceRequest extends FormRequest
     public function rules()
     {
         return [
+            'phone' => 'required|string',
             'description' => 'required|string',
             'accept_donation' => 'required|boolean',
             'accept_volunteers' => 'required|boolean',

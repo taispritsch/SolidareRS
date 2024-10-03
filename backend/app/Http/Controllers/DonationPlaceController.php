@@ -6,20 +6,23 @@ use App\Http\Requests\DonationPlaceRequest;
 use App\Models\DonationPlace;
 use App\Models\GovernmentDepartment;
 use App\Services\CreateDonationPlaceService;
+use App\Services\UpdateDonationPlaceService;
 
 class DonationPlaceController extends Controller
 {
-    public function __construct(private CreateDonationPlaceService $createDonationPlaceService) {}
+    public function __construct(
+        private CreateDonationPlaceService $createDonationPlaceService,
+        private UpdateDonationPlaceService $updateDonationPlaceService
+    ) {}
 
     public function getAllPlacesByGovernmentDepartment(GovernmentDepartment $governmentDepartment)
     {
-        logger($governmentDepartment);
         return DonationPlace::where('government_department_id', $governmentDepartment->id)->get();
     }
 
     public function show(DonationPlace $donationPlace)
     {
-        return $donationPlace->load('address');
+        return $donationPlace->load('address.city');
     }
 
     public function store(DonationPlaceRequest $request)
@@ -35,10 +38,17 @@ class DonationPlaceController extends Controller
         return response()->json($donationPlace, 201);
     }
 
-    public function update(DonationPlace $donationPlace)
+    public function update(DonationPlace $donationPlace, DonationPlaceRequest $request)
     {
-        //$donationPlace->update(request()->all());
-        //return $donationPlace;
+        $inputs = $request->validated();
+
+        try {
+            $donationPlace = $this->updateDonationPlaceService->handle($donationPlace, $inputs);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+
+        return response()->json($donationPlace, 200);
     }
 
     public function destroy(DonationPlace $donationPlace)
