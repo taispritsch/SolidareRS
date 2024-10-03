@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class DonationPlace extends Model
 {
     protected $fillable = [
+        'phone',
         'description',
         'accept_donation',
         'accept_volunteers',

@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('donation_places', function (Blueprint $table) {
             $table->id();
             $table->text('description');
+            $table->string('phone')->nullable();
             $table->boolean('accept_donation');
             $table->boolean('accept_volunteers');
             $table->unsignedBigInteger('government_department_id');
