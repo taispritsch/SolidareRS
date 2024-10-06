@@ -13,9 +13,8 @@ return new class extends Migration
     {
         Schema::create('business_hours', function (Blueprint $table) {
             $table->id();
-            $table->unsignedTinyInteger('day_of_week');
-            $table->time('open_time');
-            $table->time('close_time');
+            $table->string('day_of_week');
+            $table->json('hours');
             $table->string('type');
             $table->unsignedBigInteger('donation_place_id');
             $table->foreign('donation_place_id')->references('id')->on('donation_places');

@@ -38,7 +38,7 @@ const PlaceOptionsScreen = () => {
                             <DynamicCard
                                 title="Horários"
                                 icon="clock-time-three-outline"
-                                onPress={() => console.log('Press')}
+                                onPress={() => router.push({ pathname: '/BusinessHourScreen', params: { title: placeName, donationPlaceId: placeId } })}
                             />
                             <DynamicCard
                                 title="Itens"

@@ -43,7 +43,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::prefix('donation-places')->group(function () {
         Route::get('{governmentDepartment}/government-department', [DonationPlaceController::class, 'getAllPlacesByGovernmentDepartment']);
         Route::get('{donationPlace}', [DonationPlaceController::class, 'show']);
+        Route::get('{donationPlace}/business-hours', [DonationPlaceController::class, 'getBusinessHours']);
         Route::post('', [DonationPlaceController::class, 'store']);
+        Route::put('{donationPlace}/business-hours', [DonationPlaceController::class, 'updateBusinessHours']);
         Route::put('{donationPlace}', [DonationPlaceController::class, 'update']);
         Route::delete('{donationPlace}', [DonationPlaceController::class, 'destroy']);
     });

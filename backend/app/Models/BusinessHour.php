@@ -14,10 +14,19 @@ class BusinessHour extends Model
         self::VOLUNTEER_TYPE
     ];
 
+    public const DAYS_OF_WEEK = [
+        'Segunda-feira',
+        'Terça-feira',
+        'Quarta-feira',
+        'Quinta-feira',
+        'Sexta-feira',
+        'Sábado',
+        'Domingo'
+    ];
+
     protected $fillable = [
         'day_of_week',
-        'open_time',
-        'close_time',
+        'hours',
         'type',
         'donation_place_id'
     ];

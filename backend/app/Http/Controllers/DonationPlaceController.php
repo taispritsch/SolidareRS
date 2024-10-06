@@ -2,17 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\BusinessHourRequest;
 use App\Http\Requests\DonationPlaceRequest;
+use App\Models\BusinessHour;
 use App\Models\DonationPlace;
 use App\Models\GovernmentDepartment;
+use App\Services\CreateDefaultBusinessHoursService;
 use App\Services\CreateDonationPlaceService;
+use App\Services\CreateNewBusinessHoursService;
 use App\Services\UpdateDonationPlaceService;
+use Illuminate\Support\Facades\DB;
 
 class DonationPlaceController extends Controller
 {
     public function __construct(
         private CreateDonationPlaceService $createDonationPlaceService,
-        private UpdateDonationPlaceService $updateDonationPlaceService
+        private UpdateDonationPlaceService $updateDonationPlaceService,
+        private CreateDefaultBusinessHoursService $createDefaultBusinessHoursService,
+        private CreateNewBusinessHoursService $createNewBusinessHoursService
     ) {}
 
     public function getAllPlacesByGovernmentDepartment(GovernmentDepartment $governmentDepartment)
@@ -25,13 +32,43 @@ class DonationPlaceController extends Controller
         return $donationPlace->load('address.city');
     }
 
+    public function getBusinessHours(DonationPlace $donationPlace)
+    {
+        $donation = $donationPlace->businessHours()->where('type', BusinessHour::DONATION_TYPE)->get();
+
+        if ($donation) {
+            $donation->each(function ($item) {
+                $item->hours = json_decode($item->hours);
+            });
+        }
+
+        $volunteer = $donationPlace->businessHours()->where('type', BusinessHour::VOLUNTEER_TYPE)->get();
+
+        if ($volunteer) {
+            $volunteer->each(function ($item) {
+                $item->hours = json_decode($item->hours);
+            });
+        }
+
+        return response()->json([
+            'donation' => $donation,
+            'volunteer' => $volunteer
+        ]);
+    }
+
     public function store(DonationPlaceRequest $request)
     {
         $inputs = $request->validated();
 
+        DB::beginTransaction();
         try {
             $donationPlace = $this->createDonationPlaceService->handle($inputs);
+
+            $this->createDefaultBusinessHoursService->handle($donationPlace);
+
+            DB::commit();
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json(['message' => $e->getMessage()], 500);
         }
 
@@ -42,20 +79,49 @@ class DonationPlaceController extends Controller
     {
         $inputs = $request->validated();
 
+        DB::beginTransaction();
         try {
             $donationPlace = $this->updateDonationPlaceService->handle($donationPlace, $inputs);
+
+            DB::commit();
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json(['message' => $e->getMessage()], 500);
         }
 
         return response()->json($donationPlace, 200);
     }
 
+    public function updateBusinessHours(DonationPlace $donationPlace, BusinessHourRequest $request)
+    {
+        $inputs = $request->validated();
+
+        DB::beginTransaction();
+        try {
+            $donationPlace->businessHours()->delete();
+
+            $this->createNewBusinessHoursService->handle($donationPlace, $inputs);
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+
+        return response()->json(['message' => 'Horários de funcionamento atualizados com sucesso'], 200);
+    }
+
     public function destroy(DonationPlace $donationPlace)
     {
+        DB::beginTransaction();
         try {
+            $donationPlace->businessHours()->delete();
             $donationPlace->delete();
+
+            DB::commit();
         } catch (\Exception $e) {
+            DB::rollBack();
+
             return response()->json(['message' => $e->getMessage()], 500);
         }
 

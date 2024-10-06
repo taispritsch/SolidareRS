@@ -24,4 +24,9 @@ class DonationPlace extends Model
     {
         return $this->belongsTo(GovernmentDepartment::class);
     }
+
+    public function businessHours()
+    {
+        return $this->hasMany(BusinessHour::class);
+    }
 }

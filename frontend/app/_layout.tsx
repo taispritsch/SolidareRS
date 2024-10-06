@@ -96,6 +96,13 @@ const RootLayout = () => {
                 headerBackTitleVisible: false,
             })}
             />
+
+            <Stack.Screen name="BusinessHourScreen" options={({ route }) => ({
+                ...sharedHeaderStyle,
+                headerTitle: route.params.title,
+                headerBackTitleVisible: false,
+            })}
+            />
         </Stack>
     );
 };
