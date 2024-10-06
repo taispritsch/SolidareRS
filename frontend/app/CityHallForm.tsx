@@ -31,8 +31,6 @@ const CityHallForm = () => {
         try {
             const response = await axiosInstance.get(`government-departments/${id}`);
 
-            console.log(response.data);
-
             setName(response.data.name);
             setPhone(response.data.phone || '');
             setCep(response.data.address.zip_code || '');
