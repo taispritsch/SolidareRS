@@ -5,7 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GovernmentDepartmentController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CityController;
+use App\Http\Controllers\DonationController;
 use App\Http\Controllers\DonationPlaceController;
 
 /*
@@ -51,4 +53,16 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     });
 
     Route::get('cities', [CityController::class, 'getCityByName']);
+
+    Route::prefix('categories')->group(function () {
+        Route::get('', [CategoryController::class, 'index']);
+        Route::get('{category}/products/{donationPlace}', [CategoryController::class, 'getProductsByCategory']);
+    });
+
+    Route::prefix('donations')->group(function () {
+        Route::post('', [DonationController::class, 'store']);
+        Route::get('{donationPlace}/categories', [DonationController::class, 'getCategoriesByDonationPlace']);
+        Route::get('{donationPlace}/category/{category}/products', [DonationController::class, 'getProductsByCategoryByDonationPlace']);
+        Route::delete('{donation}', [DonationController::class, 'destroy']);
+    });
 });

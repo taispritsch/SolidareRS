@@ -1,15 +1,11 @@
-import { Header } from '@/components/Header';
 import React, { useState } from 'react';
-import { View, Text, ScrollView, BackHandler, Alert } from "react-native";
+import { View, Text, ScrollView } from "react-native";
 import { styles } from './styles';
 import DynamicCard from '@/components/DynamicCard ';
-import { router, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
-import axiosInstance from '@/services/axios';
-import * as SecureStore from 'expo-secure-store';
-import { FAB, Portal, Provider, Snackbar } from 'react-native-paper';
+import { router, useLocalSearchParams } from 'expo-router';
+import { Provider, Snackbar } from 'react-native-paper';
 
 const PlaceOptionsScreen = () => {
-    const governmentName = useLocalSearchParams().title;
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const { placeName, showSnackbar, action, placeId } = useLocalSearchParams();
     const [visible, setVisible] = React.useState(false);
@@ -43,7 +39,7 @@ const PlaceOptionsScreen = () => {
                             <DynamicCard
                                 title="Itens"
                                 icon="archive-outline"
-                                onPress={() => console.log('Press')}
+                                onPress={() => router.push({ pathname: '/DonationScreen', params: { title: placeName, donationPlaceId: placeId, placeName: placeName } })}
                             />
                             <DynamicCard
                                 title="Itens urgentes"

@@ -4,12 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Variation extends Model
+class Donation extends Model
 {
     protected $fillable = [
-        'description',
-        'characteristic_id',
         'product_id',
+        'donation_place_id',
+        'urgent'
     ];
 
     public function product()
@@ -17,9 +17,9 @@ class Variation extends Model
         return $this->belongsTo(Product::class);
     }
 
-    public function characteristic()
+    public function donationPlace()
     {
-        return $this->belongsTo(Characteristic::class);
+        return $this->belongsTo(DonationPlace::class);
     }
 
     public function donationItems()

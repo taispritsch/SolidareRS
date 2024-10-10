@@ -103,6 +103,34 @@ const RootLayout = () => {
                 headerBackTitleVisible: false,
             })}
             />
+
+            <Stack.Screen name="DonationScreen" options={({ route }) => ({
+                ...sharedHeaderStyle,
+                headerTitle: route.params.title,
+                headerBackTitleVisible: false,
+            })}
+            />
+
+            <Stack.Screen name="DonationCategoryForm" options={({ route }) => ({
+                ...sharedHeaderStyle,
+                headerTitle: route.params.title,
+                headerBackTitleVisible: false,
+            })}
+            />
+
+            <Stack.Screen name="DonationForm" options={({ route }) => ({
+                ...sharedHeaderStyle,
+                headerTitle: route.params.title,
+                headerBackTitleVisible: false,
+            })}
+            />
+
+            <Stack.Screen name="DonationProductScreen" options={({ route }) => ({
+                ...sharedHeaderStyle,
+                headerTitle: route.params.title,
+                headerBackTitleVisible: false,
+            })}
+            />
         </Stack>
     );
 };

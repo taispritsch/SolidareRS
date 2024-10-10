@@ -29,4 +29,9 @@ class DonationPlace extends Model
     {
         return $this->hasMany(BusinessHour::class);
     }
+
+    public function donations()
+    {
+        return $this->hasMany(Donation::class);
+    }
 }

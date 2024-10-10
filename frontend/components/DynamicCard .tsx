@@ -49,7 +49,7 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
       <Card style={styles.card} onPress={onPress} >
         <View style={styles.cardContent}>
           <View style={styles.cardContentTitle}>
-            {icon && <Icon source={icon} color={'#0041A3'} size={30} />}
+            {icon && <Icon source={icon} color={'#000E19'} size={30} />}
             <View style={{ flexDirection: 'column' }}>
               <Text style={[styles.title, icon ? { marginLeft: 10 } : {}]}>{title}</Text>
               {description && <Text style={styles.description}>{description}</Text>}
@@ -112,17 +112,19 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     alignContent: 'center',
-    height: '100%'
+    height: '100%',
   },
   cardContentTitle: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: 20
+    marginLeft: 20,
+    flex: 1,
   },
   title: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#000',
+    flexWrap: 'wrap',
   },
   description: {
     fontSize: 12,

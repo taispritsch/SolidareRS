@@ -18,6 +18,25 @@
         }
     },
     {
+        "Material de limpeza": {
+            "products": [
+                "Água sanitária",
+                "Rodo",
+                "Vassoura",
+                "Sabão",
+                "Balde",
+                "Luva",
+                "Detergente",
+                "Desinfetante",
+                "Álcool",
+                "Esponja",
+                "Amaciante",
+                "Sabão para roupas",
+                "Sacos de lixo"
+            ]
+        }
+    },
+    {
         "Alimentos": {
             "products": [
                 "Pão",

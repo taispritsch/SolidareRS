@@ -19,4 +19,9 @@ class Product extends Model
     {
         return $this->hasMany(Variation::class);
     }
+
+    public function donations()
+    {
+        return $this->hasMany(Donation::class);
+    }
 }

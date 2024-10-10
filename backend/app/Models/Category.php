@@ -23,6 +23,6 @@ class Category extends Model
 
     public function productHasCategories()
     {
-        return $this->belongsToMany(ProductHasCategory::class, 'product_has_categories');
+        return $this->hasMany(ProductHasCategory::class);
     }
 }

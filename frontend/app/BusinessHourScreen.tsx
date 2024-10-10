@@ -64,7 +64,6 @@ const PlaceForm = () => {
 
     useEffect((): void => {
         getBusinessHours();
-
     }, []);
 
 
