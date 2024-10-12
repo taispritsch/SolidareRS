@@ -22,7 +22,7 @@ const DonationScreen = () => {
         getCategories();
 
         if (showSnackbar) {
-                setSnackbarMessage('Lista de doações atualizada com sucesso!');
+            setSnackbarMessage('Lista de doações atualizada com sucesso!');
             setVisible(true);
         }
 
@@ -42,7 +42,7 @@ const DonationScreen = () => {
         if (category.description !== 'Roupas e calçados') {
             router.push({ pathname: '/DonationProductScreen', params: { ...category, donationPlaceId: donationPlaceId, title: placeName, placeName: placeName } });
         } else {
-            console.log('Roupas e calçados');
+            
         }
     }
 
@@ -57,6 +57,7 @@ const DonationScreen = () => {
                         <View style={{ padding: 20 }}>
                             {donationListCategories.map((donationListCategory, index) => (
                                 <DynamicCard
+                                    key={index}
                                     title={donationListCategory.description}
                                     icon={CategoriesIcons[donationListCategory.description]}
                                     onPress={() => nextStep(donationListCategory)}
@@ -82,7 +83,7 @@ const DonationScreen = () => {
                     <FAB
                         icon='plus'
                         onPress={() => {
-                            router.push({ pathname: '/DonationCategoryForm', params: { title: placeName, donationPlaceId: donationPlaceId } });
+                            router.push({ pathname: '/DonationCategoryForm', params: { title: placeName, donationPlaceId: donationPlaceId, placeName: placeName } });
                         }}
                         color='#FFFFFF'
                         style={{ backgroundColor: '#133567', ...styles.addButton }}

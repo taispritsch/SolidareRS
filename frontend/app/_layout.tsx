@@ -131,6 +131,13 @@ const RootLayout = () => {
                 headerBackTitleVisible: false,
             })}
             />
+
+            <Stack.Screen name="DonationClothesForm" options={({ route }) => ({
+                ...sharedHeaderStyle,
+                headerTitle: route.params.title,
+                headerBackTitleVisible: false,
+            })}
+            />
         </Stack>
     );
 };

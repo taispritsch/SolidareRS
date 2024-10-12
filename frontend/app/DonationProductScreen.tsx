@@ -69,6 +69,7 @@ const DonationProductScreen = () => {
                         <View style={{ padding: 20 }}>
                             {donationProducts.map((donationListCategory: { donation_id: number; description: string }, index) => (
                                 <DynamicCard
+                                    key={index}
                                     title={donationListCategory.description}
                                     hasOptionMenu
                                     menuOptions={['excluir']}

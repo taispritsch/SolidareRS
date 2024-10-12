@@ -9,6 +9,8 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\DonationController;
 use App\Http\Controllers\DonationPlaceController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\VariationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -57,12 +59,18 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::prefix('categories')->group(function () {
         Route::get('', [CategoryController::class, 'index']);
         Route::get('{category}/products/{donationPlace}', [CategoryController::class, 'getProductsByCategory']);
+        Route::get('{category}/subcategories', [CategoryController::class, 'getSubcategories']);
     });
 
     Route::prefix('donations')->group(function () {
         Route::post('', [DonationController::class, 'store']);
+        Route::post('/clothes', [DonationController::class, 'saveClothesDonation']);
         Route::get('{donationPlace}/categories', [DonationController::class, 'getCategoriesByDonationPlace']);
         Route::get('{donationPlace}/category/{category}/products', [DonationController::class, 'getProductsByCategoryByDonationPlace']);
         Route::delete('{donation}', [DonationController::class, 'destroy']);
+    });
+
+    Route::prefix('products')->group(function () {
+        Route::get('variations', [ProductController::class, 'getVariationsByProduct']);
     });
 });

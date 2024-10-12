@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DonationClothesRequest;
 use App\Http\Requests\DonationRequest;
 use App\Models\Category;
 use App\Models\Donation;
+use App\Models\DonationItem;
 use App\Models\DonationPlace;
+use App\Models\Variation;
 use Illuminate\Support\Facades\DB;
 
 class DonationController extends Controller
@@ -71,4 +74,40 @@ class DonationController extends Controller
 
         return response()->json(null, 204);
     }
+
+    public function saveClothesDonation(DonationClothesRequest $request)
+    {
+        $inputs = $request->validated();
+
+        logger($inputs);
+
+        try {
+            foreach ($inputs['variations'] as $variation) {
+                $donation = Donation::create([
+                    'donation_place_id' => $inputs['donation_place_id'],
+                    'product_id' => $variation['product_id'],
+                    'urgente' => false
+                ]);
+
+                
+                foreach ($variation['variations'] as $size) {
+                    $variation = Variation::find($size);
+                    
+                    DonationItem::create([
+                        'donation_id' => $donation->id,
+                        'variation_id' => $variation->id,
+                        'urgent' => false
+                    ]);
+                }
+            }
+            
+            
+        } catch (\Exception $e) {
+            logger($e->getMessage());
+            return response()->json(['message' => 'Error on create donation'], 500);
+        }
+
+        return response()->json(201);
+    }
+
 }

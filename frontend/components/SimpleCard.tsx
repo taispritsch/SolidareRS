@@ -5,12 +5,14 @@ import { Card, DefaultTheme, Icon, IconButton, Menu, PaperProvider, Provider } f
 interface SimpleCardProps {
     title: string;
     selected: boolean;
+    isSmall?: boolean;
     onPress: () => void;
 }
 
 const SimpleCard: React.FC<SimpleCardProps> = ({
     title,
     selected,
+    isSmall,
     onPress,
 }) => {
 
@@ -36,8 +38,13 @@ const SimpleCard: React.FC<SimpleCardProps> = ({
                 roundness: 8,
             }}
         >
-            <Card style={[styles.card, selected ? { borderColor: '#0041A3', borderWidth: 2 } : {}]} onPress={onPress} >
-                <View style={styles.cardContent}>
+            <Card style={[styles.card,
+            selected ? { borderColor: '#0041A3', borderWidth: 2 } : {}
+            ]}
+                onPress={onPress} >
+                <View style={[styles.cardContent,
+                isSmall ? { alignSelf: 'center' } : {}
+                ]}>
                     <Text style={[styles.title]}>{title}</Text>
                 </View>
             </Card >

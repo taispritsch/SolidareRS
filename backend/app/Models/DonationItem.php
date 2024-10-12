@@ -8,7 +8,7 @@ class DonationItem extends Model
 {
     protected $fillable = [
         'donation_id',
-        'variantion_id',
+        'variation_id',
         'urgent'
     ];
 

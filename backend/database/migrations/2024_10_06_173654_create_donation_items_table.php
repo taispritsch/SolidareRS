@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('donation_id');
             $table->foreign('donation_id')->references('id')->on('donations');
-            $table->unsignedBigInteger('variantion_id');
-            $table->foreign('variantion_id')->references('id')->on('variations');
+            $table->unsignedBigInteger('variation_id');
+            $table->foreign('variation_id')->references('id')->on('variations');
             $table->boolean('urgent')->default(false);
             $table->timestamps();
         });
