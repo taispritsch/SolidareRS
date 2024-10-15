@@ -16,6 +16,8 @@ class DonationRequest extends FormRequest
         return [
             'donation_place_id' => 'required|integer|exists:donation_places,id',
             'products' => 'required|array',
+            'products.*.id' => 'required|integer|exists:products,id', 
+            'products.*.urgent' => 'required|boolean', 
         ];
     }
 }

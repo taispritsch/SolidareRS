@@ -118,7 +118,21 @@ const RootLayout = () => {
             })}
             />
 
-            <Stack.Screen name="DonationForm" options={({ route }) => ({
+            <Stack.Screen name="DonationItemForm" options={({ route }) => ({
+                ...sharedHeaderStyle,
+                headerTitle: route.params.title,
+                headerBackTitleVisible: false,
+            })}
+            />
+
+            <Stack.Screen name="DonationItemUrgentForm" options={({ route }) => ({
+                ...sharedHeaderStyle,
+                headerTitle: route.params.title,
+                headerBackTitleVisible: false,
+            })}
+            />
+
+            <Stack.Screen name="UrgentDonationScreen" options={({ route }) => ({
                 ...sharedHeaderStyle,
                 headerTitle: route.params.title,
                 headerBackTitleVisible: false,

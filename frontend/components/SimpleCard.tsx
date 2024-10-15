@@ -1,20 +1,34 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Card, DefaultTheme, Icon, IconButton, Menu, PaperProvider, Provider } from 'react-native-paper';
+import { Card, DefaultTheme, Icon, IconButton, Menu, PaperProvider, Provider, Switch } from 'react-native-paper';
 
 interface SimpleCardProps {
     title: string;
-    selected: boolean;
-    onPress: () => void;
+    selected?: boolean;
+    onPress?: () => void; 
+    showSwitch?: boolean;
+    disabled?: boolean;
+    onSwitchChange?: (value: boolean) => void; 
 }
 
 const SimpleCard: React.FC<SimpleCardProps> = ({
     title,
     selected,
-    onPress,
+    onPress = () => {}, 
+    showSwitch = false, 
+    disabled = false,
+    onSwitchChange,
 }) => {
 
     const [visible, setVisible] = React.useState(false);
+    const [switchValue, setSwitchValue] = React.useState(false); 
+
+    const handleSwitchChange = (value: boolean) => {
+        setSwitchValue(value);
+        if (onSwitchChange) {
+            onSwitchChange(value);
+        }
+    };
 
     const openMenu = () => setVisible(true);
 
@@ -38,7 +52,20 @@ const SimpleCard: React.FC<SimpleCardProps> = ({
         >
             <Card style={[styles.card, selected ? { borderColor: '#0041A3', borderWidth: 2 } : {}]} onPress={onPress} >
                 <View style={styles.cardContent}>
-                    <Text style={[styles.title]}>{title}</Text>
+                    <View style={styles.switchContainer}>
+                        <Text style={styles.subtitle}>Item</Text>
+                        <Text style={styles.title}>{title}</Text>
+                    </View>
+                    {showSwitch && ( 
+                        <View style={styles.switchContainer}>
+                            <Text style={styles.subtitle}>Urgente</Text>
+                            <Switch
+                                value={switchValue}
+                                onValueChange={handleSwitchChange}
+                                disabled={disabled}
+                            />
+                        </View> 
+                    )}
                 </View>
             </Card >
         </Provider>
@@ -52,16 +79,25 @@ const styles = StyleSheet.create({
         borderRadius: 7,
         marginVertical: 5,
         backgroundColor: '#FFFFFF',
-        height: 45,
+        
     },
     cardContent: {
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center',
+        alignItems: 'flex-start',
+        gap: 8,
         alignContent: 'center',
-        height: '100%',
         padding: 10,
+    },
+    switchContainer: {
+        flexDirection: 'column', 
+        justifyContent: 'space-between', 
+        gap: 15,
+    },
+    subtitle: {
+        fontSize: 12,
+        color: '#666', 
     },
     title: {
         fontWeight: 'bold',

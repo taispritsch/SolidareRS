@@ -53,18 +53,19 @@ const LoginScreen = () => {
 
             await SecureStore.setItemAsync('token', data.token);
 
+
             if (data.user.is_admin) {
-                router.replace({ pathname: '/HomeScreen', params: { userName: data.user.name } });
+                router.push({ pathname: '/HomeScreen', params: { userName: data.user.name } });
             } else {
                 const governmentDepartment = data.user.government_department_has_users[0].government_department;
 
-                router.replace({ pathname: '/WelcomeScreen', params: { title: governmentDepartment.name, id: governmentDepartment.id, userName: data.user.name } });
+                router.push({ pathname: '/WelcomeScreen', params: { title: governmentDepartment.name, id: governmentDepartment.id, userName: data.user.name } });
             }
 
             setLoading(false);
-        } catch (error: any) {
-            console.error('Erro ao enviar a requisição:', error.response.data.message);
-            Alert.alert('Erro', error.response.data.message);
+        } catch (error) {
+            console.error('Erro ao enviar a requisição:', error);
+            Alert.alert('Erro', 'Erro ao fazer login.');
         }
 
         setLoading(false);
@@ -80,7 +81,7 @@ const LoginScreen = () => {
                     <View style={style.imageContainer}>
                         <Image
                             style={style.image}
-                            source={require('../assets/images/logo-bonito.png')}
+                            source={require('../assets/images/logo.png')}
                         />
                     </View>
 

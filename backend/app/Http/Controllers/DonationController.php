@@ -16,21 +16,25 @@ class DonationController extends Controller
 
         DB::beginTransaction();
         try {
-            foreach ($input['products'] as $product_id) {
+            $donations = [];
+            foreach ($input['products'] as $product) {
                 $donation = Donation::create([
                     'donation_place_id' => $input['donation_place_id'],
-                    'product_id' => $product_id,
+                    'product_id' => $product['id'], 
+                    'urgent' => $product['urgent'],  
                 ]);
+                $donations[] = $donation;
             }
 
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['message' => 'Error on create donation'], 500);
+            return response()->json(['message' => 'Error on create donation', 'error' => $e->getMessage()], 500);
         }
 
-        return response()->json($donation, 201);
+        return response()->json($donations, 201);
     }
+
 
     public function getCategoriesByDonationPlace(DonationPlace $donationPlace)
     {
@@ -59,6 +63,15 @@ class DonationController extends Controller
             ->get();
 
         return $products;
+    }
+
+    public function getUrgentDonations()
+    {
+        $urgentDonations = Donation::where('urgent', true)
+            ->with(['product', 'donationPlace']) 
+            ->get();
+            
+        return response()->json($urgentDonations);
     }
 
     public function destroy(Donation $donation)
