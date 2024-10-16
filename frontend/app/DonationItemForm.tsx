@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet } from "react-native";
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Pressable } from "react-native";
 import { styles } from './styles';
 import DynamicCard from '@/components/DynamicCard ';
 import { router, useLocalSearchParams } from 'expo-router';
 import axiosInstance from '@/services/axios';
 import { CategoriesIcons } from '@/constants/CategoriesIcons';
-import { Button, Provider, Switch } from 'react-native-paper';
+import { Button, Checkbox, Provider, Switch } from 'react-native-paper';
 import SimpleCard from '@/components/SimpleCard';
 import { Colors } from '@/constants/Colors';
 
-const DonationForm = () => {
+const DonationItemForm = () => {
     const { placeName, donationPlaceId } = useLocalSearchParams();
 
     const [category] = useState(useLocalSearchParams());
@@ -55,31 +55,6 @@ const DonationForm = () => {
         setProducts(newProducts);
     }
 
-    const handleSave = async () => {
-        setLoading(true);
-
-        const selectedProducts = products.filter((product) => product.selected);
-
-        const data = {
-            donation_place_id: donationPlaceId,
-            products: selectedProducts.map((product) => product.id),
-        };
-
-        try {
-            console.log(data);
-            const response = await axiosInstance.post('donations', data);
-
-            console.log(response.data);
-
-            setLoading(false);
-
-            router.navigate({ pathname: '/DonationScreen', params: { title: placeName, donationPlaceId: donationPlaceId, placeName: placeName, showSnackbar: 'true' } });
-        } catch (error) {
-            setLoading(false);
-            console.log(error);
-        }
-    }
-
     const selectAllProducts = () => {
         const newProducts = products.map((product) => {
             product.selected = !switchSelectedAll;
@@ -102,17 +77,22 @@ const DonationForm = () => {
                 <View style={styles.content}>
                     <View style={{ ...styles.iconAndTextContainer, flexDirection: 'column', alignItems: 'flex-start' }}>
                         <Text style={styles.title}>Novo item</Text>
-                        <Text style={{ fontSize: 16, color: '#333' }}>Selecione os produtos de {category.description}</Text>
+                        <Text style={{ fontSize: 16, color: '#333' }}>Selecione os produtos de <Text style={{ fontWeight: 'bold' }}>{category.description}</Text></Text>
                     </View>
                     <ScrollView>
                         {products.length > 0 && (
-                            <View style={{ alignItems: 'center', flexDirection: 'row', paddingLeft: 20 }}>
-                                <Text style={{ fontSize: 14 }}>Selecionar tudo</Text>
-                                <Switch
-                                    value={switchSelectedAll}
-                                    onValueChange={() => selectAllProducts()}
-                                    color={Colors.backgroundButton}
-                                />
+                            <View style={{ alignItems: 'center', flexDirection: 'row', paddingLeft: 20, paddingTop: 20 }}>
+                                <Pressable
+                                    onPress={() => selectAllProducts()}
+                                    style={{ flexDirection: 'row', alignItems: 'center' }}
+                                >
+                                    <Checkbox
+                                        status={switchSelectedAll ? 'checked' : 'unchecked'}
+                                        onPress={() => selectAllProducts()}
+                                        color="#133567"
+                                    />
+                                    <Text style={{ fontSize: 14 }}>Selecionar tudo</Text>
+                                </Pressable>
                             </View>
                         )}
                         <View style={{ padding: 20 }}>
@@ -132,20 +112,34 @@ const DonationForm = () => {
                             )}
                         </View>
                     </ScrollView>
-                    <View style={style.button}>
-                        <Button
-                            mode="contained"
-                            buttonColor={Colors.backgroundButton}
-                            contentStyle={{ height: 50, }}
-                            textColor='#FFFFFF'
-                            loading={loading}
-                            disabled={loading}
+                    <View style={{ padding: 20, alignItems: 'flex-end' }}>
+                        <TouchableOpacity
+                            style={style.nextStepContainer}
                             onPress={() => {
-                                handleSave();
+                                const selectedProductIds = products
+                                    .filter(product => product.selected)
+                                    .map(product => ({
+                                        id: product.id.toString(),
+                                        description: product.description 
+                                    }));
+
+                                const selectedProductsJson = JSON.stringify(selectedProductIds);
+
+                                router.navigate({
+                                    pathname: '/DonationItemUrgentForm',
+                                    params: { 
+                                        title: placeName, 
+                                        donationPlaceId: donationPlaceId, 
+                                        placeName: placeName,
+                                        selectedProducts: selectedProductsJson,
+                                        categoryDescription: category.description,
+                                    } 
+                                });
                             }}
                         >
-                            Salvar
-                        </Button>
+                            <Text style={style.nextStepText}>Próximo passo</Text>
+                            <Text style={style.iconText}>››</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
             </View>
@@ -153,7 +147,7 @@ const DonationForm = () => {
     );
 }
 
-export default DonationForm;
+export default DonationItemForm;
 
 const style = StyleSheet.create({
     title: {
@@ -179,5 +173,21 @@ const style = StyleSheet.create({
     },
     button: {
         marginBottom: 40,
-    }
+    },
+    nextStepContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 10,
+        marginBottom: 20,
+    },
+    nextStepText: {
+        color: Colors.backgroundButton,
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    iconText: {
+        color: Colors.backgroundButton, 
+        fontSize: 22,
+        marginLeft: 8,
+    },
 });

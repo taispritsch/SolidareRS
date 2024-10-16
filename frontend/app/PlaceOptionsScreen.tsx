@@ -44,7 +44,7 @@ const PlaceOptionsScreen = () => {
                             <DynamicCard
                                 title="Itens urgentes"
                                 icon="alert-outline"
-                                onPress={() => console.log('Press')}
+                                onPress={() => router.push({ pathname: '/UrgentDonationScreen', params: { title: placeName, donationPlaceId: placeId, placeName: placeName } })}
                             />
                         </View>
                     </ScrollView>
