@@ -31,4 +31,11 @@ class CategoryController extends Controller
 
         return $products;
     }
+
+    public function getSubcategories(Category $category)
+    {
+        return Category::where('parent_id', $category->id)
+            ->orderBy('description', 'asc')
+            ->get();
+    }
 }

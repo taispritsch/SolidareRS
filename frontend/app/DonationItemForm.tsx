@@ -113,33 +113,33 @@ const DonationItemForm = () => {
                         </View>
                     </ScrollView>
                     <View style={{ padding: 20, alignItems: 'flex-end' }}>
-                    <TouchableOpacity
-                        style={style.nextStepContainer}
-                        onPress={() => {
-                            const selectedProductIds = products
-                                .filter(product => product.selected)
-                                .map(product => ({
-                                    id: product.id.toString(),
-                                    description: product.description 
-                                }));
+                        <TouchableOpacity
+                            style={style.nextStepContainer}
+                            onPress={() => {
+                                const selectedProductIds = products
+                                    .filter(product => product.selected)
+                                    .map(product => ({
+                                        id: product.id.toString(),
+                                        description: product.description 
+                                    }));
 
-                            const selectedProductsJson = JSON.stringify(selectedProductIds);
+                                const selectedProductsJson = JSON.stringify(selectedProductIds);
 
-                            router.navigate({
-                                pathname: '/DonationItemUrgentForm',
-                                params: { 
-                                    title: placeName, 
-                                    donationPlaceId: donationPlaceId, 
-                                    placeName: placeName,
-                                    selectedProducts: selectedProductsJson,
-                                    categoryDescription: category.description,
-                                } 
-                            });
-                        }}
-                    >
-                        <Text style={style.nextStepText}>Próximo passo</Text>
-                        <Text style={style.iconText}>››</Text>
-                    </TouchableOpacity>
+                                router.navigate({
+                                    pathname: '/DonationItemUrgentForm',
+                                    params: { 
+                                        title: placeName, 
+                                        donationPlaceId: donationPlaceId, 
+                                        placeName: placeName,
+                                        selectedProducts: selectedProductsJson,
+                                        categoryDescription: category.description,
+                                    } 
+                                });
+                            }}
+                        >
+                            <Text style={style.nextStepText}>Próximo passo</Text>
+                            <Text style={style.iconText}>››</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
             </View>

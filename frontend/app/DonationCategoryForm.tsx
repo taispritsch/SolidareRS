@@ -31,10 +31,18 @@ const DonationCategoryForm = () => {
     const nextStep = (category: { description: keyof typeof CategoriesIcons }) => {
         if (category.description !== 'Roupas e calçados') {
             router.push({ pathname: '/DonationItemForm', params: { ...category, donationPlaceId: donationPlaceId, title: placeName, placeName: placeName } });
-        } else {
-            console.log('Roupas e calçados');
+        }  else {
+            router.push({
+                pathname: '/ClothingDonationScreen',
+                params: {
+                    ...category,
+                    donationPlaceId: donationPlaceId,
+                    title: placeName,
+                    placeName: placeName
+                }
+            });
         }
-    }
+    };
 
     return (
         <Provider>
