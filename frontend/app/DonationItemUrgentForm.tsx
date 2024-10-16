@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet } from "react-native";
+import { View, Text, ScrollView, StyleSheet, Pressable } from "react-native";
 import { styles } from './styles';
 import DynamicCard from '@/components/DynamicCard ';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -19,6 +19,7 @@ const DonationItemUrgentForm = () => {
     const [checked, setChecked] = React.useState(false);
     const [loading, setLoading] = useState(false);
     const [urgencyStates, setUrgencyStates] = useState<{ [key: string]: boolean }>({}); 
+    const [switchSelectedAll, setSwitchSelectedAll] = useState(false);
 
     let selectedProductsArray: Product[] = []; 
     if (typeof selectedProducts === 'string') {
@@ -59,6 +60,23 @@ const DonationItemUrgentForm = () => {
         }));
     };
     
+    const toggleAllUrgency = () => {
+        const newUrgencyStates: { [key: string]: boolean } = {};
+
+        if (!checked) {
+            selectedProductsArray.forEach(product => {
+                newUrgencyStates[product.id] = false; 
+            });
+        } else {
+            selectedProductsArray.forEach(product => {
+                newUrgencyStates[product.id] = urgencyStates[product.id] || false; 
+            });
+        }
+
+        setUrgencyStates(newUrgencyStates);
+        setChecked(!checked);
+        setSwitchSelectedAll(!checked);
+    };
 
     return (
         <Provider>
@@ -67,20 +85,21 @@ const DonationItemUrgentForm = () => {
                     <View style={{ ...styles.iconAndTextContainer, flexDirection: 'column', alignItems: 'flex-start' }}>
                         <Text style={styles.title}>Novo item</Text>
                         <Text style={{ fontSize: 16, color: '#333' }}>Selecione os itens de urgência de <Text style={{ fontWeight: 'bold' }}>{categoryDescription}</Text></Text>
-
-                        <View style={style.checkboxContainer}>
-                            <View style={[style.checkboxBorder]}>
+                        <View style={{ alignItems: 'center', flexDirection: 'row', paddingLeft: 20, paddingTop: 20 }}>
+                            <Pressable
+                                onPress={() => toggleAllUrgency()}
+                                style={{ flexDirection: 'row', alignItems: 'center' }}
+                            >
                                 <Checkbox
-                                    status={checked ? 'checked' : 'unchecked'}
-                                    onPress={() => {
-                                        setChecked(!checked);
-                                    }}
+                                    status={switchSelectedAll ? 'checked' : 'unchecked'}
+                                    onPress={() => toggleAllUrgency()}
+                                    color="#133567"
                                 />
-                            </View>
-                            <Text style={style.checkboxLabel}>Nenhum item é de urgência</Text>
+                                <Text style={{ fontSize: 14 }}>Nenhum item é de urgência</Text>
+                            </Pressable>
                         </View>
                     </View>
-                    <ScrollView style={{ marginTop: 20 }}>
+                    <ScrollView style={{ padding: 20 }}>
                         {selectedProductsArray.length > 0 ? (
                             selectedProductsArray.map((product: Product) => (
                                 <SimpleCard

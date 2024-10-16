@@ -8,6 +8,8 @@ interface DynamicCardProps {
   description?: string;
   hasOptionMenu?: boolean;
   menuOptions?: string[];
+  editTitle?: string; 
+  deleteTitle?: string;
   onPress: () => void;
   onEditPress?: () => void;
   onDeletPress?: () => void;
@@ -19,6 +21,8 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
   description,
   hasOptionMenu,
   menuOptions = [],
+  editTitle = 'Editar',
+  deleteTitle = 'Excluir',
   onPress,
   onEditPress,
   onDeletPress,
@@ -82,10 +86,17 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
                 }
               >
                 {menuOptions.includes('editar') && (
-                  <Menu.Item onPress={() => { closeMenu(); onEditPress && onEditPress(); }} title="Editar" />
+                  <Menu.Item
+                    onPress={() => { closeMenu(); onEditPress && onEditPress(); }}
+                    title={editTitle}
+                  />
                 )}
                 {menuOptions.includes('excluir') && (
-                  <Menu.Item onPress={() => { closeMenu(); onDeletPress && onDeletPress(); }} title="Excluir" />
+                  <Menu.Item
+                    onPress={() => { closeMenu(); onDeletPress && onDeletPress(); }}
+                    title={deleteTitle}
+                    titleStyle={{ flexWrap: 'wrap', width: '100%'}} 
+                  />
                 )}
               </Menu>
             </View>
@@ -129,7 +140,7 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 12,
     color: '#000',
-  }
+  },
 });
 
 export default DynamicCard;

@@ -77,7 +77,7 @@ const DonationItemForm = () => {
                 <View style={styles.content}>
                     <View style={{ ...styles.iconAndTextContainer, flexDirection: 'column', alignItems: 'flex-start' }}>
                         <Text style={styles.title}>Novo item</Text>
-                        <Text style={{ fontSize: 16, color: '#333' }}>Selecione os produtos de  <Text style={{ fontWeight: 'bold' }}>{category.description}</Text></Text>
+                        <Text style={{ fontSize: 16, color: '#333' }}>Selecione os produtos de <Text style={{ fontWeight: 'bold' }}>{category.description}</Text></Text>
                     </View>
                     <ScrollView>
                         {products.length > 0 && (

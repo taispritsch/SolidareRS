@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/Colors';
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Card, DefaultTheme, Icon, IconButton, Menu, PaperProvider, Provider, Switch } from 'react-native-paper';
@@ -63,6 +64,7 @@ const SimpleCard: React.FC<SimpleCardProps> = ({
                                 value={switchValue}
                                 onValueChange={handleSwitchChange}
                                 disabled={disabled}
+                                color={Colors.backgroundButton}
                             />
                         </View> 
                     )}

@@ -74,6 +74,19 @@ class DonationController extends Controller
         return response()->json($urgentDonations);
     }
 
+    public function removeUrgency(Donation $donation)
+    {
+        try {
+            $donation->urgent = false;
+            $donation->save();
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error on updating urgency', 'error' => $e->getMessage()], 500);
+        }
+
+        return response()->json(['message' => 'Urgency removed successfully']);
+    }
+
+
     public function destroy(Donation $donation)
     {
         try {
