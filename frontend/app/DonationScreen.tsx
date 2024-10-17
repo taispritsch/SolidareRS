@@ -8,41 +8,112 @@ import axiosInstance from '@/services/axios';
 import * as SecureStore from 'expo-secure-store';
 import { FAB, Portal, Provider, Snackbar } from 'react-native-paper';
 import { CategoriesIcons } from '@/constants/CategoriesIcons';
+import CategoriesFilters from '@/components/CategoriesFilters';
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
 const DonationScreen = () => {
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const { placeName, showSnackbar, action, donationPlaceId } = useLocalSearchParams();
     const [visible, setVisible] = React.useState(false);
 
-    const [donationListCategories, setDonationListCategories] = useState<{ id: number; description: keyof typeof CategoriesIcons }[]>([]);
+    const [donationProducts, setdonationProducts] = useState<{ id: number; description: string; donation_id: number }[]>([]);
 
     const onDismissSnackBar = () => setVisible(false);
 
+    const [categories, setCategories] = useState<{ id: number, description: keyof typeof CategoriesIcons, selected: boolean }[]>([]);
+
     React.useEffect(() => {
+        getProducts();
         getCategories();
 
         if (showSnackbar) {
             setSnackbarMessage('Lista de doações atualizada com sucesso!');
             setVisible(true);
         }
-
     }, [showSnackbar]);
+
 
     const getCategories = async () => {
         try {
-            const response = await axiosInstance.get(`donations/${donationPlaceId}/categories`);
+            const response = await axiosInstance.get('categories');
 
-            setDonationListCategories(response.data);
+            const categories = response.data.map((category: { id: number; description: keyof typeof CategoriesIcons }) => {
+                return {
+                    id: category.id,
+                    description: category.description,
+                    selected: false
+                }
+            });
+
+            setCategories(categories);
+
         } catch (error) {
             console.log(error);
         }
     }
 
-    const nextStep = (category: { description: keyof typeof CategoriesIcons }) => {
-        if (category.description !== 'Roupas e calçados') {
-            router.push({ pathname: '/DonationProductScreen', params: { ...category, donationPlaceId: donationPlaceId, title: placeName, placeName: placeName } });
-        } else {
-            
+    const getProducts = async (index?: number) => {
+        let categoryFilter = null;
+        if (index !== undefined) {
+            categoryFilter = categories[index] && ! categories[index].selected ? categories[index] : null;
+        }
+
+        try {
+            const response = await axiosInstance.get(`donations/${donationPlaceId}/products`, {
+                params: {
+                    category_id: categoryFilter ? categoryFilter.id : null
+                }
+            });
+
+            const products = response.data.map((product: { id: number; description: string; donation_id: number }) => {
+                return {
+                    id: product.id,
+                    description: product.description,
+                    donation_id: product.donation_id
+                }
+            });
+
+            setdonationProducts(products);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const selectCategory = (index: number) => {
+        const newCategories = categories.map((category, i) => {
+            return {
+                ...category,
+                selected: i === index ? !category.selected : false
+            }
+        });
+
+        setCategories(newCategories);
+        getProducts(index);
+    }
+
+    async function showDeleteAlert(id: number) {
+        Alert.alert(
+            "Excluir produto",
+            "Deseja realmente excluir esse produto?",
+            [
+                {
+                    text: "Cancelar",
+                    onPress: () => { },
+                    style: "cancel"
+                },
+                { text: "Excluir", onPress: () => { deleteProduct(id) } }
+            ]
+        );
+    }
+
+    async function deleteProduct(id: number) {
+        try {
+            await axiosInstance.delete(`donations/${id}`);
+
+            getProducts();
+        } catch (error) {
+            console.error('Erro ao enviar a requisição:', error);
+            Alert.alert('Erro', 'Não foi possível excluir o produto.');
         }
     }
 
@@ -50,17 +121,36 @@ const DonationScreen = () => {
         <Provider>
             <View style={styles.container}>
                 <View style={styles.content}>
-                    <View style={styles.iconAndTextContainer}>
-                        <Text style={styles.title}>Categoria dos itens</Text>
+                    <View style={{ ...styles.iconAndTextContainer, flexDirection: 'column', alignItems: 'flex-start' }}>
+                        <Text style={styles.title}>Itens aceitos</Text>
+                        <Text style={{ fontSize: 16, color: '#333' }}>Veja quais os itens que precisam de doação! </Text>
                     </View>
+                    <View style={{ marginTop: 10 }}>
+                        <ScrollView horizontal={true}
+                            style={{ backgroundColor: '#fff', height: 120 }}>
+                            {categories.map((category, index) => (
+                                <CategoriesFilters
+                                    key={index}
+                                    category={category}
+                                    onPress={() =>
+                                        selectCategory(index)
+                                    }
+                                />
+                            ))}
+
+                        </ScrollView>
+                    </View >
+
                     <ScrollView>
                         <View style={{ padding: 20 }}>
-                            {donationListCategories.map((donationListCategory, index) => (
+                            {donationProducts.map((product, index) => (
                                 <DynamicCard
                                     key={index}
-                                    title={donationListCategory.description}
-                                    icon={CategoriesIcons[donationListCategory.description]}
-                                    onPress={() => nextStep(donationListCategory)}
+                                    title={product.description}
+                                    hasOptionMenu
+                                    menuOptions={['excluir']}
+                                    onDeletPress={() => showDeleteAlert(product.donation_id)}
+                                    onPress={() => showDeleteAlert(product.donation_id)}
                                 />
                             ))}
                         </View>

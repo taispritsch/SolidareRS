@@ -8,7 +8,7 @@ interface DynamicCardProps {
   description?: string;
   hasOptionMenu?: boolean;
   menuOptions?: string[];
-  editTitle?: string; 
+  editTitle?: string;
   deleteTitle?: string;
   onPress: () => void;
   onEditPress?: () => void;
@@ -95,7 +95,7 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
                   <Menu.Item
                     onPress={() => { closeMenu(); onDeletPress && onDeletPress(); }}
                     title={deleteTitle}
-                    titleStyle={{ flexWrap: 'wrap', width: '100%'}} 
+                    titleStyle={{ flexWrap: 'wrap', width: '100%' }}
                   />
                 )}
               </Menu>

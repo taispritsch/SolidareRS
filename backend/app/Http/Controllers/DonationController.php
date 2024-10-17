@@ -9,6 +9,7 @@ use App\Models\Donation;
 use App\Models\DonationItem;
 use App\Models\DonationPlace;
 use App\Models\Variation;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class DonationController extends Controller
@@ -134,6 +135,25 @@ class DonationController extends Controller
         }
 
         return response()->json(201);
+    }
+
+    public function getProductsByDonationPlace(DonationPlace $donationPlace, Request $request)
+    {
+        $inputs = $request->all();
+
+        logger($inputs);
+
+        $products = Donation::where('donation_place_id', $donationPlace->id)
+            ->join('products', 'donations.product_id', '=', 'products.id')
+            ->select('products.*', 'donations.id as donation_id')
+            ->distinct();
+
+        if (isset($inputs['category_id'])) {
+            $products = $products->join('product_has_categories', 'products.id', '=', 'product_has_categories.product_id')
+                ->where('product_has_categories.category_id', $inputs['category_id']);
+        }
+
+        return $products->get();
     }
 
 }

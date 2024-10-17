@@ -153,7 +153,7 @@ const RootLayout = () => {
             })}
             />
 
-            <Stack.Screen name="ClothesDonationScreen" options={({ route }) => ({
+            <Stack.Screen name="ClothingDonationScreen" options={({ route }) => ({
                 ...sharedHeaderStyle,
                 headerTitle: route.params.title,
                 headerBackTitleVisible: false,
