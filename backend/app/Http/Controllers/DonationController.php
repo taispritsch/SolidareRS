@@ -24,8 +24,8 @@ class DonationController extends Controller
             foreach ($input['products'] as $product) {
                 $donation = Donation::create([
                     'donation_place_id' => $input['donation_place_id'],
-                    'product_id' => $product['id'], 
-                    'urgent' => $product['urgent'],  
+                    'product_id' => $product['id'],
+                    'urgent' => $product['urgent'],
                 ]);
                 $donations[] = $donation;
             }
@@ -50,7 +50,7 @@ class DonationController extends Controller
             ->distinct()
             ->get();
 
-            logger($categories);
+        logger($categories);
 
         return $categories;
     }
@@ -72,9 +72,9 @@ class DonationController extends Controller
     public function getUrgentDonations()
     {
         $urgentDonations = Donation::where('urgent', true)
-            ->with(['product', 'donationPlace']) 
+            ->with(['product', 'donationPlace'])
             ->get();
-            
+
         return response()->json($urgentDonations);
     }
 
@@ -109,26 +109,32 @@ class DonationController extends Controller
         logger($inputs);
 
         try {
-            foreach ($inputs['variations'] as $variation) {
+            foreach ($inputs['variations'] as $product) {
+                $hasUrgentVariation = false;
+
+                foreach ($product['variations'] as $variation) {
+                    if (isset($variation['urgency']) && $variation['urgency'] === true) {
+                        $hasUrgentVariation = true;
+                        break; // Se encontrarmos uma variação urgente, podemos parar a busca
+                    }
+                }
+
                 $donation = Donation::create([
                     'donation_place_id' => $inputs['donation_place_id'],
-                    'product_id' => $variation['product_id'],
-                    'urgente' => false
+                    'product_id' => $product['product_id'],
+                    'urgent' => $hasUrgentVariation
                 ]);
 
-                
-                foreach ($variation['variations'] as $size) {
-                    $variation = Variation::find($size);
-                    
+                foreach ($product['variations'] as $size) {
+                    $variation = Variation::find($size['id']);
+
                     DonationItem::create([
                         'donation_id' => $donation->id,
                         'variation_id' => $variation->id,
-                        'urgent' => false
+                        'urgent' => $size['urgency']
                     ]);
                 }
             }
-            
-            
         } catch (\Exception $e) {
             logger($e->getMessage());
             return response()->json(['message' => 'Error on create donation'], 500);
@@ -155,5 +161,4 @@ class DonationController extends Controller
 
         return $products->get();
     }
-
 }

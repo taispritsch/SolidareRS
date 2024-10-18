@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet } from "react-native";
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Pressable } from "react-native";
 import { styles } from './styles';
 import DynamicCard from '@/components/DynamicCard ';
 import { router, useLocalSearchParams } from 'expo-router';
 import axiosInstance from '@/services/axios';
 import { CategoriesIcons } from '@/constants/CategoriesIcons';
-import { Button, Provider, Switch } from 'react-native-paper';
+import { Button, Checkbox, Provider, Switch } from 'react-native-paper';
 import SimpleCard from '@/components/SimpleCard';
 import { Colors } from '@/constants/Colors';
+import SimpleCardClothes from '@/components/SimpleCardClothes';
 
 const DonationClothesForm = () => {
     const { placeName, donationPlaceId } = useLocalSearchParams();
@@ -21,9 +22,9 @@ const DonationClothesForm = () => {
     }[]>([]);
 
     const [variations, setVariations] = useState<{
-        id: BigInteger; description: string, variations: [
+        id: BigInteger; description: string; selectedAll: boolean; variations: [
             {
-                id: BigInteger; selected: boolean; description: string
+                id: BigInteger; selected: boolean; description: string; urgency: boolean
             }
         ]
     }[]>([]);
@@ -70,7 +71,7 @@ const DonationClothesForm = () => {
             );
 
             const variations = response.data.map((product: {
-                id: BigInteger; description: string; variations: [
+                id: BigInteger; description: string; selectedAll: boolean; variations: [
                     {
                         id: BigInteger; description: string
                     }
@@ -79,6 +80,7 @@ const DonationClothesForm = () => {
                 return {
                     id: product.id,
                     description: product.description,
+                    selectedAll: false,
                     variations: product.variations.map((variation: {
                         id: BigInteger; description: string
                     }) => {
@@ -86,6 +88,7 @@ const DonationClothesForm = () => {
                             id: variation.id,
                             description: variation.description,
                             selected: false,
+                            urgency: false
                         };
                     })
                 };
@@ -181,6 +184,54 @@ const DonationClothesForm = () => {
         }
     }
 
+    const lastStep = () => {
+        setStep(step - 1);
+    }
+
+    const selectAllVariations = (indexProduct: number) => {
+        const newVariations = variations.map((v, index) => {
+            if (index === indexProduct) {
+                v.selectedAll = !v.selectedAll;
+                v.variations.map((variation) => {
+                    variation.selected = v.selectedAll
+                    return variation;
+                });
+            }
+            return v;
+        });
+
+        setVariations(newVariations);
+    }
+
+    const handleUrgencyChange = (variationId: BigInteger) => {
+        const newVariations = variations.map((v) => {
+            v.variations.map((variation) => {
+                if (variation.id === variationId) {
+                    variation.urgency = !variation.urgency;
+                }
+                return variation;
+            });
+            return v;
+        });
+
+        setVariations(newVariations);
+    }
+
+    const toggleAllUrgency = () => {
+        const newVariations = variations.map((v) => {
+            v.variations.map((variation) => {
+                if (variation.selected) {
+                    variation.urgency = !switchSelectedAll;
+                }
+                return variation;
+            });
+            return v;
+        });
+
+        setVariations(newVariations);
+        setSwitchSelectedAll(!switchSelectedAll);
+    }
+
     useEffect((): void => {
         getCategoriesClothes();
     }, []);
@@ -191,7 +242,12 @@ const DonationClothesForm = () => {
         const selectedVariations = variations.map((variation) => {
             return {
                 product_id: variation.id,
-                variations: variation.variations.filter((v) => v.selected).map((v) => v.id)
+                variations: variation.variations.filter((v) => v.selected).map((v) => {
+                    return {
+                        id: v.id,
+                        urgency: v.urgency
+                    };
+                })
             };
         });
 
@@ -224,7 +280,7 @@ const DonationClothesForm = () => {
                     <View style={styles.content}>
                         <View style={{ ...styles.iconAndTextContainer, flexDirection: 'column', alignItems: 'flex-start' }}>
                             <Text style={styles.title}>Novo item</Text>
-                            <Text style={{ fontSize: 16, color: '#333' }}>Selecione qual a categoria do produto que deseja cadastrar</Text>
+                            <Text style={{ fontSize: 16, color: '#333' }}>Selecione os produtos de <Text style={{ fontWeight: 'bold' }}>{category.description}</Text></Text>
                         </View>
 
                         <ScrollView>
@@ -238,8 +294,6 @@ const DonationClothesForm = () => {
                                     />
                                 ))}
                             </View>
-
-
                         </ScrollView>
                     </View>
                 </View>
@@ -250,19 +304,17 @@ const DonationClothesForm = () => {
                     <View style={styles.content}>
                         <View style={{ ...styles.iconAndTextContainer, flexDirection: 'column', alignItems: 'flex-start' }}>
                             <Text style={styles.title}>Novo item</Text>
-                            <Text style={{ fontSize: 16, color: '#333' }}>Selecione os produtos de {
-                                subcategories.find((subcategory) => subcategory.selected)?.description
-                            }</Text>
+                            <Text style={{ fontSize: 16, color: '#333' }}>Selecione os produtos de <Text style={{ fontWeight: 'bold' }}>{subcategories.find((subcategory) => subcategory.selected)?.description}</Text></Text>
                         </View>
                         <ScrollView>
                             {products.length > 0 && (
                                 <View style={{ alignItems: 'center', flexDirection: 'row', paddingLeft: 20 }}>
-                                    <Text style={{ fontSize: 14 }}>Selecionar tudo</Text>
-                                    <Switch
-                                        value={switchSelectedAll}
-                                        onValueChange={() => selectAllProducts()}
+                                    <Checkbox
+                                        status={switchSelectedAll ? 'checked' : 'unchecked'}
+                                        onPress={() => selectAllProducts()}
                                         color={Colors.backgroundButton}
                                     />
+                                    <Text style={{ fontSize: 14 }}>Selecionar tudo</Text>
                                 </View>
                             )}
                             <View style={{ padding: 20 }}>
@@ -282,17 +334,25 @@ const DonationClothesForm = () => {
                                 )}
                             </View>
                         </ScrollView>
-                        <View style={style.button}>
-                            <Button
-                                mode="text"
-                                onPress={nextStep}
-                                icon="chevron-double-right"
-                                contentStyle={{ flexDirection: 'row-reverse' }}
-                                labelStyle={{ color: '#133567', fontWeight: '700' }}
-                            >
-                                Próximo passo
-                            </Button>
-
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                            <View style={{ paddingLeft: 10, alignItems: 'flex-end' }}>
+                                <TouchableOpacity
+                                    style={style.nextStepContainer}
+                                    onPress={lastStep}
+                                >
+                                    <Text style={style.iconText}>››</Text>
+                                    <Text style={style.nextStepText}>Passo anterior</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <View style={{ paddingRight: 10, alignItems: 'flex-end' }}>
+                                <TouchableOpacity
+                                    style={style.nextStepContainer}
+                                    onPress={nextStep}
+                                >
+                                    <Text style={style.nextStepText}>Próximo passo</Text>
+                                    <Text style={style.iconText}>››</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     </View>
                 </View>
@@ -303,20 +363,23 @@ const DonationClothesForm = () => {
                     <View style={styles.content}>
                         <View style={{ ...styles.iconAndTextContainer, flexDirection: 'column', alignItems: 'flex-start' }}>
                             <Text style={styles.title}>Novo item</Text>
-                            <Text style={{ fontSize: 16, color: '#333' }}>Selecione os tamanhos</Text>
+                            <Text style={{ fontSize: 16, color: '#333' }}>Selecione os tamanhos para <Text style={{ fontWeight: 'bold' }}>{subcategories.find((subcategory) => subcategory.selected)?.description}</Text></Text>
                         </View>
                         <ScrollView>
                             {variations.length > 0 && variations.map((variation, indexProduct) => (
                                 <View key={indexProduct}>
-                                    <View style={{ ...styles.iconAndTextContainer, flexDirection: 'column', alignItems: 'flex-start' }}>
-                                        <Text style={{ fontSize: 16, color: '#333' }}>
+                                    <View style={{ ...styles.iconAndTextContainer, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                                        <Text style={{ fontSize: 20, color: '#333', textTransform: 'uppercase', fontWeight: 600 }}>
                                             {variation.description}
                                         </Text>
-                                        {/* <Switch
-                                        value={variation.variations.some((v) => v.selected)}
-                                        onValueChange={() => selectProduct(variation)}
-                                        color={Colors.backgroundButton}
-                                    /> */}
+                                        <View style={{ alignItems: 'center', flexDirection: 'row', paddingLeft: 20 }}>
+                                            <Checkbox
+                                                status={variation.selectedAll ? 'checked' : 'unchecked'}
+                                                onPress={() => selectAllVariations(indexProduct)}
+                                                color={Colors.backgroundButton}
+                                            />
+                                            <Text style={{ fontSize: 14 }}>Selecionar tudo</Text>
+                                        </View>
                                     </View>
 
                                     <View
@@ -326,13 +389,83 @@ const DonationClothesForm = () => {
                                     >
                                         {variation.variations.map((v, index) => (
                                             <View>
-                                                <SimpleCard
+                                                <SimpleCardClothes
                                                     key={index}
                                                     title={v.description}
                                                     selected={v.selected}
                                                     isSmall={true}
                                                     onPress={() => selectVariation(v, indexProduct, index)}
                                                 />
+                                            </View>
+                                        ))}
+                                    </View>
+
+                                </View>
+                            ))}
+                        </ScrollView>
+
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                            <View style={{ paddingLeft: 10, alignItems: 'flex-end' }}>
+                                <TouchableOpacity
+                                    style={style.nextStepContainer}
+                                    onPress={lastStep}
+                                >
+                                    <Text style={style.iconText}>››</Text>
+                                    <Text style={style.nextStepText}>Passo anterior</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <View style={{ paddingRight: 10, alignItems: 'flex-end' }}>
+                                <TouchableOpacity
+                                    style={style.nextStepContainer}
+                                    onPress={nextStep}
+                                >
+                                    <Text style={style.nextStepText}>Próximo passo</Text>
+                                    <Text style={style.iconText}>››</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </View>
+                </View >
+            )}
+
+            {step === 4 && (
+                <View style={styles.container}>
+                    <View style={styles.content}>
+                        <View style={{ ...styles.iconAndTextContainer, flexDirection: 'column', alignItems: 'flex-start' }}>
+                            <Text style={styles.title}>Novo item</Text>
+                            <Text style={{ fontSize: 16, color: '#333' }}>Selecione os itens que são de urgência para <Text style={{ fontWeight: 'bold' }}>{subcategories.find((subcategory) => subcategory.selected)?.description}</Text></Text>
+
+                            <View style={{ flexDirection: 'row', paddingLeft: 20, paddingTop: 20 }}>
+                                <Pressable
+                                    onPress={() => toggleAllUrgency()}
+                                    style={{ flexDirection: 'row', alignItems: 'center' }}
+                                >
+                                    <Checkbox
+                                        status={switchSelectedAll ? 'checked' : 'unchecked'}
+                                        onPress={() => toggleAllUrgency()}
+                                        color="#133567"
+                                    />
+                                    <Text style={{ fontSize: 14 }}>Todos os itens são urgentes</Text>
+                                </Pressable>
+                            </View>
+                        </View>
+                        <ScrollView>
+                            {variations.length > 0 && variations.map((variation, indexProduct) => (
+                                <View key={indexProduct}>
+                                    <View
+                                        style={{ padding: 20 }}
+                                    >
+                                        {variation.variations.map((v, index) => (
+                                            <View>
+                                                {v.selected && (
+                                                    <SimpleCard
+                                                        key={index}
+                                                        title={variation.description + ' - ' + v.description}
+                                                        showSwitch={true}
+                                                        switchValue={v.urgency}
+                                                        onSwitchChange={() => handleUrgencyChange(v.id)}
+                                                    />
+                                                )}
                                             </View>
                                         ))}
                                     </View>
@@ -389,5 +522,21 @@ const style = StyleSheet.create({
     },
     button: {
         padding: 20,
-    }
+    },
+    nextStepContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 10,
+        marginBottom: 20,
+    },
+    nextStepText: {
+        color: Colors.backgroundButton,
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    iconText: {
+        color: Colors.backgroundButton,
+        fontSize: 22,
+        marginLeft: 8,
+    },
 });

@@ -8,20 +8,21 @@ import SimpleCard from '@/components/SimpleCard';
 import axiosInstance from '@/services/axios';
 
 interface Subcategory {
-    id: number; 
-    description: string; 
+    id: number;
+    description: string;
 }
 
 const ClothingDonationScreen = () => {
+    const { placeName, donationPlaceId } = useLocalSearchParams();
     const { categoryId } = useLocalSearchParams();
     const [category] = useState(useLocalSearchParams());
-    const [subcategories, setSubcategories] = useState<Subcategory[]>([]); 
+    const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
 
     useEffect(() => {
         const fetchSubcategories = async () => {
             try {
                 const response = await axiosInstance.get(`categories/${category.id}/subcategories`);
-                const data: Subcategory[] = response.data; 
+                const data: Subcategory[] = response.data;
                 setSubcategories(data);
             } catch (error) {
                 console.error("Erro ao buscar subcategorias:", error);
@@ -37,17 +38,27 @@ const ClothingDonationScreen = () => {
             <View style={styles.container}>
                 <View style={styles.content}>
                     <View style={{ ...styles.iconAndTextContainer, flexDirection: 'column', alignItems: 'flex-start' }}>
-                            <Text style={styles.title}>Novo Item</Text>
-                            <Text style={{ fontSize: 16, color: '#333' }}>Selecione os produtos de <Text style={{ fontWeight: 'bold' }}>{category.description}</Text></Text>
-                        </View>
-                    
+                        <Text style={styles.title}>Novo Item</Text>
+                        <Text style={{ fontSize: 16, color: '#333' }}>Selecione os produtos de <Text style={{ fontWeight: 'bold' }}>{category.description}</Text></Text>
+                    </View>
+
                     <ScrollView>
                         <View style={{ padding: 20 }}>
                             {subcategories.map((subcategory, index) => (
                                 <SimpleCard
                                     key={index}
-                                    title={subcategory.description} 
-                                    onPress={() => {}}
+                                    title={subcategory.description}
+                                    onPress={() => {
+                                        router.push({
+                                            pathname: '/DonationClothesForm',
+                                            params: {
+                                                ...category,
+                                                donationPlaceId: donationPlaceId,
+                                                title: placeName,
+                                                placeName: placeName
+                                            }
+                                        });
+                                    }}
                                 />
                             ))}
                         </View>
@@ -58,14 +69,14 @@ const ClothingDonationScreen = () => {
                             </View>
                         )}
                     </ScrollView>
-                    <View style={{ padding: 20, alignItems: 'flex-end' }}>
+                    {/* <View style={{ padding: 20, alignItems: 'flex-end' }}>
                         <TouchableOpacity
                             style={style.nextStepContainer}
                         >
                             <Text style={style.nextStepText}>Próximo passo</Text>
                             <Text style={style.iconText}>››</Text>
                         </TouchableOpacity>
-                    </View>
+                    </View> */}
                 </View>
             </View>
         </Provider>
@@ -87,7 +98,7 @@ const style = StyleSheet.create({
         fontWeight: 'bold',
     },
     iconText: {
-        color: Colors.backgroundButton, 
+        color: Colors.backgroundButton,
         fontSize: 22,
         marginLeft: 8,
     },

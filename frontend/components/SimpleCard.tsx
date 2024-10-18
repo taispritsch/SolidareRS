@@ -8,6 +8,7 @@ interface SimpleCardProps {
     selected?: boolean;
     onPress?: () => void; 
     showSwitch?: boolean;
+    switchValue?: boolean;
     disabled?: boolean;
     onSwitchChange?: (value: boolean) => void; 
 }
@@ -17,15 +18,14 @@ const SimpleCard: React.FC<SimpleCardProps> = ({
     selected,
     onPress = () => {}, 
     showSwitch = false, 
+    switchValue = false,
     disabled = false,
     onSwitchChange,
 }) => {
 
     const [visible, setVisible] = React.useState(false);
-    const [switchValue, setSwitchValue] = React.useState(false); 
 
     const handleSwitchChange = (value: boolean) => {
-        setSwitchValue(value);
         if (onSwitchChange) {
             onSwitchChange(value);
         }

@@ -33,7 +33,7 @@ const DonationCategoryForm = () => {
             router.push({ pathname: '/DonationItemForm', params: { ...category, donationPlaceId: donationPlaceId, title: placeName, placeName: placeName } });
         }  else {
             router.push({
-                pathname: '/ClothingDonationScreen',
+                pathname: '/DonationClothesForm',
                 params: {
                     ...category,
                     donationPlaceId: donationPlaceId,

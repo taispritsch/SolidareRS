@@ -12,6 +12,7 @@ import { Colors } from '@/constants/Colors';
 interface Product {
     id: string;
     description: string;
+    urgency: boolean;
 }
 
 const DonationItemUrgentForm = () => {
@@ -61,21 +62,13 @@ const DonationItemUrgentForm = () => {
     };
     
     const toggleAllUrgency = () => {
-        const newUrgencyStates: { [key: string]: boolean } = {};
-
-        if (!checked) {
-            selectedProductsArray.forEach(product => {
-                newUrgencyStates[product.id] = false; 
-            });
-        } else {
-            selectedProductsArray.forEach(product => {
-                newUrgencyStates[product.id] = urgencyStates[product.id] || false; 
-            });
-        }
+        const newUrgencyStates = selectedProductsArray.reduce((acc, product) => {
+            acc[product.id] = !switchSelectedAll;
+            return acc;
+        }, {} as { [key: string]: boolean });
 
         setUrgencyStates(newUrgencyStates);
-        setChecked(!checked);
-        setSwitchSelectedAll(!checked);
+        setSwitchSelectedAll(!switchSelectedAll);
     };
 
     return (
@@ -95,7 +88,7 @@ const DonationItemUrgentForm = () => {
                                     onPress={() => toggleAllUrgency()}
                                     color="#133567"
                                 />
-                                <Text style={{ fontSize: 14 }}>Nenhum item é de urgência</Text>
+                                <Text style={{ fontSize: 14 }}>Todos os itens são urgentes</Text>
                             </Pressable>
                         </View>
                     </View>
@@ -106,7 +99,7 @@ const DonationItemUrgentForm = () => {
                                     key={product.id}
                                     title={product.description}
                                     showSwitch={true} 
-                                    disabled={checked}
+                                    switchValue={urgencyStates[product.id] || false}
                                     onSwitchChange={() => handleUrgencyChange(product.id)} 
                                 />
                             ))
