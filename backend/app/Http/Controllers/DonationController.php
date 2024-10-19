@@ -73,6 +73,10 @@ class DonationController extends Controller
     {
         $urgentDonations = Donation::where('urgent', true)
             ->with(['product', 'donationPlace'])
+            ->join('products', 'donations.product_id', '=', 'products.id')
+            ->join('product_has_categories', 'products.id', '=', 'product_has_categories.product_id')
+            ->join('categories', 'product_has_categories.category_id', '=', 'categories.id')
+            ->select('donations.*', 'products.description as product_description', 'categories.description as category_description')
             ->get();
 
         return response()->json($urgentDonations);

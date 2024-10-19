@@ -340,7 +340,7 @@ const DonationClothesForm = () => {
                                     style={style.nextStepContainer}
                                     onPress={lastStep}
                                 >
-                                    <Text style={style.iconText}>››</Text>
+                                     <Text style={style.iconText}>‹‹</Text> 
                                     <Text style={style.nextStepText}>Passo anterior</Text>
                                 </TouchableOpacity>
                             </View>
@@ -405,16 +405,16 @@ const DonationClothesForm = () => {
                         </ScrollView>
 
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                            <View style={{ paddingLeft: 10, alignItems: 'flex-end' }}>
+                            <View style={{   }}>
                                 <TouchableOpacity
                                     style={style.nextStepContainer}
                                     onPress={lastStep}
                                 >
-                                    <Text style={style.iconText}>››</Text>
+                                     <Text style={style.iconText}>‹‹</Text> 
                                     <Text style={style.nextStepText}>Passo anterior</Text>
                                 </TouchableOpacity>
                             </View>
-                            <View style={{ paddingRight: 10, alignItems: 'flex-end' }}>
+                            <View style={{  }}>
                                 <TouchableOpacity
                                     style={style.nextStepContainer}
                                     onPress={nextStep}
@@ -538,5 +538,6 @@ const style = StyleSheet.create({
         color: Colors.backgroundButton,
         fontSize: 22,
         marginLeft: 8,
+        marginRight: 8,
     },
 });

@@ -1,22 +1,27 @@
+import { Colors } from '@/constants/Colors';
+import { faBorderAll } from '@fortawesome/free-solid-svg-icons';
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { Card, DefaultTheme, Icon, IconButton, Menu, PaperProvider, Provider } from 'react-native-paper';
+import { View, Text, StyleSheet, Modal } from 'react-native';
+import { Button, Card, DefaultTheme, Icon, IconButton, Menu, Provider } from 'react-native-paper';
 
 interface DynamicCardProps {
   title: string;
+  category?: string;
   icon?: string;
   description?: string;
   hasOptionMenu?: boolean;
   menuOptions?: string[];
   editTitle?: string;
   deleteTitle?: string;
-  onPress: () => void;
+  onPress?: () => void;
   onEditPress?: () => void;
   onDeletPress?: () => void;
+  onViewSizesPress?: () => void; 
 }
 
 const DynamicCard: React.FC<DynamicCardProps> = ({
   title,
+  category,
   icon,
   description,
   hasOptionMenu,
@@ -26,13 +31,20 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
   onPress,
   onEditPress,
   onDeletPress,
+  onViewSizesPress,
 }) => {
 
   const [visible, setVisible] = React.useState(false);
+  const [modalVisible, setModalVisible] = React.useState(false); 
 
   const openMenu = () => setVisible(true);
-
   const closeMenu = () => setVisible(false);
+
+  const openViewSizesModal = () => {
+    setModalVisible(true);
+    closeMenu();
+    onViewSizesPress && onViewSizesPress(); 
+  };
 
   return (
     <Provider
@@ -41,12 +53,7 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
           ...DefaultTheme.colors,
           onSurface: '#202020',
         },
-        fonts: {
-          bodyLarge: {
-            fontFamily: 'Roboto',
-            fontSize: 14,
-          },
-        },
+
         roundness: 8,
       }}
     >
@@ -55,6 +62,7 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
           <View style={styles.cardContentTitle}>
             {icon && <Icon source={icon} color={'#000E19'} size={30} />}
             <View style={{ flexDirection: 'column' }}>
+            {category && <Card style={styles.category}><Text style={styles.categoryName}>{category}</Text></Card>}
               <Text style={[styles.title, icon ? { marginLeft: 10 } : {}]}>{title}</Text>
               {description && <Text style={styles.description}>{description}</Text>}
             </View>
@@ -98,6 +106,13 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
                     titleStyle={{ flexWrap: 'wrap', width: '100%' }}
                   />
                 )}
+                {menuOptions.includes('visualizar') && (
+                  <Menu.Item
+                    onPress={openViewSizesModal}
+                    title="Visualizar Tamanhos"
+                  />
+                )}
+
               </Menu>
             </View>
           )}
@@ -131,6 +146,15 @@ const styles = StyleSheet.create({
     marginLeft: 20,
     flex: 1,
   },
+  category: {
+    backgroundColor: Colors.backgroundButton,
+    padding: 5,
+    borderRadius: 4,
+    marginBottom: 8
+  },
+  categoryName: {
+    color: Colors.text,
+  },
   title: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -140,6 +164,29 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 12,
     color: '#000',
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    width: '80%',
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'semibold',
+    marginBottom: 20,
+  },
+  modalSubtitle: {
+    textAlign: 'left'
+  },
+  closeModal: {
   },
 });
 
