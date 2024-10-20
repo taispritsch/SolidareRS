@@ -9,10 +9,13 @@ import { ActivityIndicator, Button, FAB, Portal, Provider, Snackbar } from 'reac
 import { styles } from './styles';
 
 interface UrgentDonation {
-    id: number; 
+    id: number;
+    product_id: number; 
+    donation_place_id: number;  
     product_description: string;
-    category_description: string;
+    parent_category_description: string;
     urgent: boolean;
+    subcategory_description: string;
 }
 
 interface Variation {
@@ -34,6 +37,7 @@ const UrgentDonationScreen = () => {
     const [subcategories, setSubcategories] = useState<{ id: BigInteger; description: string; selected: boolean }[]>([]);
 
 
+    console.log(urgentDonations)
     const router = useRouter()
 
     useEffect(() => {
@@ -67,7 +71,7 @@ const UrgentDonationScreen = () => {
         } finally {
             setLoading(false);
         }
-    };
+    };    
 
     const showRemoveUrgencyAlert = (donationId: number) => {
         Alert.alert(
@@ -94,18 +98,28 @@ const UrgentDonationScreen = () => {
         }
     };
     
-    const handleEditDonation = (donation: UrgentDonation) => {
-        const selectedProducts = JSON.stringify([{ id: donation.id, description: donation.product_description, urgency: donation.urgent }]);
+    const handleEditDonation = (donation: UrgentDonation) => {    
+        const selectedProducts = JSON.stringify([
+            { 
+                id: donation.product_id, 
+                description: donation.product_description, 
+                urgency: donation.urgent 
+            }
+        ]);
+    
         router.push({
             pathname: '/DonationItemUrgentForm',
             params: {
                 selectedProducts,
-                donationPlaceId: donation.id,
-                categoryDescription: donation.category_description, 
+                donationPlaceId: donation.donation_place_id, 
+                categoryDescription: donation.parent_category_description, 
+                productId: donation.product_id, 
+                productDescription: donation.product_description, 
+                isEditing: 'true',
             },
         });
     };
-
+    
     const openViewSizesModal = async (donation: any) => {
         setSelectedDonation(donation); 
         const sizes = await fetchProductVariations(donation.id);
@@ -126,17 +140,36 @@ const UrgentDonationScreen = () => {
                             {loading ? (
                                 <Text>Carregando...</Text>
                             ) : urgentDonations.length > 0 ? (
-                                urgentDonations.map((donation: UrgentDonation) => (
-                                    <DynamicCard
-                                        key={donation.id}
-                                        title={donation.product_description}
-                                        category={donation.category_description}
-                                        hasOptionMenu
-                                        menuOptions={['editar', 'visualizar']}
-                                        onEditPress={() => handleEditDonation(donation)}
-                                        onViewSizesPress={() => openViewSizesModal(donation)} 
-                                    />
-                                ))
+                                <>
+                                    {urgentDonations
+                                        .filter(donation => donation.parent_category_description === 'Roupas e calçados')
+                                        .map(donation => (
+                                            <DynamicCard
+                                                key={donation.id}
+                                                title={donation.product_description}
+                                                category={donation.subcategory_description}
+                                                hasOptionMenu
+                                                menuOptions={['editar', 'visualizar']}
+                                                onEditPress={() => handleEditDonation(donation)}
+                                                onViewSizesPress={() => openViewSizesModal(donation)}
+                                            />
+                                        ))}
+
+
+                                    {urgentDonations
+                                        .filter(donation => donation.parent_category_description !== 'Roupas e calçados')
+                                        .map(donation => (
+                                            <DynamicCard
+                                                key={donation.id}
+                                                title={donation.product_description}
+                                                hasOptionMenu
+                                                menuOptions={['excluir']}
+                                                deleteTitle="Remover urgência" 
+                                                onDeletPress={() => showRemoveUrgencyAlert(donation.id)}
+                                                onPress={() => console.log('Doação selecionada:', donation.id)}
+                                            />
+                                        ))}
+                                </>
                             ) : (
                                 <Text style={{ textAlign: 'center', paddingTop: 80 }}>Você ainda não tem nenhum item urgente cadastrado.</Text>
                             )}
@@ -154,7 +187,7 @@ const UrgentDonationScreen = () => {
                     >
                         <View style={style.modalBackground}>
                             <View style={style.modalContent}>
-                                <Text>{selectedDonation.product_description} - {selectedDonation.category_description}</Text>
+                                <Text>{selectedDonation.product_description} - {selectedDonation.parent_category_description}</Text>
                                 <Text>Tamanhos</Text>
                                 <Text style={{ marginTop: 10, fontWeight: 'bold' }}>Tamanhos Disponíveis:</Text>
                                     {productSizes.length > 0 ? (

@@ -21,12 +21,13 @@ interface ProductVariation {
 }
 
 const DonationItemUrgentForm = () => {
-    const { selectedProducts, categoryDescription, donationPlaceId } = useLocalSearchParams();
+    const { selectedProducts, categoryDescription, donationPlaceId, isEditing } = useLocalSearchParams();
     const [checked, setChecked] = React.useState(false);
     const [loading, setLoading] = useState(false);
     const [urgencyStates, setUrgencyStates] = useState<{ [key: string]: boolean }>({}); 
     const [switchSelectedAll, setSwitchSelectedAll] = useState(false);
     const [productVariations, setProductVariations] = useState<{ [key: string]: ProductVariation[] }>({}); 
+    const isEditingMode = isEditing === 'true';
 
     let selectedProductsArray: Product[] = []; 
     if (typeof selectedProducts === 'string') {
@@ -37,38 +38,42 @@ const DonationItemUrgentForm = () => {
         }
     }
 
-    console.log('aaaaaaa', selectedProducts)
-
-    const pageTitle = selectedProducts.length > 0 ? 'Editar item urgente' : 'Novo item urgente';
-
-    const description = selectedProducts.length > 0 ? 'Editando informações de' : 'Selecione os itens de urgência de';
-
+    const pageTitle = isEditingMode ? 'Editar item urgente' : 'Novo item urgente';
+    const description = isEditingMode ? 'Editando informações de' : 'Selecione os itens de urgência de';
 
     const fetchProductVariations = async () => {
-        const productIds = selectedProductsArray.map((product) => product.id);
-
-        try {
-            const response = await axiosInstance.get('products/variations', {
-                params: { product_ids: productIds },
-            });
-            const variationsData = response.data;
-
-            const variationsByProduct = variationsData.reduce((acc: { [key: string]: ProductVariation[] }, product: any) => {
-                acc[product.id] = product.variations;
-                return acc;
-            }, {});
-
-            setProductVariations(variationsByProduct);
-        } catch (error) {
-            console.error('Erro ao buscar variações:', error);
+        const productIds = selectedProductsArray.map(product => product.id); 
+        
+        if (productIds.length > 0) {
+            try {
+                const response = await axiosInstance.get('products/registered-variations', {
+                    params: { product_ids: productIds },
+                });
+        
+                const variationsData = response.data;
+        
+                const newProductVariations = variationsData.reduce((acc: { [key: string]: ProductVariation[] }, item: any) => {
+                    acc[item.productId] = item.variations; 
+                    return acc;
+                }, {});
+        
+                setProductVariations(newProductVariations); 
+            } catch (error) {
+                console.error('Erro ao buscar variações:', error);
+            }
         }
-    };
+    };    
 
     useEffect(() => {
-        if (selectedProductsArray.length > 0) {
-            fetchProductVariations();
+        fetchProductVariations();
+        if (isEditingMode) {
+            const initialUrgencyStates = selectedProductsArray.reduce((acc, product) => {
+                acc[product.id] = true; 
+                return acc;
+            }, {} as { [key: string]: boolean });
+            setUrgencyStates(initialUrgencyStates);
         }
-    }, [selectedProductsArray]);
+    }, []);
 
     const handleSave = async () => {
         setLoading(true);
@@ -77,14 +82,12 @@ const DonationItemUrgentForm = () => {
             donation_place_id: donationPlaceId,
             products: selectedProductsArray.map((product) => ({
                 id: product.id, 
-                urgent: urgencyStates[product.id] ? true : false, 
+                urgent: urgencyStates[product.id] || false, 
             })),
         };
         
         try {
-            console.log(data);
             const response = await axiosInstance.post('donations', data);
-            console.log(response.data);
             setLoading(false);
             router.navigate({ pathname: '/DonationScreen', params: { title: categoryDescription, donationPlaceId, showSnackbar: 'true' } });
         } catch (error) {
@@ -110,6 +113,7 @@ const DonationItemUrgentForm = () => {
         setSwitchSelectedAll(!switchSelectedAll);
     };
 
+    console.log(productVariations)
     return (
         <Provider>
             <View style={styles.container}>
@@ -117,7 +121,7 @@ const DonationItemUrgentForm = () => {
                     <View style={{ ...styles.iconAndTextContainer, flexDirection: 'column', alignItems: 'flex-start' }}>
                         <Text style={styles.title}>{pageTitle}</Text>
                         <Text style={{ fontSize: 16, color: '#333' }}>{description} <Text style={{ fontWeight: 'bold' }}>{categoryDescription}</Text></Text>
-                        {selectedProductsArray.length < 0 && (
+                        {!isEditingMode && (
                             <View style={{ alignItems: 'center', flexDirection: 'row', paddingLeft: 20, paddingTop: 20 }}>
                                 <Pressable
                                     onPress={() => toggleAllUrgency()}
@@ -136,36 +140,33 @@ const DonationItemUrgentForm = () => {
                     <ScrollView style={{ padding: 20 }}>
                         {selectedProductsArray.length > 0 ? (
                             selectedProductsArray.map((product: Product) => (
-                                /*<SimpleCard
-                                    key={product.id}
-                                    title={product.description}
-                                    showSwitch={true} 
-                                    switchValue={urgencyStates[product.id] || false}
-                                    onSwitchChange={() => handleUrgencyChange(product.id)} 
-                                />*/
                                 <View key={product.id}>
-                                    <SimpleCard
-                                        title={product.description}
-                                        showSwitch={true}
-                                        switchValue={urgencyStates[product.id] || false}
-                                        onSwitchChange={() => handleUrgencyChange(product.id)}
-                                    />
+                                    {!isEditing && (
+                                        <SimpleCard
+                                            title={product.description}
+                                            showSwitch={true}
+                                            switchValue={urgencyStates[product.id] || false}
+                                            onSwitchChange={() => handleUrgencyChange(product.id)}
+                                        />
+                                    )}
                                     {productVariations[product.id] && productVariations[product.id].length > 0 && (
-                                        <View style={{ paddingLeft: 20 }}>
-                                            {productVariations[product.id].map(variation => (
-                                                <Text key={variation.id} style={{ fontSize: 14, color: '#666' }}>
-                                                    {variation.name}
-                                                </Text>
-                                            ))}
-                                        </View>
+                                        productVariations[product.id].map(variation => (
+                                            <SimpleCard
+                                                key={variation.id}
+                                                title={`${product.description} - ${variation.name}`} 
+                                                showSwitch={true} 
+                                                switchValue={urgencyStates[product.id] || false}
+                                                onSwitchChange={() => handleUrgencyChange(product.id)}
+                                            />
+                                        ))
                                     )}
                                 </View>
-
                             ))
                         ) : (
                             <Text style={{ textAlign: 'center', marginTop: 20 }}>Nenhum produto selecionado.</Text>
                         )}
                     </ScrollView>
+
                     <View style={style.button}>
                         <Button
                             mode="contained"

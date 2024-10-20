@@ -75,12 +75,19 @@ class DonationController extends Controller
             ->with(['product', 'donationPlace'])
             ->join('products', 'donations.product_id', '=', 'products.id')
             ->join('product_has_categories', 'products.id', '=', 'product_has_categories.product_id')
-            ->join('categories', 'product_has_categories.category_id', '=', 'categories.id')
-            ->select('donations.*', 'products.description as product_description', 'categories.description as category_description')
+            ->join('categories as category', 'product_has_categories.category_id', '=', 'category.id')
+            ->leftJoin('categories as parent_category', 'category.parent_id', '=', 'parent_category.id')
+            ->select(
+                'donations.*',
+                'products.description as product_description',
+                'category.description as subcategory_description',
+                'parent_category.description as parent_category_description'
+            )
             ->get();
-
+    
         return response()->json($urgentDonations);
     }
+    
 
     public function removeUrgency(Donation $donation)
     {
