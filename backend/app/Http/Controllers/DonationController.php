@@ -69,8 +69,13 @@ class DonationController extends Controller
         return $products;
     }
 
-    public function getUrgentDonations()
+    public function getUrgentDonations(Request $request)
     {
+        $inputs = $request->all();
+
+        logger($inputs);
+        $category = $inputs['category_id'] ?? null;
+
         $urgentDonations = Donation::where('urgent', true)
             ->with(['product', 'donationPlace'])
             ->join('products', 'donations.product_id', '=', 'products.id')
@@ -82,12 +87,22 @@ class DonationController extends Controller
                 'products.description as product_description',
                 'category.description as subcategory_description',
                 'parent_category.description as parent_category_description'
-            )
-            ->get();
-    
-        return response()->json($urgentDonations);
+            );
+
+        if (isset($category)) {
+            $category = Category::find($category);
+
+            if ($category->description === 'Roupas e calçados') {
+                $categoriesByParentId = Category::where('parent_id', $category->id)->get();
+                $urgentDonations = $urgentDonations->whereIn('product_has_categories.category_id', $categoriesByParentId->pluck('id'));
+            } else {
+                $urgentDonations = $urgentDonations->where('product_has_categories.category_id', $category->id);
+            }
+        }
+
+        return response()->json($urgentDonations->get());
     }
-    
+
 
     public function removeUrgency(Donation $donation)
     {
@@ -159,15 +174,24 @@ class DonationController extends Controller
         $inputs = $request->all();
 
         logger($inputs);
+        $category = $inputs['category_id'] ?? null;
 
         $products = Donation::where('donation_place_id', $donationPlace->id)
             ->join('products', 'donations.product_id', '=', 'products.id')
             ->select('products.*', 'donations.id as donation_id')
             ->distinct();
 
-        if (isset($inputs['category_id'])) {
-            $products = $products->join('product_has_categories', 'products.id', '=', 'product_has_categories.product_id')
-                ->where('product_has_categories.category_id', $inputs['category_id']);
+        if (isset($category)) {
+            $category = Category::find($category);
+
+            if ($category->description === 'Roupas e calçados') {
+                $categoriesByParentId = Category::where('parent_id', $category->id)->get();
+                $products = $products->join('product_has_categories', 'products.id', '=', 'product_has_categories.product_id')
+                    ->whereIn('product_has_categories.category_id', $categoriesByParentId->pluck('id'));
+            } else {
+                $products = $products->join('product_has_categories', 'products.id', '=', 'product_has_categories.product_id')
+                    ->where('product_has_categories.category_id', $category->id);
+            }
         }
 
         return $products->get();

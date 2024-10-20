@@ -7,6 +7,8 @@ import axiosInstance from '@/services/axios';
 import * as SecureStore from 'expo-secure-store';
 import { ActivityIndicator, Button, FAB, Portal, Provider, Snackbar } from 'react-native-paper';
 import { styles } from './styles';
+import CategoriesFilters from '@/components/CategoriesFilters';
+import { CategoriesIcons } from '@/constants/CategoriesIcons';
 
 interface UrgentDonation {
     id: number;
@@ -38,26 +40,35 @@ const UrgentDonationScreen = () => {
 
     const [subcategories, setSubcategories] = useState<{ id: BigInteger; description: string; selected: boolean }[]>([]);
 
+    const [categories, setCategories] = useState<{ id: number, description: keyof typeof CategoriesIcons, selected: boolean }[]>([]);
 
-    console.log(urgentDonations)
     const router = useRouter()
 
     useEffect(() => {
+        getCategories();
         fetchUrgentDonations();
     }, []);
 
+    const fetchUrgentDonations = async (index?: number) => {
+        let categoryFilter = null;
+        if (index !== undefined) {
+            categoryFilter = categories[index] && !categories[index].selected ? categories[index] : null;
+        }
 
-    const fetchUrgentDonations = async () => {
         try {
-            const response = await axiosInstance.get('/donations/urgent');
+            const response = await axiosInstance.get('/donations/urgent', {
+                params: {
+                    category_id: categoryFilter ? categoryFilter.id : null
+                }
+            });
+
             setUrgentDonations(response.data);
         } catch (err) {
             console.error(err);
-            setError('Failed to load urgent donations.');
         } finally {
             setLoading(false);
         }
-    };    
+    };   
 
     const showRemoveUrgencyAlert = (donationId: number) => {
         Alert.alert(
@@ -105,12 +116,11 @@ const UrgentDonationScreen = () => {
             },
         });
     };
-    
+
     const openViewSizesModal = async (donation: UrgentDonation) => {
-        setSelectedDonation(donation); 
-        setModalVisible(true); 
-        setLoading(true); 
-    
+        setSelectedDonation(donation);
+        setModalVisible(true);
+
         try {
             const response = await axiosInstance.get('products/registered-variations', {
                 params: { product_ids: [donation.product_id] },
@@ -130,9 +140,38 @@ const UrgentDonationScreen = () => {
             setLoading(false); 
         }
     };
+
+    const getCategories = async () => {
+        try {
+            const response = await axiosInstance.get('categories');
+
+            const categories = response.data.map((category: { id: number; description: keyof typeof CategoriesIcons }) => {
+                return {
+                    id: category.id,
+                    description: category.description,
+                    selected: false
+                }
+            });
+
+            setCategories(categories);
+
+        } catch (error) {
+            console.log(error);
+        }
+    }
     
-    
-    
+    const selectCategory = (index: number) => {
+        const newCategories = categories.map((category, i) => {
+            return {
+                ...category,
+                selected: i === index ? !category.selected : false
+            }
+        });
+
+        setCategories(newCategories);
+        fetchUrgentDonations(index);
+    }
+
     return (
         <Provider>
             <View style={styles.container}>
@@ -141,6 +180,21 @@ const UrgentDonationScreen = () => {
                         <Text style={styles.title}>Itens urgentes</Text>
                         <Text style={{ fontSize: 16, color: '#333' }}>Veja quais os itens que precisam de doação urgente!</Text>
                     </View>
+                    <View style={{ marginTop: 10 }}>
+                        <ScrollView horizontal={true}
+                            style={{ backgroundColor: '#fff', height: 120 }}>
+                            {categories.map((category, index) => (
+                                <CategoriesFilters
+                                    key={index}
+                                    category={category}
+                                    onPress={() =>
+                                        selectCategory(index)
+                                    }
+                                />
+                            ))}
+
+                        </ScrollView>
+                    </View >
                     <ScrollView>
                         <View style={{ padding: 20 }}>
                             {loading ? (
@@ -213,10 +267,10 @@ const UrgentDonationScreen = () => {
                                 )}
                                 
                                 <View style={style.closeButtonContainer}>
-                                        <Button mode="outlined" onPress={() => setModalVisible(false)} style={style.closeButton}>
-                                            <Text style={style.closeButtonText}>Fechar</Text>
-                                        </Button>
-                                    </View>
+                                    <Button mode="outlined" onPress={() => setModalVisible(false)} style={style.closeButton}>
+                                        <Text style={style.closeButtonText}>Fechar</Text>
+                                    </Button>
+                                </View>
                             </View>
                         </View>
                     </Modal>
@@ -236,20 +290,19 @@ const style = StyleSheet.create({
     },
     modalContent: {
       backgroundColor: 'white',
-      padding: 15,
+      padding: 20,
       borderRadius: 10,
       width: '80%',
       alignItems: 'flex-start',
     },
     modalTitle: {
       fontSize: 20,
-      fontWeight: 600,
-      marginBottom: 15,
-      textTransform: 'capitalize', 
+      fontWeight: 'semibold',
+      marginBottom: 20,
+      textTransform: 'capitalize',
     },
     modalSubtitle: {
-      textAlign: 'left',
-      width: '100%',
+      textAlign: 'left'
     },
     sizesContainer:{
         flexDirection: 'row', 
