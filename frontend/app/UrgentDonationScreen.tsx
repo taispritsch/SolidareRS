@@ -16,10 +16,12 @@ interface UrgentDonation {
     parent_category_description: string;
     urgent: boolean;
     subcategory_description: string;
+    variations?: Variation[]; 
 }
 
 interface Variation {
     id: number;
+    name: string,
     product_id: number,
     caracteristic_id: number,
     description: string;
@@ -44,22 +46,6 @@ const UrgentDonationScreen = () => {
         fetchUrgentDonations();
     }, []);
 
-    const fetchProductVariations = async (productId: number): Promise<Variation[]> => {
-        try {
-            const response = await axiosInstance.get(`/products/${productId}/variations`);
-            const variations: Variation[] = response.data.map((variation: Variation) => ({
-                id: variation.id,
-                description: variation.description,
-                caracteristic_id: variation.caracteristic_id,
-                product_id: variation.product_id,
-            }));
-            return variations;
-        } catch (error) {
-            console.error('Erro ao buscar as variações do produto:', error);
-            return [];
-        }
-    };
-    
 
     const fetchUrgentDonations = async () => {
         try {
@@ -120,11 +106,31 @@ const UrgentDonationScreen = () => {
         });
     };
     
-    const openViewSizesModal = async (donation: any) => {
+    const openViewSizesModal = async (donation: UrgentDonation) => {
         setSelectedDonation(donation); 
-        const sizes = await fetchProductVariations(donation.id);
-        setModalVisible(true);
+        setModalVisible(true); 
+        setLoading(true); 
+    
+        try {
+            const response = await axiosInstance.get('products/registered-variations', {
+                params: { product_ids: [donation.product_id] },
+            });
+            
+            const variationsData = response.data;
+            if (variationsData.length > 0) {
+                const productVariations = variationsData[0].variations; 
+                setProductSizes(productVariations);
+            } else {
+                setProductSizes([]);
+            }
+        } catch (error) {
+            console.error('Erro ao buscar variações:', error);
+            setProductSizes([]); 
+        } finally {
+            setLoading(false); 
+        }
     };
+    
     
     
     return (
@@ -187,23 +193,35 @@ const UrgentDonationScreen = () => {
                     >
                         <View style={style.modalBackground}>
                             <View style={style.modalContent}>
-                                <Text>{selectedDonation.product_description} - {selectedDonation.parent_category_description}</Text>
-                                <Text>Tamanhos</Text>
-                                <Text style={{ marginTop: 10, fontWeight: 'bold' }}>Tamanhos Disponíveis:</Text>
-                                    {productSizes.length > 0 ? (
-                                        productSizes.map((size: Variation) => (
-                                            <Text key={size.id}>{size.description}</Text>
-                                        ))
+                                <Text style={style.modalTitle}>{selectedDonation.product_description} - {selectedDonation.subcategory_description}</Text>
+                                <Text style={{ marginTop: 10 }}>Tamanhos</Text>
+                                
+                                {loading ? (
+                                    <ActivityIndicator size="large" color="#0000ff" />
+                                ) : (
+                                    productSizes && productSizes.length > 0 ? (
+                                        <View style={style.sizesContainer}>
+                                            {productSizes.map((size: Variation) => (
+                                                <View key={size.id} style={style.cardContent}>
+                                                    <Text>{size.name}</Text>
+                                                </View>
+                                            ))}
+                                        </View>
                                     ) : (
                                         <Text>Nenhum tamanho encontrado.</Text>
-                                    )}
-                                <Button mode="contained" onPress={() => setModalVisible(false)}>
-                                    Fechar
-                                </Button>
+                                    )
+                                )}
+                                
+                                <View style={style.closeButtonContainer}>
+                                        <Button mode="outlined" onPress={() => setModalVisible(false)} style={style.closeButton}>
+                                            <Text style={style.closeButtonText}>Fechar</Text>
+                                        </Button>
+                                    </View>
                             </View>
                         </View>
                     </Modal>
                 )}
+
             </View>
         </Provider>
     );
@@ -218,20 +236,56 @@ const style = StyleSheet.create({
     },
     modalContent: {
       backgroundColor: 'white',
-      padding: 20,
+      padding: 15,
       borderRadius: 10,
       width: '80%',
-      alignItems: 'center',
+      alignItems: 'flex-start',
     },
     modalTitle: {
       fontSize: 20,
-      fontWeight: 'semibold',
-      marginBottom: 20,
+      fontWeight: 600,
+      marginBottom: 15,
+      textTransform: 'capitalize', 
     },
     modalSubtitle: {
-      textAlign: 'left'
+      textAlign: 'left',
+      width: '100%',
     },
-    closeModal: {
+    sizesContainer:{
+        flexDirection: 'row', 
+        flexWrap: 'wrap',
+        justifyContent: 'center', 
+        gap: 10,
+        width: '100%', 
+    },
+    cardContent: {
+        borderWidth: 2,
+        borderColor: '#0041A3',
+        borderRadius: 7,
+        marginVertical: 5,
+        backgroundColor: '#FFFFFF',
+        height: 45,
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        alignContent: 'center',
+        padding: 10,
+    },
+    closeButtonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center', 
+        width: '100%', 
+        marginTop: 20,
+    },
+    closeButton: {
+        backgroundColor: 'transparent',
+        borderColor: '#0041A3',
+        borderWidth: 2,
+        paddingHorizontal: 50, 
+    },
+    closeButtonText: {
+        color: 'black',
     },
   });
 

@@ -113,7 +113,6 @@ const DonationItemUrgentForm = () => {
         setSwitchSelectedAll(!switchSelectedAll);
     };
 
-    console.log(productVariations)
     return (
         <Provider>
             <View style={styles.container}>
