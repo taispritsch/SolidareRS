@@ -40,4 +40,29 @@ class ProductController extends Controller
         return response()->json($result);
 
     }
+
+    public function deleteVariation($product_id, $variation_id)
+    {
+        try {
+            $product = Product::findOrFail($product_id);
+            
+            $variation = $product->variations()->where('id', $variation_id)->first();
+
+            if (!$variation) {
+                return response()->json(['error' => 'Variação não encontrada para este produto'], 404);
+            }
+
+            $variation->delete();
+
+            return response()->json(['message' => 'Variação excluída com sucesso'], 200);
+
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['error' => 'Produto ou variação não encontrada'], 404);
+
+        } catch (\Exception $e) {
+            Log::error('Erro ao excluir a variação: ' . $e->getMessage());
+
+            return response()->json(['error' => 'Erro ao excluir a variação'], 500);
+        }
+    }
 }

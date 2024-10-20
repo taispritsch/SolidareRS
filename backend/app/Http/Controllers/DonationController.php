@@ -178,7 +178,15 @@ class DonationController extends Controller
 
         $products = Donation::where('donation_place_id', $donationPlace->id)
             ->join('products', 'donations.product_id', '=', 'products.id')
-            ->select('products.*', 'donations.id as donation_id')
+            ->join('product_has_categories', 'products.id', '=', 'product_has_categories.product_id')
+            ->join('categories as subcategory', 'product_has_categories.category_id', '=', 'subcategory.id')
+            ->leftJoin('categories as parent_category', 'subcategory.parent_id', '=', 'parent_category.id')
+            ->select(
+                'products.*',
+                'donations.id as donation_id',
+                'subcategory.description as subcategory_description',
+                'parent_category.description as parent_category_description'
+            )
             ->distinct();
 
         if (isset($category)) {
@@ -186,14 +194,16 @@ class DonationController extends Controller
 
             if ($category->description === 'Roupas e calçados') {
                 $categoriesByParentId = Category::where('parent_id', $category->id)->get();
-                $products = $products->join('product_has_categories', 'products.id', '=', 'product_has_categories.product_id')
-                    ->whereIn('product_has_categories.category_id', $categoriesByParentId->pluck('id'));
+                $products = $products->whereIn('product_has_categories.category_id', $categoriesByParentId->pluck('id'));
             } else {
-                $products = $products->join('product_has_categories', 'products.id', '=', 'product_has_categories.product_id')
-                    ->where('product_has_categories.category_id', $category->id);
+                $products = $products->where('product_has_categories.category_id', $category->id);
             }
         }
 
-        return $products->get();
+        return $products->get()->map(function ($product) {
+            $product->category_description = $product->parent_category_description ?? $product->subcategory_description;
+            return $product;
+        });
     }
+
 }

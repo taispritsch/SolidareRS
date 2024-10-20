@@ -1,6 +1,6 @@
 import { Colors } from '@/constants/Colors';
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Card, DefaultTheme, Icon, IconButton, Menu, PaperProvider, Provider, Switch } from 'react-native-paper';
 
 interface SimpleCardProps {
@@ -10,7 +10,9 @@ interface SimpleCardProps {
     showSwitch?: boolean;
     switchValue?: boolean;
     disabled?: boolean;
+    isUrgente?: boolean;
     onSwitchChange?: (value: boolean) => void; 
+    onDelete?: () => void; 
 }
 
 const SimpleCard: React.FC<SimpleCardProps> = ({
@@ -20,7 +22,9 @@ const SimpleCard: React.FC<SimpleCardProps> = ({
     showSwitch = false, 
     switchValue = false,
     disabled = false,
+    isUrgente = false,
     onSwitchChange,
+    onDelete,
 }) => {
 
     const [visible, setVisible] = React.useState(false);
@@ -57,7 +61,7 @@ const SimpleCard: React.FC<SimpleCardProps> = ({
                         <Text style={styles.subtitle}>Item</Text>
                         <Text style={styles.title}>{title}</Text>
                     </View>
-                    {showSwitch && ( 
+                    {showSwitch && isUrgente && ( 
                         <View style={styles.switchContainer}>
                             <Text style={styles.subtitle}>Urgente</Text>
                             <Switch
@@ -66,6 +70,17 @@ const SimpleCard: React.FC<SimpleCardProps> = ({
                                 disabled={disabled}
                                 color={Colors.backgroundButton}
                             />
+                        </View> 
+                    )}
+                    {showSwitch && !isUrgente && ( 
+                        <View style={styles.removeContainer}>
+                            <Text style={styles.subtitle}>Remover tamanho</Text>
+                            <TouchableOpacity onPress={onDelete}> 
+                                <Icon 
+                                    source="close" 
+                                    size={25} 
+                                />
+                            </TouchableOpacity>
                         </View> 
                     )}
                 </View>
@@ -95,6 +110,12 @@ const styles = StyleSheet.create({
     switchContainer: {
         flexDirection: 'column', 
         justifyContent: 'space-between', 
+        gap: 15,
+    },
+    removeContainer:{
+        flexDirection: 'column', 
+        justifyContent: 'space-between', 
+        alignItems: 'flex-end',
         gap: 15,
     },
     subtitle: {

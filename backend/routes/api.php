@@ -76,5 +76,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::prefix('products')->group(function () {
         Route::get('variations', [ProductController::class, 'getVariationsByProduct']);
         Route::get('registered-variations', [ProductController::class, 'getRegisteredVariations']); 
+        Route::delete('{product_id}/variations/{variation_id}', [ProductController::class, 'deleteVariation']);
     });
 });

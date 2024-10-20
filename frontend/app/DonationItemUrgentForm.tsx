@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, Pressable } from "react-native";
+import { View, Text, ScrollView, StyleSheet, Pressable, Alert } from "react-native";
 import { styles } from './styles';
 import DynamicCard from '@/components/DynamicCard ';
 import { router, useLocalSearchParams, useRouter } from 'expo-router';
@@ -21,13 +21,14 @@ interface ProductVariation {
 }
 
 const DonationItemUrgentForm = () => {
-    const { selectedProducts, categoryDescription, donationPlaceId, isEditing } = useLocalSearchParams();
+    const { selectedProducts, categoryDescription, donationPlaceId, isEditing, isUrgent } = useLocalSearchParams();
     const [checked, setChecked] = React.useState(false);
     const [loading, setLoading] = useState(false);
     const [urgencyStates, setUrgencyStates] = useState<{ [key: string]: boolean }>({}); 
     const [switchSelectedAll, setSwitchSelectedAll] = useState(false);
     const [productVariations, setProductVariations] = useState<{ [key: string]: ProductVariation[] }>({}); 
     const isEditingMode = isEditing === 'true';
+    const isUrgentMode = isUrgent === 'true';
 
     let selectedProductsArray: Product[] = []; 
     if (typeof selectedProducts === 'string') {
@@ -38,12 +39,20 @@ const DonationItemUrgentForm = () => {
         }
     }
 
-    const pageTitle = isEditingMode ? 'Editar item urgente' : 'Novo item urgente';
+    let pageTitle;
+
+    if (isEditingMode && !isUrgentMode) {
+        pageTitle = 'Editar item';
+    } else if (isEditingMode && isUrgentMode) {
+        pageTitle = 'Editar item urgente';
+    } else {
+        pageTitle = 'Novo item';
+    }
+
     const description = isEditingMode ? 'Editando informações de' : 'Selecione os itens de urgência de';
 
     const fetchProductVariations = async () => {
         const productIds = selectedProductsArray.map(product => product.id); 
-        
         if (productIds.length > 0) {
             try {
                 const response = await axiosInstance.get('products/registered-variations', {
@@ -113,6 +122,37 @@ const DonationItemUrgentForm = () => {
         setSwitchSelectedAll(!switchSelectedAll);
     };
 
+    const showDeleteAlert = (variationId: any, productId: any) => {
+        Alert.alert(
+            "Excluir variação",
+            "Deseja realmente excluir essa variação?",
+            [
+                {
+                    text: "Cancelar",
+                    onPress: () => {},
+                    style: "cancel"
+                },
+                { 
+                    text: "Excluir", 
+                    onPress: () => deleteVariation(variationId, productId) 
+                }
+            ]
+        );
+    };
+
+    
+    async function deleteVariation(productId: number, variationId: number) {
+        console.log(productId)
+        try {
+            await axiosInstance.delete(`products/${productId}/variations/${variationId}`);
+            fetchProductVariations();
+        } catch (error) {
+            console.error('Erro ao excluir a variação:', error);
+            Alert.alert('Erro', 'Não foi possível excluir a variação.');
+        }
+    }
+    
+    
     return (
         <Provider>
             <View style={styles.container}>
@@ -144,20 +184,40 @@ const DonationItemUrgentForm = () => {
                                         <SimpleCard
                                             title={product.description}
                                             showSwitch={true}
+                                            isUrgente={true}
                                             switchValue={urgencyStates[product.id] || false}
                                             onSwitchChange={() => handleUrgencyChange(product.id)}
                                         />
                                     )}
-                                    {productVariations[product.id] && productVariations[product.id].length > 0 && (
-                                        productVariations[product.id].map(variation => (
-                                            <SimpleCard
-                                                key={variation.id}
-                                                title={`${product.description} - ${variation.name}`} 
-                                                showSwitch={true} 
-                                                switchValue={urgencyStates[product.id] || false}
-                                                onSwitchChange={() => handleUrgencyChange(product.id)}
-                                            />
-                                        ))
+                                    {isEditing && isUrgent && (
+                                        <View>{productVariations[product.id] && productVariations[product.id].length > 0 && (
+                                            productVariations[product.id].map(variation => (
+                                                <SimpleCard
+                                                    key={variation.id}
+                                                    title={`${product.description} - ${variation.name}`} 
+                                                    isUrgente={true}
+                                                    showSwitch={true} 
+                                                    switchValue={urgencyStates[product.id] || false}
+                                                    onSwitchChange={() => handleUrgencyChange(product.id)}
+                                                />
+                                            ))
+                                        )}</View>
+                                    )}
+                                    {isEditing && !isUrgent && (
+                                        <View>
+                                            {productVariations[product.id] && productVariations[product.id].length > 0 && (
+                                            productVariations[product.id].map(variation => (
+                                                <SimpleCard
+                                                    key={variation.id}
+                                                    title={`${product.description} - ${variation.name}`} 
+                                                    showSwitch={true} 
+                                                    switchValue={urgencyStates[product.id] || false}
+                                                    onSwitchChange={() => handleUrgencyChange(product.id)}
+                                                    onDelete={() => showDeleteAlert(variation.id, product.id)}
+                                                />
+                                            ))
+                                        )}
+                                        </View>
                                     )}
                                 </View>
                             ))

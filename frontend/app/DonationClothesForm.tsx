@@ -462,6 +462,7 @@ const DonationClothesForm = () => {
                                                         key={index}
                                                         title={variation.description + ' - ' + v.description}
                                                         showSwitch={true}
+                                                        isUrgente={true}
                                                         switchValue={v.urgency}
                                                         onSwitchChange={() => handleUrgencyChange(v.id)}
                                                     />

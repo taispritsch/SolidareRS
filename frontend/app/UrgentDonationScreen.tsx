@@ -113,6 +113,7 @@ const UrgentDonationScreen = () => {
                 productId: donation.product_id, 
                 productDescription: donation.product_description, 
                 isEditing: 'true',
+                isUrgent: 'true',
             },
         });
     };

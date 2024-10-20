@@ -16,7 +16,7 @@ const DonationScreen = () => {
     const { placeName, showSnackbar, action, donationPlaceId } = useLocalSearchParams();
     const [visible, setVisible] = React.useState(false);
 
-    const [donationProducts, setdonationProducts] = useState<{ id: number; description: string; donation_id: number }[]>([]);
+    const [donationProducts, setdonationProducts] = useState<{ id: number; description: string; donation_id: number; category_description: string }[]>([]);
 
     const onDismissSnackBar = () => setVisible(false);
 
@@ -65,11 +65,12 @@ const DonationScreen = () => {
                 }
             });
 
-            const products = response.data.map((product: { id: number; description: string; donation_id: number }) => {
+            const products = response.data.map((product: { id: number; description: string; donation_id: number; category_description: string }) => {
                 return {
                     id: product.id,
                     description: product.description,
-                    donation_id: product.donation_id
+                    donation_id: product.donation_id,
+                    category_description: product.category_description
                 }
             });
 
@@ -90,6 +91,26 @@ const DonationScreen = () => {
         setCategories(newCategories);
         getProducts(index);
     }
+
+    const handleEditDonation = (product: any) => {    
+        const selectedProducts = JSON.stringify([
+            { 
+                id: product.id, 
+                description: product.description, 
+            }
+        ]);
+    
+        router.push({
+            pathname: '/DonationItemUrgentForm',
+            params: {
+                selectedProducts,
+                categoryDescription: product.category_description, 
+                productId: product.id, 
+                productDescription: product.description, 
+                isEditing: 'true',
+            },
+        });
+    };
 
     async function showDeleteAlert(id: number) {
         Alert.alert(
@@ -143,16 +164,32 @@ const DonationScreen = () => {
 
                     <ScrollView>
                         <View style={{ padding: 20 }}>
-                            {donationProducts.map((product, index) => (
-                                <DynamicCard
-                                    key={index}
-                                    title={product.description}
-                                    hasOptionMenu
-                                    menuOptions={['excluir']}
-                                    onDeletPress={() => showDeleteAlert(product.donation_id)}
-                                    onPress={() => showDeleteAlert(product.donation_id)}
-                                />
-                            ))}
+                            {donationProducts
+                                .filter(product => product.category_description === 'Roupas e calçados')
+                                .map((product, index) => (
+                                    <DynamicCard
+                                        key={index}
+                                        title={product.description}
+                                        category={product.category_description}
+                                        hasOptionMenu
+                                        menuOptions={['editar']}
+                                        onEditPress={() => handleEditDonation(product)}
+                                        onPress={() => showDeleteAlert(product.donation_id)}
+                                    />
+                                ))}
+
+                            {donationProducts
+                                .filter(product => product.category_description !== 'Roupas e calçados')
+                                .map((product, index) => (
+                                    <DynamicCard
+                                        key={index}
+                                        title={product.description}
+                                        hasOptionMenu
+                                        menuOptions={['excluir']}
+                                        onDeletPress={() => showDeleteAlert(product.donation_id)}
+                                        onPress={() => showDeleteAlert(product.donation_id)}
+                                    />
+                                ))}
                         </View>
                     </ScrollView>
 
