@@ -70,6 +70,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('{donationPlace}/category/{category}/products', [DonationController::class, 'getProductsByCategoryByDonationPlace']);
         Route::get('/urgent', [DonationController::class, 'getUrgentDonations']); 
         Route::put('{donation}/remove-urgency', [DonationController::class, 'removeUrgency']);
+        Route::put('{donation}/update-urgency', [DonationController::class, 'updateUrgency']); // rota de teste
         Route::delete('{donation}', [DonationController::class, 'destroy']);
     });
 

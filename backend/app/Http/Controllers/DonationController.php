@@ -116,18 +116,6 @@ class DonationController extends Controller
         return response()->json(['message' => 'Urgency removed successfully']);
     }
 
-
-    public function destroy(Donation $donation)
-    {
-        try {
-            $donation->delete();
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Error on delete donation'], 500);
-        }
-
-        return response()->json(null, 204);
-    }
-
     public function saveClothesDonation(DonationClothesRequest $request)
     {
         $inputs = $request->validated();
@@ -206,4 +194,41 @@ class DonationController extends Controller
         });
     }
 
+    public function updateUrgency(Request $request, Donation $donation)
+    {
+        $request->validate([
+            'products' => 'required|array',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $donationItems = DonationItem::where('donation_id', $donation->id)->get()->keyBy('product_id');
+
+            foreach ($request->products as $product) {
+                if (isset($donationItems[$product['id']])) {
+                    $donationItem = $donationItems[$product['id']];
+                    $donationItem->urgent = $product['urgent'];
+                    $donationItem->save();
+                }
+            }
+            
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Error on updating urgency', 'error' => $e->getMessage()], 500);
+        }
+
+        return response()->json(['message' => 'Urgency updated successfully'], 200);
+    }
+
+    public function destroy(Donation $donation)
+    {
+        try {
+            $donation->delete();
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error on delete donation'], 500);
+        }
+
+        return response()->json(null, 204);
+    }
 }

@@ -16,7 +16,7 @@ const DonationScreen = () => {
     const { placeName, showSnackbar, action, donationPlaceId } = useLocalSearchParams();
     const [visible, setVisible] = React.useState(false);
 
-    const [donationProducts, setdonationProducts] = useState<{ id: number; description: string; donation_id: number; category_description: string }[]>([]);
+    const [donationProducts, setdonationProducts] = useState<{ id: number; description: string; donation_id: number; category_description: string; subcategory_description: string }[]>([]);
 
     const onDismissSnackBar = () => setVisible(false);
 
@@ -65,12 +65,13 @@ const DonationScreen = () => {
                 }
             });
 
-            const products = response.data.map((product: { id: number; description: string; donation_id: number; category_description: string }) => {
+            const products = response.data.map((product: { id: number; description: string; donation_id: number; category_description: string; subcategory_description: string }) => {
                 return {
                     id: product.id,
                     description: product.description,
                     donation_id: product.donation_id,
-                    category_description: product.category_description
+                    category_description: product.category_description,
+                    subcategory_description: product.subcategory_description
                 }
             });
 
@@ -108,6 +109,7 @@ const DonationScreen = () => {
                 productId: product.id, 
                 productDescription: product.description, 
                 isEditing: 'true',
+                title: placeName,
             },
         });
     };
@@ -170,7 +172,7 @@ const DonationScreen = () => {
                                     <DynamicCard
                                         key={index}
                                         title={product.description}
-                                        category={product.category_description}
+                                        category={product.subcategory_description}
                                         hasOptionMenu
                                         menuOptions={['editar']}
                                         onEditPress={() => handleEditDonation(product)}

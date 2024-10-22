@@ -9,6 +9,7 @@ import { ActivityIndicator, Button, FAB, Portal, Provider, Snackbar } from 'reac
 import { styles } from './styles';
 import CategoriesFilters from '@/components/CategoriesFilters';
 import { CategoriesIcons } from '@/constants/CategoriesIcons';
+import PlaceForm from './BusinessHourScreen';
 
 interface UrgentDonation {
     id: number;
@@ -31,6 +32,7 @@ interface Variation {
 
 
 const UrgentDonationScreen = () => {
+    const { placeName } = useLocalSearchParams();
     const [urgentDonations, setUrgentDonations] = useState<UrgentDonation[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -114,6 +116,7 @@ const UrgentDonationScreen = () => {
                 productDescription: donation.product_description, 
                 isEditing: 'true',
                 isUrgent: 'true',
+                title: placeName,
             },
         });
     };

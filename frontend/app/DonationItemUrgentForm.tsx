@@ -21,7 +21,7 @@ interface ProductVariation {
 }
 
 const DonationItemUrgentForm = () => {
-    const { selectedProducts, categoryDescription, donationPlaceId, isEditing, isUrgent } = useLocalSearchParams();
+    const { selectedProducts, categoryDescription, donationPlaceId, isEditing, isUrgent, placeName } = useLocalSearchParams();
     const [checked, setChecked] = React.useState(false);
     const [loading, setLoading] = useState(false);
     const [urgencyStates, setUrgencyStates] = useState<{ [key: string]: boolean }>({}); 
@@ -74,15 +74,26 @@ const DonationItemUrgentForm = () => {
     };    
 
     useEffect(() => {
-        fetchProductVariations();
-        if (isEditingMode) {
+        fetchProductVariations();  
+    }, []);
+    
+    useEffect(() => {
+        if (isEditingMode && isUrgentMode && Object.keys(productVariations).length > 0) {
             const initialUrgencyStates = selectedProductsArray.reduce((acc, product) => {
-                acc[product.id] = true; 
+                acc[product.id] = true;
+    
+                if (productVariations[product.id] && productVariations[product.id].length > 0) {
+                    productVariations[product.id].forEach(variation => {
+                        acc[`${product.id}-${variation.id}`] = true;
+                    });
+                }
+    
                 return acc;
             }, {} as { [key: string]: boolean });
-            setUrgencyStates(initialUrgencyStates);
+    
+            setUrgencyStates(initialUrgencyStates);  
         }
-    }, []);
+    }, [productVariations]);  
 
     const handleSave = async () => {
         setLoading(true);
@@ -90,27 +101,54 @@ const DonationItemUrgentForm = () => {
         const data = {
             donation_place_id: donationPlaceId,
             products: selectedProductsArray.map((product) => ({
-                id: product.id, 
-                urgent: urgencyStates[product.id] || false, 
+                id: product.id,
+                urgent: urgencyStates[product.id] || false,
             })),
         };
-        
+    
         try {
             const response = await axiosInstance.post('donations', data);
+    
+            const productsToRemoveUrgency = selectedProductsArray.filter(product => {
+                return urgencyStates[product.id] === false;
+            });
+    
+            if (productsToRemoveUrgency.length > 0) {
+                await Promise.all(productsToRemoveUrgency.map(product =>
+                    axiosInstance.put(`donations/${response.data[0].id}/update-urgency`, { products: [{ id: product.id, urgent: false }] })
+                ));
+            }
+    
             setLoading(false);
-            router.navigate({ pathname: '/DonationScreen', params: { title: categoryDescription, donationPlaceId, showSnackbar: 'true' } });
+    
+            if (isUrgentMode && isEditingMode) {
+                router.navigate({ 
+                    pathname: '/UrgentDonationScreen',  
+                    params: { title: categoryDescription, donationPlaceId, showSnackbar: 'true' }
+                });
+            } else {
+                router.navigate({ 
+                    pathname: '/DonationScreen', 
+                    params: { title: categoryDescription, donationPlaceId, showSnackbar: 'true' }
+                });
+            }
         } catch (error) {
             setLoading(false);
             console.log(error);
         }
     };
+    
 
-    const handleUrgencyChange = (productId: string) => {
-        setUrgencyStates(prevState => ({
-            ...prevState,
-            [productId]: !prevState[productId],
-        }));
+    const handleUrgencyChange = (productId: string, variationId?: string) => {
+        setUrgencyStates(prevState => {
+            const key = variationId ? `${productId}-${variationId}` : productId;
+            return {
+                ...prevState,
+                [key]: !prevState[key], 
+            };
+        });
     };
+    
     
     const toggleAllUrgency = () => {
         const newUrgencyStates = selectedProductsArray.reduce((acc, product) => {
@@ -124,8 +162,8 @@ const DonationItemUrgentForm = () => {
 
     const showDeleteAlert = (variationId: any, productId: any) => {
         Alert.alert(
-            "Excluir variação",
-            "Deseja realmente excluir essa variação?",
+            "Excluir tamanho",
+            "Deseja realmente excluir esse tamanho?",
             [
                 {
                     text: "Cancelar",
@@ -142,7 +180,8 @@ const DonationItemUrgentForm = () => {
 
     
     async function deleteVariation(productId: number, variationId: number) {
-        console.log(productId)
+        console.log('produto', productId)
+        console.log(variationId)
         try {
             await axiosInstance.delete(`products/${productId}/variations/${variationId}`);
             fetchProductVariations();
@@ -197,8 +236,8 @@ const DonationItemUrgentForm = () => {
                                                     title={`${product.description} - ${variation.name}`} 
                                                     isUrgente={true}
                                                     showSwitch={true} 
-                                                    switchValue={urgencyStates[product.id] || false}
-                                                    onSwitchChange={() => handleUrgencyChange(product.id)}
+                                                    switchValue={urgencyStates[`${product.id}-${variation.id}`] || false}  
+                                                    onSwitchChange={() => handleUrgencyChange(product.id, variation.id)}
                                                 />
                                             ))
                                         )}</View>
@@ -213,7 +252,7 @@ const DonationItemUrgentForm = () => {
                                                     showSwitch={true} 
                                                     switchValue={urgencyStates[product.id] || false}
                                                     onSwitchChange={() => handleUrgencyChange(product.id)}
-                                                    onDelete={() => showDeleteAlert(variation.id, product.id)}
+                                                    onDelete={() => showDeleteAlert(product.id, variation.id)}
                                                 />
                                             ))
                                         )}

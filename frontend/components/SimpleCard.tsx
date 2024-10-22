@@ -121,9 +121,11 @@ const styles = StyleSheet.create({
     subtitle: {
         fontSize: 12,
         color: '#666', 
+        textTransform: 'capitalize',
     },
     title: {
         fontWeight: 'bold',
+        textTransform: 'capitalize',
     },
 });
 
