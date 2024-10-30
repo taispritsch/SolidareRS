@@ -11,6 +11,7 @@ use App\Http\Controllers\DonationController;
 use App\Http\Controllers\DonationPlaceController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\VariationController;
+use App\Http\Controllers\AddressController;
 
 /*
 |--------------------------------------------------------------------------
@@ -65,6 +66,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::prefix('donations')->group(function () {
         Route::post('', [DonationController::class, 'store']);
         Route::post('/clothes', [DonationController::class, 'saveClothesDonation']);
+        Route::get('/products', [DonationController::class, 'getAllProducts']);
         Route::get('{donationPlace}/categories', [DonationController::class, 'getCategoriesByDonationPlace']);
         Route::get('{donationPlace}/products', [DonationController::class, 'getProductsByDonationPlace']);
         Route::get('{donationPlace}/category/{category}/products', [DonationController::class, 'getProductsByCategoryByDonationPlace']);
@@ -80,4 +82,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('registered-urgent-variations', [ProductController::class, 'getRegisteredUrgentVariations']); 
         Route::delete('variations/{donationItem}', [ProductController::class, 'deleteVariation']);
     });
+
+    Route::prefix('addresses')->group(function () {
+        Route::get('{id}', [AddressController::class, 'show']);
+    });
+    
 });

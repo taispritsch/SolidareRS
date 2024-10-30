@@ -158,6 +158,40 @@ class DonationController extends Controller
         return response()->json(201);
     }
 
+    public function getAllProducts(Request $request)
+    {
+        $inputs = $request->all();
+        $category = $inputs['category_id'] ?? null;
+
+        $products = Donation::join('products', 'donations.product_id', '=', 'products.id')
+            ->join('product_has_categories', 'products.id', '=', 'product_has_categories.product_id')
+            ->join('categories as subcategory', 'product_has_categories.category_id', '=', 'subcategory.id')
+            ->leftJoin('categories as parent_category', 'subcategory.parent_id', '=', 'parent_category.id')
+            ->select(
+                'products.*',
+                'donations.id as donation_id',
+                'subcategory.description as subcategory_description',
+                'parent_category.description as parent_category_description'
+            )
+            ->distinct();
+
+        if (isset($category)) {
+            $category = Category::find($category);
+
+            if ($category->description === 'Roupas e calçados') {
+                $categoriesByParentId = Category::where('parent_id', $category->id)->get();
+                $products = $products->whereIn('product_has_categories.category_id', $categoriesByParentId->pluck('id'));
+            } else {
+                $products = $products->where('product_has_categories.category_id', $category->id);
+            }
+        }
+
+        return $products->get()->map(function ($product) {
+            $product->category_description = $product->parent_category_description ?? $product->subcategory_description;
+            return $product;
+        });
+    }
+
     public function getProductsByDonationPlace(DonationPlace $donationPlace, Request $request)
     {
         $inputs = $request->all();

@@ -33,6 +33,7 @@ const style = StyleSheet.create({
         padding: 15,
         backgroundColor: "transparent", 
         height: 90,
+        marginBottom: 15,
     },
     content: {
         flexDirection: "row",

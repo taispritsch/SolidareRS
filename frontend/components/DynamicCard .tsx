@@ -103,6 +103,7 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
                     size={30}
                     iconColor={'#0041A3'}
                     onPress={openMenu}
+                    style={styles.menuButton}
                   />
                 }
               >
@@ -224,7 +225,9 @@ const styles = StyleSheet.create({
   modalSubtitle: {
     textAlign: 'left'
   },
-  closeModal: {
+  menuButton: {
+    zIndex: 10,
+    position: 'relative',
   },
 });
 
