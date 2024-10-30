@@ -117,6 +117,7 @@ const UrgentDonationScreen = () => {
                 isEditing: 'true',
                 isUrgent: 'true',
                 title: placeName,
+                placeName: placeName
             },
         });
     };
@@ -126,14 +127,17 @@ const UrgentDonationScreen = () => {
         setModalVisible(true);
 
         try {
-            const response = await axiosInstance.get('products/registered-variations', {
+            const response = await axiosInstance.get('products/registered-urgent-variations', {
                 params: { product_ids: [donation.product_id] },
             });
+
+            console.log('response', response.data);
             
             const variationsData = response.data;
+
+            console.log('variationsData', variationsData);
             if (variationsData.length > 0) {
-                const productVariations = variationsData[0].variations; 
-                setProductSizes(productVariations);
+                setProductSizes(variationsData);
             } else {
                 setProductSizes([]);
             }
@@ -212,10 +216,10 @@ const UrgentDonationScreen = () => {
                                                 key={donation.id}
                                                 title={donation.product_description}
                                                 category={donation.subcategory_description}
-                                                hasOptionMenu
-                                                menuOptions={['editar', 'visualizar']}
-                                                onEditPress={() => handleEditDonation(donation)}
-                                                onViewSizesPress={() => openViewSizesModal(donation)}
+                                                notShowButton
+                                                showButtonTopRight
+                                                showButtonTopRightText="Ver tamanhos"
+                                                onPress={() => openViewSizesModal(donation)}
                                             />
                                         ))}
 
@@ -226,11 +230,7 @@ const UrgentDonationScreen = () => {
                                             <DynamicCard
                                                 key={donation.id}
                                                 title={donation.product_description}
-                                                hasOptionMenu
-                                                menuOptions={['excluir']}
-                                                deleteTitle="Remover urgência" 
-                                                onDeletPress={() => showRemoveUrgencyAlert(donation.id)}
-                                                onPress={() => console.log('Doação selecionada:', donation.id)}
+                                                notShowButton
                                             />
                                         ))}
                                 </>
@@ -261,7 +261,7 @@ const UrgentDonationScreen = () => {
                                         <View style={style.sizesContainer}>
                                             {productSizes.map((size: Variation) => (
                                                 <View key={size.id} style={style.cardContent}>
-                                                    <Text>{size.name}</Text>
+                                                    <Text>{size.description}</Text>
                                                 </View>
                                             ))}
                                         </View>
@@ -339,7 +339,7 @@ const style = StyleSheet.create({
         backgroundColor: 'transparent',
         borderColor: '#0041A3',
         borderWidth: 2,
-        paddingHorizontal: 50, 
+        width: '50%',
     },
     closeButtonText: {
         color: 'black',

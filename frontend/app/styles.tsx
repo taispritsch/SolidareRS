@@ -8,7 +8,9 @@ export const styles = StyleSheet.create({
   },
   container: {
     flex: 1, 
-    backgroundColor: '#133567', 
+    backgroundColor: '#133567',
+    elevation: 1,
+    zIndex: 1,
   },
   content: {
     flex: 1, 
@@ -19,6 +21,8 @@ export const styles = StyleSheet.create({
     position: 'relative',
     borderColor: '#9EC3FF',
     borderWidth: 2,
+    elevation: 1,
+    zIndex: 1,
   },
   iconAndTextContainer: {
     paddingHorizontal: 20,

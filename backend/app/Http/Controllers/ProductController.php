@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Donation;
+use App\Models\DonationItem;
 use App\Models\Product;
+use App\Models\Variation;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
-    public function getVariationsByProduct (Request $request) {
+    public function getVariationsByProduct(Request $request)
+    {
         $product_ids = $request->product_ids;
         $products = Product::whereIn('id', $product_ids)->with('variations')->get();
 
@@ -16,53 +21,60 @@ class ProductController extends Controller
         return response()->json($products);
     }
 
-    public function getRegisteredVariations (Request $request) {
+    public function getRegisteredVariations(Request $request)
+    {
         $productIds = $request->product_ids;
 
-        $productsWithRegisteredVariations = Product::whereIn('id', $productIds)
-            ->with(['variations' => function ($query) {
-                $query->join('donation_items', 'variations.id', '=', 'donation_items.variation_id');
-            }])
-            ->get();
+        $productsWithRegisteredVariations = Donation::whereIn('donations.product_id', $productIds)
+            ->with(['donationItems', 'product', 'donationItems.variation'])
+            ->get()
+            ->pluck('donationItems');
 
-        $result = $productsWithRegisteredVariations->map(function ($product) {
-            return [
-                'productId' => $product->id,
-                'variations' => $product->variations->map(function ($variation) {
-                    return [
-                        'id' => $variation->id,
-                        'name' => $variation->description,
-                    ];
-                })
-            ];
-        });
-
-        return response()->json($result);
-
+        return response()->json($productsWithRegisteredVariations[0]);
     }
 
-    public function deleteVariation($product_id, $variation_id)
+    public function getRegisteredUrgentVariations(Request $request)
     {
-        try {
-            $product = Product::findOrFail($product_id);
-            
-            $variation = $product->variations()->where('id', $variation_id)->first();
+        $productIds = $request->product_ids;
 
-            if (!$variation) {
-                return response()->json(['error' => 'Variação não encontrada para este produto'], 404);
+        $productsWithRegisteredVariations = Donation::whereIn('donations.product_id', $productIds)
+            ->leftJoin('donation_items', 'donations.id', '=', 'donation_items.donation_id')
+            ->leftJoin('variations', 'donation_items.variation_id', '=', 'variations.id')
+            ->where('donation_items.urgent', true)
+            ->select('donation_items.*', 'variations.*')
+            ->get()
+            ->toArray();
+
+            logger('log',[$productsWithRegisteredVariations]);
+
+        return response()->json($productsWithRegisteredVariations);
+    }
+
+    public function deleteVariation(DonationItem $donationItem)
+    {
+        DB::beginTransaction();
+        try {
+            $donation = Donation::find($donationItem->donation_id);
+
+            $product = Product::find($donation->product_id);
+
+            $donationItemsCount = $product->donations->sum(function ($donation) {
+                return $donation->donationItems->count();
+            });
+
+            $donationItem->delete();
+
+            if ($donationItemsCount === 1) {
+                $donation->delete();
             }
 
-            $variation->delete();
-
-            return response()->json(['message' => 'Variação excluída com sucesso'], 200);
-
-        } catch (ModelNotFoundException $e) {
-            return response()->json(['error' => 'Produto ou variação não encontrada'], 404);
-
+            DB::commit();
         } catch (\Exception $e) {
-            Log::error('Erro ao excluir a variação: ' . $e->getMessage());
-
-            return response()->json(['error' => 'Erro ao excluir a variação'], 500);
+            DB::rollBack();
+            logger('erro', [$e->getMessage()]);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
+
+        return response()->json(['message' => 'Variation deleted successfully']);
     }
 }

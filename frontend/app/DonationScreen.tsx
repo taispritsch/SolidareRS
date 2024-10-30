@@ -32,6 +32,13 @@ const DonationScreen = () => {
         }
     }, [showSnackbar]);
 
+    useFocusEffect(
+        React.useCallback(() => {
+            getProducts();
+            getCategories();
+        }, [])
+    );
+
 
     const getCategories = async () => {
         try {
@@ -55,7 +62,7 @@ const DonationScreen = () => {
     const getProducts = async (index?: number) => {
         let categoryFilter = null;
         if (index !== undefined) {
-            categoryFilter = categories[index] && ! categories[index].selected ? categories[index] : null;
+            categoryFilter = categories[index] && !categories[index].selected ? categories[index] : null;
         }
 
         try {
@@ -93,23 +100,25 @@ const DonationScreen = () => {
         getProducts(index);
     }
 
-    const handleEditDonation = (product: any) => {    
+    const handleEditDonation = (product: any) => {
         const selectedProducts = JSON.stringify([
-            { 
-                id: product.id, 
-                description: product.description, 
+            {
+                id: product.id,
+                description: product.description,
             }
         ]);
-    
+
         router.push({
             pathname: '/DonationItemUrgentForm',
             params: {
                 selectedProducts,
-                categoryDescription: product.category_description, 
-                productId: product.id, 
-                productDescription: product.description, 
+                categoryDescription: product.category_description,
+                productId: product.id,
+                productDescription: product.description,
                 isEditing: 'true',
                 title: placeName,
+                donationPlaceId: donationPlaceId,
+                placeName: placeName
             },
         });
     };
@@ -174,9 +183,8 @@ const DonationScreen = () => {
                                         title={product.description}
                                         category={product.subcategory_description}
                                         hasOptionMenu
-                                        menuOptions={['editar']}
+                                        menuOptions={['editar', 'editar urgência', 'excluir']}
                                         onEditPress={() => handleEditDonation(product)}
-                                        onPress={() => showDeleteAlert(product.donation_id)}
                                     />
                                 ))}
 

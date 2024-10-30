@@ -18,19 +18,19 @@ interface Product {
 interface ProductVariation {
     id: string;
     name: string;
+    urgency: boolean;
 }
 
 const DonationItemUrgentForm = () => {
     const { selectedProducts, categoryDescription, donationPlaceId, isEditing, isUrgent, placeName } = useLocalSearchParams();
-    const [checked, setChecked] = React.useState(false);
     const [loading, setLoading] = useState(false);
-    const [urgencyStates, setUrgencyStates] = useState<{ [key: string]: boolean }>({}); 
     const [switchSelectedAll, setSwitchSelectedAll] = useState(false);
-    const [productVariations, setProductVariations] = useState<{ [key: string]: ProductVariation[] }>({}); 
+    const [productVariations, setProductVariations] = useState<ProductVariation[]>();
     const isEditingMode = isEditing === 'true';
     const isUrgentMode = isUrgent === 'true';
 
-    let selectedProductsArray: Product[] = []; 
+    let selectedProductsArray: Product[] = [];
+
     if (typeof selectedProducts === 'string') {
         try {
             selectedProductsArray = JSON.parse(selectedProducts);
@@ -52,83 +52,73 @@ const DonationItemUrgentForm = () => {
     const description = isEditingMode ? 'Editando informações de' : 'Selecione os itens de urgência de';
 
     const fetchProductVariations = async () => {
-        const productIds = selectedProductsArray.map(product => product.id); 
+        const productIds = selectedProductsArray.map(product => product.id);
         if (productIds.length > 0) {
             try {
                 const response = await axiosInstance.get('products/registered-variations', {
                     params: { product_ids: productIds },
                 });
-        
+
                 const variationsData = response.data;
-        
-                const newProductVariations = variationsData.reduce((acc: { [key: string]: ProductVariation[] }, item: any) => {
-                    acc[item.productId] = item.variations; 
-                    return acc;
-                }, {});
-        
-                setProductVariations(newProductVariations); 
+
+                const newProductVariations = variationsData.map((variation: any) => {
+                    return {
+                        id: variation.id,
+                        name: variation.variation.description,
+                        urgency: variation.urgent === 1 ? true : false,
+                    };
+                });
+
+                setProductVariations(newProductVariations);
             } catch (error) {
                 console.error('Erro ao buscar variações:', error);
             }
         }
-    };    
+    };
 
     useEffect(() => {
-        fetchProductVariations();  
+        fetchProductVariations();
     }, []);
-    
-    useEffect(() => {
-        if (isEditingMode && isUrgentMode && Object.keys(productVariations).length > 0) {
-            const initialUrgencyStates = selectedProductsArray.reduce((acc, product) => {
-                acc[product.id] = true;
-    
-                if (productVariations[product.id] && productVariations[product.id].length > 0) {
-                    productVariations[product.id].forEach(variation => {
-                        acc[`${product.id}-${variation.id}`] = true;
-                    });
-                }
-    
-                return acc;
-            }, {} as { [key: string]: boolean });
-    
-            setUrgencyStates(initialUrgencyStates);  
-        }
-    }, [productVariations]);  
 
     const handleSave = async () => {
         setLoading(true);
-    
+
         const data = {
             donation_place_id: donationPlaceId,
             products: selectedProductsArray.map((product) => ({
                 id: product.id,
-                urgent: urgencyStates[product.id] || false,
+                urgent: product.urgency,
             })),
         };
-    
+
         try {
-            const response = await axiosInstance.post('donations', data);
-    
-            const productsToRemoveUrgency = selectedProductsArray.filter(product => {
-                return urgencyStates[product.id] === false;
-            });
-    
-            if (productsToRemoveUrgency.length > 0) {
-                await Promise.all(productsToRemoveUrgency.map(product =>
-                    axiosInstance.put(`donations/${response.data[0].id}/update-urgency`, { products: [{ id: product.id, urgent: false }] })
-                ));
-            }
-    
-            setLoading(false);
-    
             if (isUrgentMode && isEditingMode) {
-                router.navigate({ 
-                    pathname: '/UrgentDonationScreen',  
+                console.log('selectedProductsArray', selectedProductsArray);
+
+
+                const productVariationsData = productVariations?.map((variation) => ({
+                    id: variation.id,
+                    urgent: variation.urgency,
+                    product_id: selectedProductsArray[0].id,
+                }));
+
+                await axiosInstance.put('donations/update-urgency', {
+                    ...productVariationsData,
+                });
+
+                setLoading(false);
+
+                router.navigate({
+                    pathname: '/UrgentDonationScreen',
                     params: { title: categoryDescription, donationPlaceId, showSnackbar: 'true' }
                 });
             } else {
-                router.navigate({ 
-                    pathname: '/DonationScreen', 
+                await axiosInstance.post('donations', data);
+
+                setLoading(false);
+
+                router.navigate({
+                    pathname: '/DonationScreen',
                     params: { title: categoryDescription, donationPlaceId, showSnackbar: 'true' }
                 });
             }
@@ -137,61 +127,64 @@ const DonationItemUrgentForm = () => {
             console.log(error);
         }
     };
-    
 
-    const handleUrgencyChange = (productId: string, variationId?: string) => {
-        setUrgencyStates(prevState => {
-            const key = variationId ? `${productId}-${variationId}` : productId;
-            return {
-                ...prevState,
-                [key]: !prevState[key], 
-            };
+    const toggleAllUrgency = () => {
+        selectedProductsArray.forEach(product => {
+            product.urgency = !product.urgency;
         });
     };
-    
-    
-    const toggleAllUrgency = () => {
-        const newUrgencyStates = selectedProductsArray.reduce((acc, product) => {
-            acc[product.id] = !switchSelectedAll;
-            return acc;
-        }, {} as { [key: string]: boolean });
 
-        setUrgencyStates(newUrgencyStates);
-        setSwitchSelectedAll(!switchSelectedAll);
+    const handleUrgencyChange = (variationId: any) => {
+        const newProductVariations = productVariations?.map(variation => {
+            if (variation.id === variationId) {
+                return {
+                    ...variation,
+                    urgency: !variation.urgency,
+                };
+            }
+
+            return variation;
+        });
+
+        setProductVariations(newProductVariations);
     };
 
-    const showDeleteAlert = (variationId: any, productId: any) => {
+    const showDeleteAlert = (donationItemId: any, productId: any) => {
         Alert.alert(
             "Excluir tamanho",
             "Deseja realmente excluir esse tamanho?",
             [
                 {
                     text: "Cancelar",
-                    onPress: () => {},
+                    onPress: () => { },
                     style: "cancel"
                 },
-                { 
-                    text: "Excluir", 
-                    onPress: () => deleteVariation(variationId, productId) 
+                {
+                    text: "Excluir",
+                    onPress: () => deleteVariation(donationItemId, productId)
                 }
             ]
         );
     };
 
-    
-    async function deleteVariation(productId: number, variationId: number) {
-        console.log('produto', productId)
-        console.log(variationId)
+
+    async function deleteVariation(donationItemId: number, productId: any) {
         try {
-            await axiosInstance.delete(`products/${productId}/variations/${variationId}`);
-            fetchProductVariations();
+            await axiosInstance.delete(`products/variations/${donationItemId}`);
+
+            if (productVariations && productVariations.length > 1) {
+                fetchProductVariations();
+            } else {
+                router.navigate({ pathname: '/DonationScreen', params: { title: placeName, donationPlaceId: donationPlaceId, placeName: placeName, showSnackbar: 'true' } });
+            }
+
         } catch (error) {
             console.error('Erro ao excluir a variação:', error);
             Alert.alert('Erro', 'Não foi possível excluir a variação.');
         }
     }
-    
-    
+
+
     return (
         <Provider>
             <View style={styles.container}>
@@ -221,41 +214,43 @@ const DonationItemUrgentForm = () => {
                                 <View key={product.id}>
                                     {!isEditing && (
                                         <SimpleCard
+                                            key={product.id}
                                             title={product.description}
                                             showSwitch={true}
                                             isUrgente={true}
-                                            switchValue={urgencyStates[product.id] || false}
-                                            onSwitchChange={() => handleUrgencyChange(product.id)}
+                                            switchValue={product.urgency}
+                                            onSwitchChange={() => product.urgency = !product.urgency}
                                         />
                                     )}
                                     {isEditing && isUrgent && (
-                                        <View>{productVariations[product.id] && productVariations[product.id].length > 0 && (
-                                            productVariations[product.id].map(variation => (
+                                        <View>{productVariations && productVariations.length > 0 && (
+                                            productVariations.map(variation => (
                                                 <SimpleCard
                                                     key={variation.id}
-                                                    title={`${product.description} - ${variation.name}`} 
+                                                    title={`${product.description} - ${variation.name}`}
+                                                    showSwitch={true}
                                                     isUrgente={true}
-                                                    showSwitch={true} 
-                                                    switchValue={urgencyStates[`${product.id}-${variation.id}`] || false}  
-                                                    onSwitchChange={() => handleUrgencyChange(product.id, variation.id)}
-                                                />
-                                            ))
-                                        )}</View>
-                                    )}
-                                    {isEditing && !isUrgent && (
-                                        <View>
-                                            {productVariations[product.id] && productVariations[product.id].length > 0 && (
-                                            productVariations[product.id].map(variation => (
-                                                <SimpleCard
-                                                    key={variation.id}
-                                                    title={`${product.description} - ${variation.name}`} 
-                                                    showSwitch={true} 
-                                                    switchValue={urgencyStates[product.id] || false}
-                                                    onSwitchChange={() => handleUrgencyChange(product.id)}
-                                                    onDelete={() => showDeleteAlert(product.id, variation.id)}
+                                                    switchValue={variation.urgency}
+                                                    onSwitchChange={() => handleUrgencyChange(variation.id)}
                                                 />
                                             ))
                                         )}
+                                        </View>
+                                    )}
+                                    {isEditing && !isUrgent && (
+                                        <View>
+                                            {productVariations && productVariations.length > 0 && (
+                                                productVariations.map(variation => (
+                                                    <SimpleCard
+                                                        key={variation.id}
+                                                        title={`${product.description} - ${variation.name}`}
+                                                        showSwitch={true}
+                                                        switchValue={variation.urgency}
+                                                        onSwitchChange={() => variation.urgency = !variation.urgency}
+                                                        onDelete={() => showDeleteAlert(variation.id, product.id)}
+                                                    />
+                                                ))
+                                            )}
                                         </View>
                                     )}
                                 </View>
@@ -274,15 +269,25 @@ const DonationItemUrgentForm = () => {
                             loading={loading}
                             disabled={loading}
                             onPress={() => {
-                                handleSave();
+                                console.log(placeName, donationPlaceId);
+                                isEditing && !isUrgent ? router.navigate({ pathname: '/DonationScreen', params: { title: placeName, donationPlaceId: donationPlaceId, placeName: placeName, showSnackbar: 'true' } }) :
+                                    handleSave();
                             }}
                         >
-                            Salvar
+                            {isEditing && !isUrgent && (
+                                'Voltar'
+                            )}
+                            {isEditing && isUrgent && (
+                                'Salvar'
+                            )}
+                            {!isEditing && (
+                                'Salvar'
+                            )}
                         </Button>
                     </View>
                 </View>
             </View>
-        </Provider>
+        </Provider >
     );
 }
 
@@ -323,18 +328,18 @@ const style = StyleSheet.create({
     },
     checkboxContainer: {
         flexDirection: 'row',
-        alignItems: 'center', 
-        
+        alignItems: 'center',
+
     },
-    checkboxBorder:{
+    checkboxBorder: {
         borderWidth: 2,
         borderColor: 'black',
     },
     checkbox: {
         borderWidth: 2,
-        borderColor: 'black', 
-        borderRadius: 4, 
-        marginRight: 8, 
+        borderColor: 'black',
+        borderRadius: 4,
+        marginRight: 8,
     },
     checkboxLabel: {
         fontSize: 16,

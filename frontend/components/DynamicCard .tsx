@@ -2,40 +2,48 @@ import { Colors } from '@/constants/Colors';
 import { faBorderAll } from '@fortawesome/free-solid-svg-icons';
 import React from 'react';
 import { View, Text, StyleSheet, Modal } from 'react-native';
-import { Button, Card, DefaultTheme, Icon, IconButton, Menu, Provider } from 'react-native-paper';
+import { Button, Card, DefaultTheme, Icon, IconButton, Menu, PaperProvider, Provider } from 'react-native-paper';
 
 interface DynamicCardProps {
   title: string;
   category?: string;
+  notShowButton?: boolean;
   icon?: string;
   description?: string;
   hasOptionMenu?: boolean;
   menuOptions?: string[];
   editTitle?: string;
   deleteTitle?: string;
+  showButtonTopRight?: boolean;
+  showButtonTopRightText?: string;
   onPress?: () => void;
   onEditPress?: () => void;
   onDeletPress?: () => void;
-  onViewSizesPress?: () => void; 
+  onViewSizesPress?: () => void;
+  onEditUrgencyPress?: () => void;
 }
 
 const DynamicCard: React.FC<DynamicCardProps> = ({
   title,
   category,
+  notShowButton,
   icon,
   description,
   hasOptionMenu,
   menuOptions = [],
   editTitle = 'Editar',
   deleteTitle = 'Excluir',
+  showButtonTopRight,
+  showButtonTopRightText,
   onPress,
   onEditPress,
   onDeletPress,
   onViewSizesPress,
+  onEditUrgencyPress,
 }) => {
 
   const [visible, setVisible] = React.useState(false);
-  const [modalVisible, setModalVisible] = React.useState(false); 
+  const [modalVisible, setModalVisible] = React.useState(false);
 
   const openMenu = () => setVisible(true);
   const closeMenu = () => setVisible(false);
@@ -43,7 +51,7 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
   const openViewSizesModal = () => {
     setModalVisible(true);
     closeMenu();
-    onViewSizesPress && onViewSizesPress(); 
+    onViewSizesPress && onViewSizesPress();
   };
 
   return (
@@ -53,7 +61,6 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
           ...DefaultTheme.colors,
           onSurface: '#202020',
         },
-
         roundness: 8,
       }}
     >
@@ -62,13 +69,13 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
           <View style={styles.cardContentTitle}>
             {icon && <Icon source={icon} color={'#000E19'} size={30} />}
             <View style={{ flexDirection: 'column' }}>
-            {category && <Card style={styles.category}><Text style={styles.categoryName}>{category}</Text></Card>}
+              {category && <Card style={styles.category}><Text style={styles.categoryName}>{category}</Text></Card>}
               <Text style={[styles.title, icon ? { marginLeft: 10 } : {}]}>{title}</Text>
               {description && <Text style={styles.description}>{description}</Text>}
             </View>
           </View>
 
-          {!hasOptionMenu && (
+          {!hasOptionMenu && !notShowButton && (
             <IconButton
               icon="chevron-right"
               size={35}
@@ -77,13 +84,19 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
             />
           )}
 
+          {showButtonTopRight && (
+            <Text style={{ fontSize: 12, color: '#000000', marginRight: 15, marginTop: 10, position: 'absolute', right: 0, top: 0 }}>{showButtonTopRightText}</Text>
+          )}
+
           {hasOptionMenu && (
-            <View>
+            <View style={{ zIndex: 999, elevation: 999 }}>
               <Menu
-                contentStyle={{ backgroundColor: '#FFFFFF' }}
-                style={{ top: -20 }}
+                contentStyle={{ backgroundColor: '#FFFFFF', zIndex: 999, elevation: 999, position: 'absolute' }}
+                style={{ width: 130, height: 100, left: 220, top: 0, bottom: 0, right: 0, zIndex: 999, elevation: 999, position: 'absolute' }}
                 visible={visible}
                 onDismiss={closeMenu}
+                elevation={5}
+                mode={'elevated'}
                 anchor={
                   <IconButton
                     icon="dots-vertical"
@@ -95,21 +108,35 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
               >
                 {menuOptions.includes('editar') && (
                   <Menu.Item
+                    titleStyle={{ flexWrap: 'wrap', width: '100%', fontSize: 14 }}
                     onPress={() => { closeMenu(); onEditPress && onEditPress(); }}
                     title={editTitle}
+                    style={{ zIndex: 999, elevation: 999 }}
+                  />
+                )}
+                {menuOptions.includes('editar urgência') && (
+                  <Menu.Item
+                    titleStyle={{ flexWrap: 'wrap', width: '100%', fontSize: 14 }}
+                    onPress={() => { closeMenu(); onEditUrgencyPress && onEditUrgencyPress(); }}
+                    title="Editar urgência"
+                    style={{ zIndex: 999, elevation: 999 }}
+                    
                   />
                 )}
                 {menuOptions.includes('excluir') && (
                   <Menu.Item
+                    titleStyle={{ flexWrap: 'wrap', width: '100%', fontSize: 14 }}
                     onPress={() => { closeMenu(); onDeletPress && onDeletPress(); }}
                     title={deleteTitle}
-                    titleStyle={{ flexWrap: 'wrap', width: '100%' }}
+                    style={{ zIndex: 999, elevation: 999 }}
                   />
                 )}
                 {menuOptions.includes('visualizar') && (
                   <Menu.Item
+                    titleStyle={{ flexWrap: 'wrap', width: '100%', fontSize: 14 }}
                     onPress={openViewSizesModal}
                     title="Visualizar Tamanhos"
+                    style={{ zIndex: 999, elevation: 999 }}
                   />
                 )}
 
@@ -131,6 +158,8 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     backgroundColor: '#FFFFFF',
     height: 80,
+    zIndex: 1,
+    elevation: 1,
   },
   cardContent: {
     display: 'flex',
@@ -139,6 +168,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     alignContent: 'center',
     height: '100%',
+    paddingVertical: 10,
+    zIndex: 1,
+    elevation: 1,
   },
   cardContentTitle: {
     flexDirection: 'row',
@@ -149,11 +181,17 @@ const styles = StyleSheet.create({
   category: {
     backgroundColor: Colors.backgroundButton,
     padding: 5,
+    paddingLeft: 10,
+    paddingRight: 10,
     borderRadius: 4,
-    marginBottom: 8
+    marginBottom: 5,
+    width: 'auto',
   },
   categoryName: {
     color: Colors.text,
+    fontSize: 11,
+    textAlign: 'center',
+    fontWeight: '500',
   },
   title: {
     fontSize: 18,

@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Donation;
 use App\Models\DonationItem;
 use App\Models\DonationPlace;
+use App\Models\Product;
 use App\Models\Variation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -194,26 +195,35 @@ class DonationController extends Controller
         });
     }
 
-    public function updateUrgency(Request $request, Donation $donation)
+    public function updateUrgency(Request $request)
     {
-        $request->validate([
-            'products' => 'required|array',
-        ]);
+        $variations = $request->all();
 
         DB::beginTransaction();
         try {
-            $donationItems = DonationItem::where('donation_id', $donation->id)->get()->keyBy('product_id');
+            foreach ($variations as $variation) {
+                $donationItem = DonationItem::find($variation['id']);
+                $donationItem->urgent = $variation['urgent'];
+                $donationItem->save();
+            }
+            
+            $donation = Donation::where('product_id', $variations[0]['product_id'])->first();
 
-            foreach ($request->products as $product) {
-                if (isset($donationItems[$product['id']])) {
-                    $donationItem = $donationItems[$product['id']];
-                    $donationItem->urgent = $product['urgent'];
-                    $donationItem->save();
-                }
+            $allDonationItemsAreNotUrgent = $donation->donationItems()->where('urgent', true)->count() === 0;
+
+            if ($allDonationItemsAreNotUrgent) {
+                logger('FALSO');
+                $donation->urgent = false;
+                $donation->save();
+            } else {
+                logger('VERDADEIRO');
+                $donation->urgent = true;
+                $donation->save();
             }
             
             DB::commit();
         } catch (\Exception $e) {
+            logger($e->getMessage());
             DB::rollBack();
             return response()->json(['message' => 'Error on updating urgency', 'error' => $e->getMessage()], 500);
         }
