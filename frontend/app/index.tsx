@@ -6,7 +6,7 @@ import AccessScreen from './AccessScreen';
 export default function App() {
   return (
     //<HomeScreen></HomeScreen>
-    //<AccessScreen></AccessScreen>
-    <LoginScreen></LoginScreen>
+    <AccessScreen></AccessScreen>
+    //<LoginScreen></LoginScreen>
   )
 }
