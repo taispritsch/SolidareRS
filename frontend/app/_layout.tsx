@@ -42,6 +42,12 @@ const RootLayout = () => {
                 }
             } />
 
+            <Stack.Screen name="HomeScreenCommunity" options={
+                {
+                    headerShown: false,
+                }
+            } />
+
             <Stack.Screen
                 name="UserScreen"
                 options={({ route }) => ({
@@ -154,6 +160,41 @@ const RootLayout = () => {
             />
 
             <Stack.Screen name="ClothingDonationScreen" options={({ route }) => ({
+                ...sharedHeaderStyle,
+                headerTitle: route.params.title,
+                headerBackTitleVisible: false,
+            })}
+            />
+
+            <Stack.Screen name="CityLocations" options={({ route }) => ({
+                ...sharedHeaderStyle,
+                headerTitle: route.params.title,
+                headerBackTitleVisible: false,
+            })}
+            />
+
+            <Stack.Screen name="Location" options={({ route }) => ({
+                ...sharedHeaderStyle,
+                headerTitle: route.params.title,
+                headerBackTitleVisible: false,
+            })}
+            />
+
+            <Stack.Screen name="DonationTime" options={({ route }) => ({
+                ...sharedHeaderStyle,
+                headerTitle: route.params.title,
+                headerBackTitleVisible: false,
+            })}
+            />
+
+            <Stack.Screen name="VolunteeringTime" options={({ route }) => ({
+                ...sharedHeaderStyle,
+                headerTitle: route.params.title,
+                headerBackTitleVisible: false,
+            })}
+            />
+
+            <Stack.Screen name="ContactAddress" options={({ route }) => ({
                 ...sharedHeaderStyle,
                 headerTitle: route.params.title,
                 headerBackTitleVisible: false,
