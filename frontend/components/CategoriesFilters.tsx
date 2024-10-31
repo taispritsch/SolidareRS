@@ -14,7 +14,7 @@ const CategoriesFilters: React.FC<CategoriesFiltersProps> = ({
 }) => {
 
     return (
-        <Card style={[styles.card, category.selected ? { backgroundColor: '#0041A3', borderWidth: 2 } : {}]} onPress={onPress} >
+        <Card style={[styles.card, category.selected ? { backgroundColor: '#0041A3', borderWidth: 2, borderColor: '#0041A3'} : {}]} onPress={onPress} >
             <View style={styles.cardContent}>
                 <View style={[
                     styles.cardContentTitle
@@ -23,9 +23,16 @@ const CategoriesFilters: React.FC<CategoriesFiltersProps> = ({
                     <View style={[
                         { flexDirection: 'column', marginTop: 10 }
                     ]}>
-                        <Text style={[styles.title,
-                        category.selected ? { color: '#FFFFFF' } : { color: '#000E19' }
-                        ]}>{category.description}</Text>
+                        <Text 
+                            style={[
+                                styles.title,
+                                category.selected ? { color: '#FFFFFF' } : { color: '#000E19' }
+                            ]}
+                            numberOfLines={2}
+                            ellipsizeMode="tail"
+                        >
+                            {category.description}
+                        </Text>
                     </View>
                 </View>
             </View>
@@ -38,9 +45,9 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#D9D9D9',
         borderRadius: 7,
-        margin: 10,
-        width: 140,
-        height: 100,
+        margin: 5,
+        width: 110,
+        height: 90,
         padding: 10,
         display: 'flex',
         backgroundColor: '#fff',

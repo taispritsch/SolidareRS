@@ -17,7 +17,8 @@ const LocationCard = ({ name, distance, onPress  }: { name: string; distance?: n
                     </View>
                     <IconButton
                         icon="map-marker-outline"
-                        size={25}
+                        iconColor={'#0041A3'}
+                        size={30}
                     />
                 </View>
             </Card>
@@ -45,8 +46,8 @@ const style = StyleSheet.create({
     },
     name: {
         fontSize: 18,
-        fontWeight: "semibold",
-        color: "#000",
+        fontWeight: 'bold',
+        color: '#000',
     },
     distance: {
         fontSize: 14,

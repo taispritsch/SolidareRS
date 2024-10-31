@@ -1,6 +1,6 @@
 import { Header } from "@/components/Header";
 import { Alert, ScrollView, StyleSheet, View } from "react-native";
-import { Icon, Provider, SegmentedButtons, Text } from "react-native-paper";
+import { FAB, Icon, Provider, SegmentedButtons, Text } from "react-native-paper";
 import { styles } from "./styles"
 import axiosInstance from "@/services/axios";
 import React, { useEffect, useState } from "react";
@@ -152,7 +152,10 @@ const CityLocations = () => {
                                 />
                             ))
                         ) : (
-                            <View style={{ marginTop: 10 }}>
+                            <View>
+                                <View style={{ marginTop: 10 }}>
+                                    <Text style={{ fontSize: 16, color: '#333' }}>Filtros</Text>
+                                </View>
                                 <ScrollView horizontal={true}
                                     style={{ backgroundColor: '#fff', height: 120 }}>
                                     {categories.map((category, index) => (
@@ -167,7 +170,7 @@ const CityLocations = () => {
                                 </ScrollView>
 
                                 <ScrollView>
-                                    <View style={{ padding: 20 }}>
+                                    <View style={{ marginBottom: 50 }}>
                                         {donationProducts
                                             .filter(product => product.category_description === 'Roupas e calçados')
                                             .map((product, index) => (
@@ -190,11 +193,25 @@ const CityLocations = () => {
                                             ))}
                                     </View>
                                 </ScrollView>
-
                             </View >
                         )}
                     </ScrollView>
                 </SafeAreaView>
+                {value === 'locais' && (
+                    <View style={style.tooltipButtonContainer}>
+                        <View style={style.tooltipContainer}>
+                            <Text style={style.tooltipText}>Seja voluntário</Text>
+                        </View>
+                        <FAB
+                            style={style.fab}
+                            icon="hand-heart"
+                            color="white"
+                            onPress={() => {
+                                router.push({ pathname: '/VoluntaryForm' });
+                            }}
+                        />
+                    </View>
+                )}
             </View>
           </View>
         </Provider>
@@ -220,6 +237,26 @@ const style = StyleSheet.create({
     },
     inactiveLabel: {
         color: "#000", 
+    },
+    fab: {
+        backgroundColor: Colors.backgroundHeader, 
+    },
+    tooltipButtonContainer: {
+        position: 'absolute',
+        right: 16,
+        bottom: 16,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    tooltipContainer: {
+        padding: 8,
+        borderRadius: 5,
+        marginRight: 10, 
+    },
+    tooltipText: {
+        color: 'black',
+        fontSize: 14,
+        fontWeight: 'semibold'
     },
 });
 

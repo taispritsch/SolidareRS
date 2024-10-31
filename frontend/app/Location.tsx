@@ -11,11 +11,34 @@ import { Colors } from "@/constants/Colors";
 import { CategoriesIcons } from "@/constants/CategoriesIcons";
 import CategoriesFilters from "@/components/CategoriesFilters";
 
+interface UrgentDonation {
+    id: number;
+    product_id: number; 
+    donation_place_id: number;  
+    product_description: string;
+    parent_category_description: string;
+    urgent: boolean;
+    subcategory_description: string;
+    variations?: Variation[]; 
+}
+
+interface Variation {
+    id: number;
+    name: string,
+    product_id: number,
+    caracteristic_id: number,
+    description: string;
+}
+
 const Location = () => {
     const donationPlaceId = useLocalSearchParams().id;
     const [value, setValue] = React.useState('informacao');
     const [categories, setCategories] = useState<{ id: number, description: keyof typeof CategoriesIcons, selected: boolean }[]>([]);
     const [donationProducts, setdonationProducts] = useState<{ id: number; description: string; donation_id: number; category_description: string; subcategory_description: string }[]>([]);
+    const [selectedDonation, setSelectedDonation] = useState<UrgentDonation | null>(null); 
+    const [modalVisible, setModalVisible] = useState(false);
+    const [productSizes, setProductSizes] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useFocusEffect(
         React.useCallback(() => {
@@ -94,6 +117,30 @@ const Location = () => {
         getProducts(index);
     }
 
+    const openViewSizesModal = async (product: UrgentDonation) => {
+        setSelectedDonation(product);
+        setModalVisible(true);
+
+        try {
+            const response = await axiosInstance.get('products/registered-urgent-variations', {
+                params: { product_ids: [product.product_id] },
+            });
+
+            const variationsData = response.data;
+
+            if (variationsData.length > 0) {
+                setProductSizes(variationsData);
+            } else {
+                setProductSizes([]);
+            }
+        } catch (error) {
+            console.error('Erro ao buscar variações:', error);
+            setProductSizes([]); 
+        } finally {
+            setLoading(false); 
+        }
+    };
+
     return (
         <Provider>
           <View style={styles.container}>
@@ -135,7 +182,10 @@ const Location = () => {
                                 />
                             ))
                         ) : (
-                            <View style={{ marginTop: 10 }}>
+                            <View>
+                                <View style={{ marginTop: 10 }}>
+                                    <Text style={{ fontSize: 16, color: '#333' }}>Filtros</Text>
+                                </View>
                                 <ScrollView horizontal={true}
                                     style={{ backgroundColor: '#fff', height: 120 }}>
                                     {categories.map((category, index) => (
@@ -150,7 +200,7 @@ const Location = () => {
                                 </ScrollView>
 
                                 <ScrollView>
-                                    <View style={{ padding: 20 }}>
+                                    <View style={{ marginBottom: 50 }}>
                                         {donationProducts
                                             .filter(product => product.category_description === 'Roupas e calçados')
                                             .map((product, index) => (
@@ -158,6 +208,8 @@ const Location = () => {
                                                     key={index}
                                                     title={product.description}
                                                     category={product.subcategory_description}
+                                                    showButtonTopRight
+                                                    showButtonTopRightText="Ver tamanhos"
                                                     notShowButton={true}
                                                 />
                                             ))}

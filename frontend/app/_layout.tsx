@@ -201,6 +201,13 @@ const RootLayout = () => {
             })}
             />
 
+            <Stack.Screen name="VoluntaryForm" options={({ route }) => ({
+                ...sharedHeaderStyle,
+                headerTitle: route.params.title,
+                headerBackTitleVisible: false,
+            })}
+            />
+
         </Stack>
     );
 };
