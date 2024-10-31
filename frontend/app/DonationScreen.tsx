@@ -6,12 +6,13 @@ import DynamicCard from '@/components/DynamicCard ';
 import { router, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import axiosInstance from '@/services/axios';
 import * as SecureStore from 'expo-secure-store';
-import { FAB, Portal, Provider, Snackbar } from 'react-native-paper';
+import { FAB, IconButton, Menu, Portal, Provider, Snackbar } from 'react-native-paper';
 import { CategoriesIcons } from '@/constants/CategoriesIcons';
 import CategoriesFilters from '@/components/CategoriesFilters';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
 const DonationScreen = () => {
+    const openMenu = () => setVisible(true);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const { placeName, showSnackbar, action, donationPlaceId } = useLocalSearchParams();
     const [visible, setVisible] = React.useState(false);
@@ -72,11 +73,12 @@ const DonationScreen = () => {
                 }
             });
 
-            const products = response.data.map((product: { id: number; description: string; donation_id: number; category_description: string; subcategory_description: string }) => {
+            const products = response.data.map((product: { id: number; description: string; donation_id: number; category_description: string; subcategory_description: string, urgent: boolean }) => {
                 return {
                     id: product.id,
                     description: product.description,
                     donation_id: product.donation_id,
+                    urgent: product.urgent,
                     category_description: product.category_description,
                     subcategory_description: product.subcategory_description
                 }
@@ -116,6 +118,33 @@ const DonationScreen = () => {
                 productId: product.id,
                 productDescription: product.description,
                 isEditing: 'true',
+                title: placeName,
+                donationPlaceId: donationPlaceId,
+                placeName: placeName
+            },
+        });
+    };
+
+    const handleEditUrgentDonation = (product: any) => {
+        const selectedProducts = JSON.stringify([
+            {
+                id: product.id,
+                description: product.description,
+                parentCategory: product.category_description,
+                donationId: product.donation_id,
+                urgency: product.urgent
+            }
+        ]);
+
+        router.push({
+            pathname: '/DonationItemUrgentForm',
+            params: {
+                selectedProducts,
+                categoryDescription: product.category_description,
+                productId: product.id,
+                productDescription: product.description,
+                isEditing: 'true',
+                isUrgent: 'true',
                 title: placeName,
                 donationPlaceId: donationPlaceId,
                 placeName: placeName
@@ -174,7 +203,7 @@ const DonationScreen = () => {
                     </View >
 
                     <ScrollView>
-                        <View style={{ padding: 20 }}>
+                        <View style={{ padding: 20, position: 'relative' }}>
                             {donationProducts
                                 .filter(product => product.category_description === 'Roupas e calçados')
                                 .map((product, index) => (
@@ -185,6 +214,7 @@ const DonationScreen = () => {
                                         hasOptionMenu
                                         menuOptions={['editar', 'editar urgência', 'excluir']}
                                         onEditPress={() => handleEditDonation(product)}
+                                        onEditUrgencyPress={() => handleEditUrgentDonation(product)}
                                     />
                                 ))}
 
@@ -195,9 +225,9 @@ const DonationScreen = () => {
                                         key={index}
                                         title={product.description}
                                         hasOptionMenu
-                                        menuOptions={['excluir']}
+                                        menuOptions={['editar urgência', 'excluir']}
                                         onDeletPress={() => showDeleteAlert(product.donation_id)}
-                                        onPress={() => showDeleteAlert(product.donation_id)}
+                                        onEditUrgencyPress={() => handleEditUrgentDonation(product)}
                                     />
                                 ))}
                         </View>

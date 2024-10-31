@@ -50,8 +50,6 @@ const DonationProductScreen = () => {
         try {
             const response = await axiosInstance.get(`donations/${donationPlaceId}/category/${category.id}/products`);
 
-            console.log(response.data);
-
             setDonationProducts(response.data);
         } catch (error) {
             console.log(error);

@@ -1,15 +1,12 @@
-import { Header } from '@/components/Header';
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, BackHandler, Alert, FlatList, StyleSheet, Modal } from "react-native";
 import DynamicCard from '@/components/DynamicCard ';
-import { router, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import axiosInstance from '@/services/axios';
-import * as SecureStore from 'expo-secure-store';
 import { ActivityIndicator, Button, FAB, Portal, Provider, Snackbar } from 'react-native-paper';
 import { styles } from './styles';
 import CategoriesFilters from '@/components/CategoriesFilters';
 import { CategoriesIcons } from '@/constants/CategoriesIcons';
-import PlaceForm from './BusinessHourScreen';
 
 interface UrgentDonation {
     id: number;
@@ -32,7 +29,6 @@ interface Variation {
 
 
 const UrgentDonationScreen = () => {
-    const { placeName } = useLocalSearchParams();
     const [urgentDonations, setUrgentDonations] = useState<UrgentDonation[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -40,11 +36,7 @@ const UrgentDonationScreen = () => {
     const [selectedDonation, setSelectedDonation] = useState<UrgentDonation | null>(null); 
     const [productSizes, setProductSizes] = useState([]);
 
-    const [subcategories, setSubcategories] = useState<{ id: BigInteger; description: string; selected: boolean }[]>([]);
-
     const [categories, setCategories] = useState<{ id: number, description: keyof typeof CategoriesIcons, selected: boolean }[]>([]);
-
-    const router = useRouter()
 
     useEffect(() => {
         getCategories();
@@ -72,56 +64,6 @@ const UrgentDonationScreen = () => {
         }
     };   
 
-    const showRemoveUrgencyAlert = (donationId: number) => {
-        Alert.alert(
-            "Remover urgência",
-            "Você tem certeza que deseja remover a urgência desse item?",
-            [
-                { text: "Cancelar", style: "cancel" },
-                { text: "Remover", onPress: () => removeUrgency(donationId) }
-            ],
-            { cancelable: true }
-        );
-    };
-    
-    const removeUrgency = async (donationId: number) => {
-        try {
-            await axiosInstance.put(`/donations/${donationId}/remove-urgency`);
-    
-            setUrgentDonations(prevDonations =>
-                prevDonations.filter(donation => donation.id !== donationId)
-            );
-        } catch (err) {
-            console.error(err);
-            setError('Failed to update urgency.');
-        }
-    };
-    
-    const handleEditDonation = (donation: UrgentDonation) => {    
-        const selectedProducts = JSON.stringify([
-            { 
-                id: donation.product_id, 
-                description: donation.product_description, 
-                urgency: donation.urgent 
-            }
-        ]);
-    
-        router.push({
-            pathname: '/DonationItemUrgentForm',
-            params: {
-                selectedProducts,
-                donationPlaceId: donation.donation_place_id, 
-                categoryDescription: donation.parent_category_description, 
-                productId: donation.product_id, 
-                productDescription: donation.product_description, 
-                isEditing: 'true',
-                isUrgent: 'true',
-                title: placeName,
-                placeName: placeName
-            },
-        });
-    };
-
     const openViewSizesModal = async (donation: UrgentDonation) => {
         setSelectedDonation(donation);
         setModalVisible(true);
@@ -131,11 +73,8 @@ const UrgentDonationScreen = () => {
                 params: { product_ids: [donation.product_id] },
             });
 
-            console.log('response', response.data);
-            
             const variationsData = response.data;
 
-            console.log('variationsData', variationsData);
             if (variationsData.length > 0) {
                 setProductSizes(variationsData);
             } else {

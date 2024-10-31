@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { View, Text, ScrollView, Alert } from "react-native";
 import { styles } from './styles';
 import DynamicCard from '@/components/DynamicCard ';
-import { FAB, Icon, IconButton, Portal, Snackbar } from 'react-native-paper';
+import { FAB, Icon, IconButton, Portal, Provider, Snackbar } from 'react-native-paper';
 import { Colors } from '@/constants/Colors';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
@@ -41,7 +41,7 @@ const PlaceScreen = ({ title }: PlaceScreenProps) => {
     }
 
 
-    async function deletePlace (id: BigInteger) {
+    async function deletePlace(id: BigInteger) {
         try {
             await axiosInstance.delete(`donation-places/${id}`);
 
@@ -89,51 +89,53 @@ const PlaceScreen = ({ title }: PlaceScreenProps) => {
     );
 
     return (
-        <View style={styles.container}>
-            <View style={styles.content}>
-                <View style={styles.iconAndTextContainer}>
-                    <Icon source="map-outline" color={'#202020'} size={30} />
-                    <Text style={styles.title}>Locais</Text>
-                </View>
-                <ScrollView>
-                    <View style={{ padding: 20 }}>
-                        {places.map((place: any, index) => (
-                            <DynamicCard
-                                key={index}
-                                title={place.description}
-                                hasOptionMenu
-                                menuOptions={['editar', 'excluir']}
-                                onDeletPress={() => showDeleteAlert(place.id)}
-                                onEditPress={() => router.push({ pathname: '/PlaceForm', params: { title: governmentName, governmentId: governmentId, id: place.id, mode: 'edit' } }) }
-                                onPress={() => router.push({ pathname: '/PlaceOptionsScreen', params: { title: governmentName, placeName: place.description, placeId: place.id } })}
-                            />
-                        ))}
+        <Provider>
+            <View style={styles.container}>
+                <View style={styles.content}>
+                    <View style={styles.iconAndTextContainer}>
+                        <Icon source="map-outline" color={'#202020'} size={30} />
+                        <Text style={styles.title}>Locais</Text>
                     </View>
-                </ScrollView>
+                    <ScrollView>
+                        <View style={{ padding: 20, position: 'relative' }}>
+                            {places.map((place: any, index) => (
+                                <DynamicCard
+                                    key={index}
+                                    title={place.description}
+                                    hasOptionMenu
+                                    menuOptions={['editar', 'excluir']}
+                                    onDeletPress={() => showDeleteAlert(place.id)}
+                                    onEditPress={() => router.push({ pathname: '/PlaceForm', params: { title: governmentName, governmentId: governmentId, id: place.id, mode: 'edit' } })}
+                                    onPress={() => router.push({ pathname: '/PlaceOptionsScreen', params: { title: governmentName, placeName: place.description, placeId: place.id } })}
+                                />
+                            ))}
+                        </View>
+                    </ScrollView>
 
-                <Snackbar
-                    visible={visible}
-                    onDismiss={onDismissSnackBar}
-                    duration={1500}
-                    action={{
-                        label: 'Fechar',
-                        onPress: () => {
-                            onDismissSnackBar();
-                        },
-                    }}>
-                    {snackbarMessage}
-                </Snackbar>
+                    <Snackbar
+                        visible={visible}
+                        onDismiss={onDismissSnackBar}
+                        duration={1500}
+                        action={{
+                            label: 'Fechar',
+                            onPress: () => {
+                                onDismissSnackBar();
+                            },
+                        }}>
+                        {snackbarMessage}
+                    </Snackbar>
 
-                <FAB
-                    icon='plus'
-                    onPress={() => {
-                        router.push({ pathname: '/PlaceForm', params: { title: governmentName, governmentId: governmentId } });
-                    }}
-                    color='#FFFFFF'
-                    style={{ backgroundColor: '#133567', ...styles.addButton }}
-                />
+                    <FAB
+                        icon='plus'
+                        onPress={() => {
+                            router.push({ pathname: '/PlaceForm', params: { title: governmentName, governmentId: governmentId } });
+                        }}
+                        color='#FFFFFF'
+                        style={{ backgroundColor: '#133567', ...styles.addButton }}
+                    />
+                </View>
             </View>
-        </View>
+        </Provider>
     );
 }
 

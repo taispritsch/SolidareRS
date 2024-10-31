@@ -16,8 +16,6 @@ class ProductController extends Controller
         $product_ids = $request->product_ids;
         $products = Product::whereIn('id', $product_ids)->with('variations')->get();
 
-        logger($products);
-
         return response()->json($products);
     }
 
@@ -45,8 +43,6 @@ class ProductController extends Controller
             ->get()
             ->toArray();
 
-            logger('log',[$productsWithRegisteredVariations]);
-
         return response()->json($productsWithRegisteredVariations);
     }
 
@@ -71,7 +67,6 @@ class ProductController extends Controller
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            logger('erro', [$e->getMessage()]);
             return response()->json(['error' => $e->getMessage()], 500);
         }
 

@@ -77,7 +77,6 @@ class CategoriesTableSeeder extends Seeder
             DB::commit();
         } catch (Throwable $e) {
             DB::rollBack();
-            logger($e);
         }
     }
 }

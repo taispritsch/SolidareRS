@@ -51,8 +51,6 @@ class DonationController extends Controller
             ->distinct()
             ->get();
 
-        logger($categories);
-
         return $categories;
     }
 
@@ -74,7 +72,6 @@ class DonationController extends Controller
     {
         $inputs = $request->all();
 
-        logger($inputs);
         $category = $inputs['category_id'] ?? null;
 
         $urgentDonations = Donation::where('urgent', true)
@@ -121,8 +118,6 @@ class DonationController extends Controller
     {
         $inputs = $request->validated();
 
-        logger($inputs);
-
         try {
             foreach ($inputs['variations'] as $product) {
                 $hasUrgentVariation = false;
@@ -151,7 +146,6 @@ class DonationController extends Controller
                 }
             }
         } catch (\Exception $e) {
-            logger($e->getMessage());
             return response()->json(['message' => 'Error on create donation'], 500);
         }
 
@@ -196,7 +190,6 @@ class DonationController extends Controller
     {
         $inputs = $request->all();
 
-        logger($inputs);
         $category = $inputs['category_id'] ?? null;
 
         $products = Donation::where('donation_place_id', $donationPlace->id)
@@ -207,6 +200,7 @@ class DonationController extends Controller
             ->select(
                 'products.*',
                 'donations.id as donation_id',
+                'donations.urgent as urgent',
                 'subcategory.description as subcategory_description',
                 'parent_category.description as parent_category_description'
             )
@@ -229,7 +223,7 @@ class DonationController extends Controller
         });
     }
 
-    public function updateUrgency(Request $request)
+    public function updateUrgencyClothes(Request $request)
     {
         $variations = $request->all();
 
@@ -246,18 +240,38 @@ class DonationController extends Controller
             $allDonationItemsAreNotUrgent = $donation->donationItems()->where('urgent', true)->count() === 0;
 
             if ($allDonationItemsAreNotUrgent) {
-                logger('FALSO');
                 $donation->urgent = false;
                 $donation->save();
             } else {
-                logger('VERDADEIRO');
                 $donation->urgent = true;
                 $donation->save();
             }
             
             DB::commit();
         } catch (\Exception $e) {
-            logger($e->getMessage());
+            DB::rollBack();
+            return response()->json(['message' => 'Error on updating urgency', 'error' => $e->getMessage()], 500);
+        }
+
+        return response()->json(['message' => 'Urgency updated successfully'], 200);
+    }
+
+    public function updateUrgency(Request $request)
+    {
+        $inputs = $request->all();
+        DB::beginTransaction();
+        try {
+            foreach ($inputs as $donationInput) {
+                $donation = Donation::find($donationInput['id']);
+
+                $donation->urgent = $donationInput['urgent'] ?? false;
+                $donation->save();
+
+                logger($donation);
+            }
+
+            DB::commit();
+        } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['message' => 'Error on updating urgency', 'error' => $e->getMessage()], 500);
         }

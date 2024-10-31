@@ -13,6 +13,8 @@ interface Product {
     id: string;
     description: string;
     urgency: boolean;
+    parentCategory?: string;
+    donationId?: string;
 }
 
 interface ProductVariation {
@@ -53,23 +55,39 @@ const DonationItemUrgentForm = () => {
 
     const fetchProductVariations = async () => {
         const productIds = selectedProductsArray.map(product => product.id);
+        const category = selectedProductsArray[0].parentCategory;
+
         if (productIds.length > 0) {
             try {
-                const response = await axiosInstance.get('products/registered-variations', {
-                    params: { product_ids: productIds },
-                });
+                if (category === 'Roupas e calçados') {
+                    const response = await axiosInstance.get('products/registered-variations', {
+                        params: { product_ids: productIds },
+                    });
 
-                const variationsData = response.data;
+                    const variationsData = response.data;
 
-                const newProductVariations = variationsData.map((variation: any) => {
-                    return {
-                        id: variation.id,
-                        name: variation.variation.description,
-                        urgency: variation.urgent === 1 ? true : false,
-                    };
-                });
+                    const newProductVariations = variationsData.map((variation: any) => {
+                        return {
+                            id: variation.id,
+                            name: variation.variation.description,
+                            urgency: variation.urgent === 1 ? true : false,
+                        };
+                    });
 
-                setProductVariations(newProductVariations);
+                    setProductVariations(newProductVariations);
+                } else {
+                    const productsData = selectedProductsArray.map((product) => {
+                        return {
+                            id: product.donationId || product.id,
+                            name: product.description,
+                            urgency: product.urgency,
+                        };
+                    });
+
+                    setProductVariations(productsData);
+                }
+
+
             } catch (error) {
                 console.error('Erro ao buscar variações:', error);
             }
@@ -93,23 +111,26 @@ const DonationItemUrgentForm = () => {
 
         try {
             if (isUrgentMode && isEditingMode) {
-                console.log('selectedProductsArray', selectedProductsArray);
-
-
                 const productVariationsData = productVariations?.map((variation) => ({
                     id: variation.id,
                     urgent: variation.urgency,
                     product_id: selectedProductsArray[0].id,
                 }));
 
-                await axiosInstance.put('donations/update-urgency', {
-                    ...productVariationsData,
-                });
+                if (selectedProductsArray[0].parentCategory === 'Roupas e calçados') {
+                    await axiosInstance.put('donations/update-urgency-clothes', {
+                        ...productVariationsData,
+                    });
+                } else {
+                    await axiosInstance.put('donations/update-urgency', {
+                        ...productVariationsData
+                    });
+                }
 
                 setLoading(false);
 
                 router.navigate({
-                    pathname: '/UrgentDonationScreen',
+                    pathname: '/DonationScreen',
                     params: { title: categoryDescription, donationPlaceId, showSnackbar: 'true' }
                 });
             } else {
@@ -227,7 +248,7 @@ const DonationItemUrgentForm = () => {
                                             productVariations.map(variation => (
                                                 <SimpleCard
                                                     key={variation.id}
-                                                    title={`${product.description} - ${variation.name}`}
+                                                    title={`${product.description} ${product.parentCategory === 'Roupas e calçados' ? '- ' + variation.name : ''}`}
                                                     showSwitch={true}
                                                     isUrgente={true}
                                                     switchValue={variation.urgency}
@@ -269,7 +290,6 @@ const DonationItemUrgentForm = () => {
                             loading={loading}
                             disabled={loading}
                             onPress={() => {
-                                console.log(placeName, donationPlaceId);
                                 isEditing && !isUrgent ? router.navigate({ pathname: '/DonationScreen', params: { title: placeName, donationPlaceId: donationPlaceId, placeName: placeName, showSnackbar: 'true' } }) :
                                     handleSave();
                             }}

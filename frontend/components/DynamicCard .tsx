@@ -55,15 +55,7 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
   };
 
   return (
-    <Provider
-      theme={{
-        colors: {
-          ...DefaultTheme.colors,
-          onSurface: '#202020',
-        },
-        roundness: 8,
-      }}
-    >
+
       <Card style={styles.card} onPress={onPress} >
         <View style={styles.cardContent}>
           <View style={styles.cardContentTitle}>
@@ -92,7 +84,7 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
             <View style={{ zIndex: 999, elevation: 999 }}>
               <Menu
                 contentStyle={{ backgroundColor: '#FFFFFF', zIndex: 999, elevation: 999, position: 'absolute' }}
-                style={{ width: 130, height: 100, left: 220, top: 0, bottom: 0, right: 0, zIndex: 999, elevation: 999, position: 'absolute' }}
+                style={{ width: 150, height: 100, position: 'absolute' }}
                 visible={visible}
                 onDismiss={closeMenu}
                 elevation={5}
@@ -109,7 +101,7 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
               >
                 {menuOptions.includes('editar') && (
                   <Menu.Item
-                    titleStyle={{ flexWrap: 'wrap', width: '100%', fontSize: 14 }}
+                    titleStyle={{ flexWrap: 'wrap', width: '100%', fontSize: 14, color: '#000000' }}
                     onPress={() => { closeMenu(); onEditPress && onEditPress(); }}
                     title={editTitle}
                     style={{ zIndex: 999, elevation: 999 }}
@@ -117,7 +109,7 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
                 )}
                 {menuOptions.includes('editar urgência') && (
                   <Menu.Item
-                    titleStyle={{ flexWrap: 'wrap', width: '100%', fontSize: 14 }}
+                  titleStyle={{ flexWrap: 'wrap', width: '100%', fontSize: 14, color: '#000000' }}
                     onPress={() => { closeMenu(); onEditUrgencyPress && onEditUrgencyPress(); }}
                     title="Editar urgência"
                     style={{ zIndex: 999, elevation: 999 }}
@@ -126,7 +118,7 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
                 )}
                 {menuOptions.includes('excluir') && (
                   <Menu.Item
-                    titleStyle={{ flexWrap: 'wrap', width: '100%', fontSize: 14 }}
+                    titleStyle={{ flexWrap: 'wrap', width: '100%', fontSize: 14, color: '#000000' }}
                     onPress={() => { closeMenu(); onDeletPress && onDeletPress(); }}
                     title={deleteTitle}
                     style={{ zIndex: 999, elevation: 999 }}
@@ -134,7 +126,7 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
                 )}
                 {menuOptions.includes('visualizar') && (
                   <Menu.Item
-                    titleStyle={{ flexWrap: 'wrap', width: '100%', fontSize: 14 }}
+                    titleStyle={{ flexWrap: 'wrap', width: '100%', fontSize: 14, color: '#000000' }}
                     onPress={openViewSizesModal}
                     title="Visualizar Tamanhos"
                     style={{ zIndex: 999, elevation: 999 }}
@@ -146,7 +138,6 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
           )}
         </View>
       </Card >
-    </Provider>
   );
 };
 

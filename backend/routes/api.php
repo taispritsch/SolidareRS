@@ -72,7 +72,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('{donationPlace}/category/{category}/products', [DonationController::class, 'getProductsByCategoryByDonationPlace']);
         Route::get('/urgent', [DonationController::class, 'getUrgentDonations']); 
         Route::put('{donation}/remove-urgency', [DonationController::class, 'removeUrgency']);
-        Route::put('update-urgency', [DonationController::class, 'updateUrgency']); // rota de teste
+        Route::put('update-urgency-clothes', [DonationController::class, 'updateUrgencyClothes']);
+        Route::put('update-urgency', [DonationController::class, 'updateUrgency']);
         Route::delete('{donation}', [DonationController::class, 'destroy']);
     });
 
