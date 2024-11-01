@@ -1,7 +1,8 @@
 import { Colors } from '@/constants/Colors';
 import { faBorderAll } from '@fortawesome/free-solid-svg-icons';
+import { router } from 'expo-router';
 import React from 'react';
-import { View, Text, StyleSheet, Modal } from 'react-native';
+import { View, Text, StyleSheet, Modal, TouchableOpacity } from 'react-native';
 import { Button, Card, DefaultTheme, Icon, IconButton, Menu, PaperProvider, Provider } from 'react-native-paper';
 
 interface DynamicCardProps {
@@ -16,6 +17,9 @@ interface DynamicCardProps {
   deleteTitle?: string;
   showButtonTopRight?: boolean;
   showButtonTopRightText?: string;
+  showLocation?: boolean; 
+  locationId?: number;
+  locationName?: string;
   onPress?: () => void;
   onEditPress?: () => void;
   onDeletPress?: () => void;
@@ -35,6 +39,9 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
   deleteTitle = 'Excluir',
   showButtonTopRight,
   showButtonTopRightText,
+  showLocation,
+  locationId,
+  locationName,
   onPress,
   onEditPress,
   onDeletPress,
@@ -59,12 +66,33 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
       <Card style={styles.card} onPress={onPress} >
         <View style={styles.cardContent}>
           <View style={styles.cardContentTitle}>
-            {icon && <Icon source={icon} color={'#000E19'} size={30} />}
-            <View style={{ flexDirection: 'column' }}>
-              {category && <Card style={styles.category}><Text style={styles.categoryName}>{category}</Text></Card>}
-              <Text style={[styles.title, icon ? { marginLeft: 10 } : {}]}>{title}</Text>
-              {description && <Text style={styles.description}>{description}</Text>}
-            </View>
+              {category && 
+              <Card style={styles.category}>
+                <Text style={styles.categoryName}>{category}</Text>
+              </Card>}
+              <View style={{ flexDirection: 'row'}}>
+                {icon && <Icon source={icon} color={'#000E19'} size={30} />}
+                <View style={{ width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+                  <Text style={[styles.title, icon ? { marginLeft: 10 } : {}]}>{title}</Text>
+                  {description && 
+                    <Text style={styles.description}>{description}</Text>}
+
+                  {showLocation && locationName && (
+                    <TouchableOpacity
+                      style={styles.location} 
+                      onPress={() => router.push({ pathname: '/Location', params: { title: locationName, id: locationId, initialTab: 'produtos' } })}
+                    >
+                      <Text style={styles.locationName}>{locationName}</Text>
+                      <IconButton
+                        icon="arrow-right"
+                        size={15}
+                        iconColor={'#202020'}
+                        style={{ margin: 0, padding: 0 }}
+                      />
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </View>
           </View>
 
           {!hasOptionMenu && !notShowButton && (
@@ -149,7 +177,7 @@ const styles = StyleSheet.create({
     borderLeftWidth: 10,
     marginVertical: 10,
     backgroundColor: '#FFFFFF',
-    height: 80,
+    height: 85,
     zIndex: 1,
     elevation: 1,
   },
@@ -165,8 +193,8 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   cardContentTitle: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: 'column',
+    alignItems: 'flex-start',
     marginLeft: 20,
     flex: 1,
   },
@@ -176,8 +204,7 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     paddingRight: 10,
     borderRadius: 4,
-    marginBottom: 5,
-    width: 'auto',
+    marginBottom: 10,
   },
   categoryName: {
     color: Colors.text,
@@ -194,6 +221,16 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 12,
     color: '#000',
+  },
+  location: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    
+  },
+  locationName: {
+    fontSize: 12,
+    paddingRight: 0,
   },
   modalBackground: {
     flex: 1,

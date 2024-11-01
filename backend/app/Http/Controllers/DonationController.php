@@ -156,22 +156,40 @@ class DonationController extends Controller
     {
         $inputs = $request->all();
         $category = $inputs['category_id'] ?? null;
-
+        $governmentDepartmentId = $inputs['government_department_id'] ?? null;
+    
+        //isso ta feio quero melhorar
         $products = Donation::join('products', 'donations.product_id', '=', 'products.id')
             ->join('product_has_categories', 'products.id', '=', 'product_has_categories.product_id')
             ->join('categories as subcategory', 'product_has_categories.category_id', '=', 'subcategory.id')
             ->leftJoin('categories as parent_category', 'subcategory.parent_id', '=', 'parent_category.id')
+            ->join('donation_places', 'donations.donation_place_id', '=', 'donation_places.id')
+            ->join('government_departments', 'donation_places.government_department_id', '=', 'government_departments.id')
+            ->join('addresses', 'donation_places.address_id', '=', 'addresses.id')
+            ->join('cities', 'addresses.city_id', '=', 'cities.id')
+            ->join('states', 'cities.state_id', '=', 'states.id')
             ->select(
                 'products.*',
                 'donations.id as donation_id',
                 'subcategory.description as subcategory_description',
-                'parent_category.description as parent_category_description'
+                'parent_category.description as parent_category_description',
+                'donation_places.id as donation_place_id',
+                'donation_places.description as donation_place_description',
+                'addresses.street',
+                'addresses.neighborhood',
+                'addresses.number',
+                'cities.name as city_name',
+                'states.name as state_name'
             )
             ->distinct();
-
+    
+        if (isset($governmentDepartmentId)) {
+            $products = $products->where('government_departments.id', $governmentDepartmentId);
+        }
+    
         if (isset($category)) {
             $category = Category::find($category);
-
+    
             if ($category->description === 'Roupas e calçados') {
                 $categoriesByParentId = Category::where('parent_id', $category->id)->get();
                 $products = $products->whereIn('product_has_categories.category_id', $categoriesByParentId->pluck('id'));
@@ -179,9 +197,22 @@ class DonationController extends Controller
                 $products = $products->where('product_has_categories.category_id', $category->id);
             }
         }
-
+    
         return $products->get()->map(function ($product) {
             $product->category_description = $product->parent_category_description ?? $product->subcategory_description;
+            $product->location = [
+                'donation_place' => [
+                    'id' => $product->donation_place_id, 
+                    'name' => $product->donation_place_description
+                ],
+                'address' => [
+                    'street' => $product->street,
+                    'neighborhood' => $product->neighborhood,
+                    'number' => $product->number,
+                    'city' => $product->city_name,
+                    'state' => $product->state_name
+                ]
+            ];
             return $product;
         });
     }

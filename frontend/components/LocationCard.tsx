@@ -1,15 +1,14 @@
-import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { IconButton, Card } from 'react-native-paper';
-import { StyleSheet } from 'react-native';
 import { Colors } from '@/constants/Colors';
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { IconButton, Card } from 'react-native-paper';
 
 const LocationCard = ({ name, distance, onPress  }: { name: string; distance?: number; onPress: any }) => {
     return (
         <TouchableOpacity onPress={onPress}>
             <Card style={style.card}>
                 <View style={style.content}>
-                    <View style={style.textContainer}>
+                    <View>
                         <Text style={style.name}>{name}</Text>
                         {distance !== undefined && (
                             <Text style={style.distance}>{distance} km</Text>
@@ -30,29 +29,26 @@ const style = StyleSheet.create({
     card: {
         borderWidth: 2,
         borderRadius: 10,
-        borderColor: Colors.backgroundButton, 
         padding: 15,
         backgroundColor: "transparent", 
         height: 90,
         marginBottom: 15,
+        borderColor: Colors.backgroundButton
     },
     content: {
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "center",
-    },
-    textContainer: {
-        flex: 1,
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between'
     },
     name: {
         fontSize: 18,
-        fontWeight: 'bold',
+        fontWeight: 'semibold',
         color: '#000',
     },
     distance: {
-        fontSize: 14,
-        color: "#666",
-    },
+        
+    }
 });
 
 

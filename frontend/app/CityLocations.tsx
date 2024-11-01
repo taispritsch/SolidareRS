@@ -17,7 +17,7 @@ const CityLocations = () => {
     const [value, setValue] = React.useState('locais');
     const [places, setPlaces] = React.useState([]);
     const [categories, setCategories] = useState<{ id: number, description: keyof typeof CategoriesIcons, selected: boolean }[]>([]);
-    const [donationProducts, setdonationProducts] = useState<{ id: number; description: string; donation_id: number; category_description: string; subcategory_description: string }[]>([]);
+    const [donationProducts, setdonationProducts] = useState<{ id: number; description: string; donation_id: number; category_description: string; subcategory_description: string; donation_place_id: number; donation_place_description: string }[]>([]);
 
     const getCategories = async () => {
         try {
@@ -43,29 +43,41 @@ const CityLocations = () => {
         if (index !== undefined) {
             categoryFilter = categories[index] && !categories[index].selected ? categories[index] : null;
         }
-
+    
         try {
             const response = await axiosInstance.get(`donations/products`, {
                 params: {
+                    government_department_id: governmentId,
                     category_id: categoryFilter ? categoryFilter.id : null
                 }
             });
-
-            const products = response.data.map((product: { id: number; description: string; donation_id: number; category_description: string; subcategory_description: string }) => {
+    
+            const products = response.data.map((product: { 
+                id: number; 
+                description: string; 
+                donation_id: number; 
+                category_description: string; 
+                subcategory_description: string; 
+                donation_place_id: number;
+                donation_place_description: string 
+            }) => {
                 return {
                     id: product.id,
                     description: product.description,
                     donation_id: product.donation_id,
                     category_description: product.category_description,
-                    subcategory_description: product.subcategory_description
+                    subcategory_description: product.subcategory_description,
+                    donation_place_id: product.donation_place_id,
+                    donation_place_description: product.donation_place_description 
                 }
             });
-
+    
             setdonationProducts(products);
         } catch (error) {
             console.log(error);
         }
     }
+     
 
     async function getPlaces() {
         try {
@@ -179,6 +191,9 @@ const CityLocations = () => {
                                                     title={product.description}
                                                     category={product.subcategory_description}
                                                     notShowButton={true}
+                                                    showLocation={true}
+                                                    locationId={product.donation_place_id}
+                                                    locationName={product.donation_place_description}
                                                 />
                                             ))}
 
@@ -189,6 +204,9 @@ const CityLocations = () => {
                                                     key={index}
                                                     title={product.description}
                                                     notShowButton={true}
+                                                    showLocation={true}
+                                                    locationId={product.donation_place_id}
+                                                    locationName={product.donation_place_description}
                                                 />
                                             ))}
                                     </View>
@@ -243,8 +261,8 @@ const style = StyleSheet.create({
     },
     tooltipButtonContainer: {
         position: 'absolute',
-        right: 16,
-        bottom: 16,
+        right: 26,
+        bottom: 36,
         flexDirection: 'row',
         alignItems: 'center',
     },

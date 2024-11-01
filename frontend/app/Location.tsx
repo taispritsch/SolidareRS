@@ -1,6 +1,6 @@
 import { Header } from "@/components/Header";
-import { Alert, ScrollView, StyleSheet, View } from "react-native";
-import { Icon, Provider, SegmentedButtons, Text } from "react-native-paper";
+import { Alert, ScrollView, StyleSheet, View, Modal } from "react-native";
+import { ActivityIndicator, Button, Icon, Provider, SegmentedButtons, Text } from "react-native-paper";
 import { styles } from "./styles"
 import axiosInstance from "@/services/axios";
 import React, { useEffect, useState } from "react";
@@ -31,13 +31,13 @@ interface Variation {
 }
 
 const Location = () => {
-    const donationPlaceId = useLocalSearchParams().id;
-    const [value, setValue] = React.useState('informacao');
+    const { id: donationPlaceId, initialTab } = useLocalSearchParams();
+    const [value, setValue] = React.useState((initialTab as string) || 'informacao');
     const [categories, setCategories] = useState<{ id: number, description: keyof typeof CategoriesIcons, selected: boolean }[]>([]);
     const [donationProducts, setdonationProducts] = useState<{ id: number; description: string; donation_id: number; category_description: string; subcategory_description: string }[]>([]);
     const [selectedDonation, setSelectedDonation] = useState<UrgentDonation | null>(null); 
     const [modalVisible, setModalVisible] = useState(false);
-    const [productSizes, setProductSizes] = useState([]);
+    const [productSizes, setProductSizes] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
 
     useFocusEffect(
@@ -81,24 +81,25 @@ const Location = () => {
         if (index !== undefined) {
             categoryFilter = categories[index] && !categories[index].selected ? categories[index] : null;
         }
-
+    
         try {
             const response = await axiosInstance.get(`donations/${donationPlaceId}/products`, {
                 params: {
                     category_id: categoryFilter ? categoryFilter.id : null
                 }
             });
-
+    
             const products = response.data.map((product: { id: number; description: string; donation_id: number; category_description: string; subcategory_description: string }) => {
                 return {
                     id: product.id,
                     description: product.description,
                     donation_id: product.donation_id,
                     category_description: product.category_description,
-                    subcategory_description: product.subcategory_description
+                    subcategory_description: product.subcategory_description,
+                    product_description: product.description 
                 }
             });
-
+    
             setdonationProducts(products);
         } catch (error) {
             console.log(error);
@@ -117,30 +118,59 @@ const Location = () => {
         getProducts(index);
     }
 
-    const openViewSizesModal = async (product: UrgentDonation) => {
-        setSelectedDonation(product);
-        setModalVisible(true);
-
-        try {
-            const response = await axiosInstance.get('products/registered-urgent-variations', {
-                params: { product_ids: [product.product_id] },
-            });
-
-            const variationsData = response.data;
-
-            if (variationsData.length > 0) {
-                setProductSizes(variationsData);
-            } else {
-                setProductSizes([]);
+    const fetchProductVariations = async (selectedProduct: any) => {
+        const { id: productId, category_description: category } = selectedProduct;
+    
+        if (productId) {
+            try {
+                if (category === 'Roupas e calçados') {
+                    const response = await axiosInstance.get('products/registered-variations', {
+                        params: { product_ids: [productId] }, 
+                    });
+    
+                    const variationsData = response.data;
+    
+                    const newProductVariations = variationsData.map((variation: any) => ({
+                        id: variation.id,
+                        name: variation.variation.description,
+                        urgency: variation.urgent === 1,
+                    }));
+    
+                    setProductSizes(newProductVariations);
+                } else {
+                    const productData = {
+                        id: selectedProduct.donation_id || selectedProduct.id,
+                        name: selectedProduct.description,
+                        urgency: selectedProduct.urgency || false,
+                    };
+    
+                    setProductSizes([productData]); 
+                }
+            } catch (error) {
+                console.error('Erro ao buscar variações:', error);
+            } finally {
+                setLoading(false);
             }
-        } catch (error) {
-            console.error('Erro ao buscar variações:', error);
-            setProductSizes([]); 
-        } finally {
-            setLoading(false); 
         }
     };
 
+
+    const openViewSizesModal = async (product: any) => {
+        const donationData = {
+            ...product,
+            product_description: product.description,
+        };
+    
+        setSelectedDonation(donationData);
+        setModalVisible(true);
+    
+        if (product.category_description === 'Roupas e calçados') {
+            await fetchProductVariations(donationData);
+        } else {
+            setLoading(false);
+        }
+    };
+    
     return (
         <Provider>
           <View style={styles.container}>
@@ -211,6 +241,7 @@ const Location = () => {
                                                     showButtonTopRight
                                                     showButtonTopRightText="Ver tamanhos"
                                                     notShowButton={true}
+                                                    onPress={() => openViewSizesModal(product)}
                                                 />
                                             ))}
 
@@ -231,6 +262,43 @@ const Location = () => {
                     </ScrollView>
                 </SafeAreaView>
             </View>
+            {modalVisible && selectedDonation && (
+                    <Modal
+                        transparent={true}
+                        animationType="slide"
+                        visible={modalVisible}
+                        onRequestClose={() => setModalVisible(false)}
+                    >
+                        <View style={style.modalBackground}>
+                            <View style={style.modalContent}>
+                                <Text style={style.modalTitle}>{selectedDonation.product_description} - {selectedDonation.subcategory_description}</Text>
+                                <Text style={{ marginTop: 10, color: '#000E19' }}>Tamanhos</Text>
+                                
+                                {loading ? (
+                                    <ActivityIndicator size="large" color="#0000ff" />
+                                ) : (
+                                    productSizes && productSizes.length > 0 ? (
+                                        <View style={style.sizesContainer}>
+                                            {productSizes.map((size: Variation) => (
+                                                <View key={size.id} style={style.cardContent}>
+                                                    <Text style={{ color: '#000E19' }}>{size.name}</Text>
+                                                </View>
+                                            ))}
+                                        </View>
+                                    ) : (
+                                        <Text>Nenhum tamanho encontrado.</Text>
+                                    )
+                                )}
+                                
+                                <View style={style.closeButtonContainer}>
+                                    <Button mode="outlined" onPress={() => setModalVisible(false)} style={style.closeButton}>
+                                        <Text style={style.closeButtonText}>Fechar</Text>
+                                    </Button>
+                                </View>
+                            </View>
+                        </View>
+                    </Modal>
+                )}
           </View>
         </Provider>
       );
@@ -255,6 +323,66 @@ const style = StyleSheet.create({
     },
     inactiveLabel: {
         color: "#000", 
+    },
+    modalBackground: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      },
+      modalContent: {
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 10,
+        width: '80%',
+        alignItems: 'flex-start',
+      },
+      modalTitle: {
+        fontSize: 20,
+        fontWeight: 'semibold',
+        marginBottom: 20,
+        textTransform: 'capitalize',
+        color: '#000E19',
+      },
+      modalSubtitle: {
+        textAlign: 'left'
+      },
+      sizesContainer:{
+        flexDirection: 'row', 
+        flexWrap: 'wrap',
+        justifyContent: 'center', 
+        gap: 10,
+        width: '100%', 
+    },
+    cardContent: {
+        borderWidth: 2,
+        borderColor: '#0041A3',
+        borderRadius: 7,
+        marginVertical: 5,
+        backgroundColor: '#FFFFFF',
+        height: 45,
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        alignContent: 'center',
+        padding: 10,
+        color: '#cardContent'
+    },
+    closeButtonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center', 
+        width: '100%', 
+        marginTop: 20,
+    },
+    closeButton: {
+        backgroundColor: 'transparent',
+        borderColor: '#0041A3',
+        borderWidth: 2,
+        width: '50%',
+    },
+    closeButtonText: {
+        color: 'black',
     },
 });
 
