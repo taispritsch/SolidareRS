@@ -28,7 +28,7 @@ const PlaceScreen = ({ title }: PlaceScreenProps) => {
     async function showDeleteAlert(id: BigInteger) {
         Alert.alert(
             "Excluir local",
-            "Deseja realmente excluir esse local?",
+            "Todos os produtos serão deletados, deseja continuar?",
             [
                 {
                     text: "Cancelar",

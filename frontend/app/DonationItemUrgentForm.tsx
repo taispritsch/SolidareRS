@@ -80,7 +80,7 @@ const DonationItemUrgentForm = () => {
                         return {
                             id: product.donationId || product.id,
                             name: product.description,
-                            urgency: product.urgency,
+                            urgency: product.urgency ? true : false,
                         };
                     });
 
@@ -103,9 +103,9 @@ const DonationItemUrgentForm = () => {
 
         const data = {
             donation_place_id: donationPlaceId,
-            products: selectedProductsArray.map((product) => ({
-                id: product.id,
-                urgent: product.urgency,
+            products: productVariations?.map((variation) => ({
+                id: variation.id,
+                urgent: variation.urgency,
             })),
         };
 
@@ -171,9 +171,13 @@ const DonationItemUrgentForm = () => {
     };
 
     const showDeleteAlert = (donationItemId: any, productId: any) => {
+        let isUrgentProduct = false;
+
+        isUrgentProduct = productVariations?.find(variation => variation.id === donationItemId)?.urgency || false;
+
         Alert.alert(
             "Excluir tamanho",
-            "Deseja realmente excluir esse tamanho?",
+            isUrgentProduct ? "Este item é urgente. Deseja excluir mesmo assim?" : "Deseja excluir este item?",
             [
                 {
                     text: "Cancelar",
@@ -230,19 +234,25 @@ const DonationItemUrgentForm = () => {
                         )}
                     </View>
                     <ScrollView style={{ padding: 20 }}>
+                        {!isEditing && (
+                            <View>{productVariations && productVariations.length > 0 && (
+                                productVariations.map(variation => (
+                                    <SimpleCard
+                                        key={variation.id}
+                                        title={variation.name}
+                                        showSwitch={true}
+                                        isUrgente={true}
+                                        switchValue={variation.urgency}
+                                        onSwitchChange={() => handleUrgencyChange(variation.id)}
+                                    />
+                                ))
+                            )}
+                            </View>
+                        )}
                         {selectedProductsArray.length > 0 ? (
-                            selectedProductsArray.map((product: Product) => (
+                            selectedProductsArray.map(product => (
                                 <View key={product.id}>
-                                    {!isEditing && (
-                                        <SimpleCard
-                                            key={product.id}
-                                            title={product.description}
-                                            showSwitch={true}
-                                            isUrgente={true}
-                                            switchValue={product.urgency}
-                                            onSwitchChange={() => product.urgency = !product.urgency}
-                                        />
-                                    )}
+
                                     {isEditing && isUrgent && (
                                         <View>{productVariations && productVariations.length > 0 && (
                                             productVariations.map(variation => (

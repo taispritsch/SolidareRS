@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\BusinessHourRequest;
 use App\Http\Requests\DonationPlaceRequest;
+use App\Models\Address;
 use App\Models\BusinessHour;
 use App\Models\DonationPlace;
 use App\Models\GovernmentDepartment;
@@ -114,14 +115,19 @@ class DonationPlaceController extends Controller
     public function destroy(DonationPlace $donationPlace)
     {
         DB::beginTransaction();
+
         try {
             $donationPlace->businessHours()->delete();
+            $donationPlace->donations->each(function ($donation) {
+                $donation->donationItems()->delete();
+                $donation->delete();
+            });
             $donationPlace->delete();
+            Address::where('id', $donationPlace->address_id)->delete();
 
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-
             return response()->json(['message' => $e->getMessage()], 500);
         }
 

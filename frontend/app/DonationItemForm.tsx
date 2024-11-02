@@ -19,7 +19,7 @@ const DonationItemForm = () => {
     const [switchSelectedAll, setSwitchSelectedAll] = useState(false);
 
     const [products, setProducts] = useState<{
-        id: BigInteger; selected: boolean; description: string
+        id: BigInteger; selected: boolean; description: string; category_description: string; urgent: boolean;
     }[]>([]);
 
     const getItemsByCategory = async () => {
@@ -35,6 +35,7 @@ const DonationItemForm = () => {
                     id: product.id,
                     description: product.description,
                     selected: false,
+                    category_description: category.description,
                 };
             });
 
@@ -120,8 +121,11 @@ const DonationItemForm = () => {
                                     .filter(product => product.selected)
                                     .map(product => ({
                                         id: product.id.toString(),
-                                        description: product.description 
+                                        description: product.description,
+                                        parentCategory: product.category_description,
+                                        urgency: false
                                     }));
+
 
                                 const selectedProductsJson = JSON.stringify(selectedProductIds);
 

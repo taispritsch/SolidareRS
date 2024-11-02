@@ -17,7 +17,7 @@ const DonationScreen = () => {
     const { placeName, showSnackbar, action, donationPlaceId } = useLocalSearchParams();
     const [visible, setVisible] = React.useState(false);
 
-    const [donationProducts, setdonationProducts] = useState<{ id: number; description: string; donation_id: number; category_description: string; subcategory_description: string }[]>([]);
+    const [donationProducts, setdonationProducts] = useState<{ id: number; description: string; donation_id: number; category_description: string; subcategory_description: string, urgent: boolean }[]>([]);
 
     const onDismissSnackBar = () => setVisible(false);
 
@@ -107,6 +107,7 @@ const DonationScreen = () => {
             {
                 id: product.id,
                 description: product.description,
+                parentCategory: product.category_description,
             }
         ]);
 
@@ -153,9 +154,11 @@ const DonationScreen = () => {
     };
 
     async function showDeleteAlert(id: number) {
+        const isUrgentProduct = donationProducts.find(product => product.donation_id === id)?.urgent;
+
         Alert.alert(
             "Excluir produto",
-            "Deseja realmente excluir esse produto?",
+            isUrgentProduct ? "Este item é urgente. Deseja excluir mesmo assim?" : "Deseja excluir este item?",
             [
                 {
                     text: "Cancelar",
