@@ -350,8 +350,6 @@ const PlaceForm = () => {
                                 value={changeTimeValue}
                                 mode="time"
                                 timeZoneName={'GMT-2'}
-                                is24Hour={true}
-                                display="clock"
                                 onChange={(event, selectedDate) => {
                                     setChangeTime(false);
                                     if (selectedDate) {
