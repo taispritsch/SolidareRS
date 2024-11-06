@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert } from "react-native";
-import { Button, IconButton, Modal, Provider, Switch, TextInput } from 'react-native-paper';
+import { View, Text, StyleSheet, ScrollView, Alert, Modal } from "react-native";
+import { Button, IconButton, Provider, Switch, TextInput } from 'react-native-paper';
 import { styles } from "./styles";
 import { Colors } from '../constants/Colors';
 import { useLocalSearchParams } from 'expo-router';
 import axiosInstance from '@/services/axios';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 const BusinessHourScreen = () => {
     const donationPlaceId = useLocalSearchParams().donationPlaceId;
@@ -103,42 +103,59 @@ const BusinessHourScreen = () => {
 
     return (
         <Provider>
-            {changeTime && (
-                <DateTimePicker
-                    value={changeTimeValue}
-                    mode="time"
-                    timeZoneName={'GMT-2'}
-                    onChange={(event, selectedDate) => {
-                        setChangeTime(false);
-                        if (selectedDate) {
-                            const hours = selectedDate.getHours();
-                            const minutes = selectedDate.getMinutes();
-                            const time = `${hours < 10 ? '0' + hours : hours}:${minutes < 10 ? '0' + minutes : minutes}`;
-
-                            if (type === 'donation') {
-                                setBusinessHourDonation((prevState) => {
-                                    const newBusinessHours = [...prevState];
-                                    newBusinessHours[tempIndex].hours[tempHourIndex][tempType] = time;
-                                    return newBusinessHours;
-                                });
-                            } else {
-                                setBusinessHourVolunteer((prevState) => {
-                                    const newBusinessHours = [...prevState];
-                                    newBusinessHours[tempIndex].hours[tempHourIndex][tempType] = time;
-                                    return newBusinessHours;
-                                });
-                            }
-                        }
-                    }}
-                />
-            )}
 
             <View style={styles.container}>
+           
                 <View style={styles.content}>
                     <Text style={style.title}>
                         Horários de Funcionamento
                     </Text>
+                    
                     <ScrollView>
+                    {changeTime && (
+                        <Modal visible={changeTime}  transparent={true} >
+                            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                                <View style={{}}>
+                                    <DateTimePickerModal
+                                        date={changeTimeValue}
+                                        mode="time"
+                                        timeZoneName={'GMT-2'}
+                                        display={'spinner'}
+                                        onCancel={() => {
+                                            setChangeTime(false)
+                                        }}
+                                        cancelTextIOS='Cancelar'
+                                        confirmTextIOS='Ok'
+                                        isVisible={true}
+                                        isDarkModeEnabled={false}
+                                        textColor='black'
+                                        onConfirm={(selectedDate) => {
+                                            setChangeTime(false);
+                                            if (selectedDate) {
+                                                const hours = selectedDate.getHours();
+                                                const minutes = selectedDate.getMinutes();
+                                                const time = `${hours < 10 ? '0' + hours : hours}:${minutes < 10 ? '0' + minutes : minutes}`;
+
+                                                if (type === 'donation') {
+                                                    setBusinessHourDonation((prevState) => {
+                                                        const newBusinessHours = [...prevState];
+                                                        newBusinessHours[tempIndex].hours[tempHourIndex][tempType] = time;
+                                                        return newBusinessHours;
+                                                    });
+                                                } else {
+                                                    setBusinessHourVolunteer((prevState) => {
+                                                        const newBusinessHours = [...prevState];
+                                                        newBusinessHours[tempIndex].hours[tempHourIndex][tempType] = time;
+                                                        return newBusinessHours;
+                                                    });
+                                                }
+                                            }
+                                        }}
+                                    />
+                                </View>
+                            </View>
+                        </Modal>
+                    )}
                         <View style={style.form}>
                             <View >
                                 {businessHourDonation && businessHourDonation.length > 0 && (
@@ -375,8 +392,8 @@ const BusinessHourScreen = () => {
                                 </View>
                             </View>
                         )}
-
                     </ScrollView>
+                    
                     <View style={[style.button, { marginTop: 20 }]}>
                         <Button
                             mode="contained"
@@ -418,6 +435,12 @@ const style = StyleSheet.create({
     },
     button: {
         marginBottom: 40,
+    },
+    backgroundDatePicker: {
+        backgroundColor: 'white',
+    },
+    textColorDatePicker: {
+        color: 'black',
     }
 });
 
