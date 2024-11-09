@@ -131,7 +131,7 @@ const DonationItemUrgentForm = () => {
 
                 router.navigate({
                     pathname: '/DonationScreen',
-                    params: { title: categoryDescription, donationPlaceId, showSnackbar: 'true' }
+                    params: { title: placeName, donationPlaceId: donationPlaceId, placeName: placeName, showSnackbar: 'true' }
                 });
             } else {
                 await axiosInstance.post('donations', data);
@@ -140,7 +140,7 @@ const DonationItemUrgentForm = () => {
 
                 router.navigate({
                     pathname: '/DonationScreen',
-                    params: { title: categoryDescription, donationPlaceId, showSnackbar: 'true' }
+                    params: { title: placeName, donationPlaceId: donationPlaceId, placeName: placeName, showSnackbar: 'true' }
                 });
             }
         } catch (error) {
