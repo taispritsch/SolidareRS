@@ -208,6 +208,12 @@ const RootLayout = () => {
             })}
             />
 
+            <Stack.Screen name="AccessScreen" options={
+                {
+                    headerShown: false
+                }
+            } />
+
         </Stack>
     );
 };
