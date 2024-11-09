@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, Modal } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Alert, Modal, Platform } from "react-native";
 import { Button, IconButton, Provider, Switch, TextInput } from 'react-native-paper';
 import { styles } from "./styles";
 import { Colors } from '../constants/Colors';
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import axiosInstance from '@/services/axios';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
@@ -78,6 +78,8 @@ const BusinessHourScreen = () => {
 
             Alert.alert('Sucesso', 'Horários atualizados com sucesso!');
 
+            router.back();
+
         } catch (error: any) {
             console.error('Erro ao enviar a requisição:', error.response.data);
             Alert.alert('Erro', error.response.data.message);
@@ -101,6 +103,8 @@ const BusinessHourScreen = () => {
         setType(donation ? 'donation' : 'volunteer');
     }
 
+    const plataformIsIOS = Platform.OS === 'ios';
+
     return (
         <Provider>
 
@@ -120,7 +124,7 @@ const BusinessHourScreen = () => {
                                         date={changeTimeValue}
                                         mode="time"
                                         timeZoneName={'GMT-2'}
-                                        display={'spinner'}
+                                        display={plataformIsIOS ? 'spinner' : 'clock'}
                                         onCancel={() => {
                                             setChangeTime(false)
                                         }}
@@ -398,6 +402,7 @@ const BusinessHourScreen = () => {
                         <Button
                             mode="contained"
                             buttonColor={Colors.backgroundButton}
+                            textColor={'white'}
                             onPress={handleSubmit}
                             contentStyle={{ height: 50 }}
                             loading={loading}
