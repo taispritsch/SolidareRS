@@ -30,26 +30,24 @@ const WelcomeScreen = () => {
 
     useFocusEffect(
         React.useCallback(() => {
-            if (!router.canGoBack()) {
-                const onBackPress = () => {
-                    Alert.alert(
-                        'Sair',
-                        'Deseja realmente sair?',
-                        [
-                            {
-                                text: 'Cancelar',
-                                style: 'cancel'
-                            },
-                            { text: 'Sair', onPress: () => { BackHandler.exitApp(), router.replace({ pathname: '/LoginScreen' }) } }
-                        ]
-                    );
-                    return true;
-                };
+            const onBackPress = () => {
+                Alert.alert(
+                    'Sair',
+                    'Deseja realmente sair?',
+                    [
+                        {
+                            text: 'Cancelar',
+                            style: 'cancel'
+                        },
+                        { text: 'Sair', onPress: () => { BackHandler.exitApp(), router.replace({ pathname: '/AccessScreen' }) } }
+                    ]
+                );
+                return true;
+            };
 
-                BackHandler.addEventListener('hardwareBackPress', onBackPress);
+            BackHandler.addEventListener('hardwareBackPress', onBackPress);
 
-                return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
-            }
+            return () => BackHandler.removeEventListener('hardwareBackPress', onBackPress);
         }, [])
     );
 

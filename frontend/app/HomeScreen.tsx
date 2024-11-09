@@ -63,7 +63,7 @@ const HomeScreen = () => {
               text: 'Cancelar',
               style: 'cancel'
             },
-            { text: 'Sair', onPress: () => { BackHandler.exitApp(), router.replace({ pathname: '/LoginScreen' }) } }
+            { text: 'Sair', onPress: () => { BackHandler.exitApp(), router.replace({ pathname: '/AccessScreen' }) } }
           ]
         );
         return true;
