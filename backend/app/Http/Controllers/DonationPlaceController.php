@@ -35,7 +35,7 @@ class DonationPlaceController extends Controller
 
     public function getBusinessHours(DonationPlace $donationPlace)
     {
-        $donation = $donationPlace->businessHours()->where('type', BusinessHour::DONATION_TYPE)->get();
+       $donation = $donationPlace->businessHours()->where('type', BusinessHour::DONATION_TYPE)->get();
 
         if ($donation) {
             $donation->each(function ($item) {

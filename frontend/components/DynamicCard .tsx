@@ -72,7 +72,15 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
               </Card>}
               <View style={{ flexDirection: 'row'}}>
                 {icon && <Icon source={icon} color={'#000E19'} size={30} />}
-                <View style={{ width: '100%', justifyContent: 'space-between'}}>
+                <View
+                  style={{
+                    width: '100%',
+                    justifyContent: 'space-between',
+                    ...(showLocation
+                      ? { flexDirection: 'row', alignItems: 'center' }
+                      : {}),
+                  }}
+                >
                   <Text style={[styles.title, icon ? { marginLeft: 10 } : {}]}>{title}</Text>
                   {description && 
                     <Text style={styles.description}>{description}</Text>}

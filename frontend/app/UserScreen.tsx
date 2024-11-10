@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { View, Text, ScrollView, Alert } from "react-native";
 import { styles } from './styles';
 import DynamicCard from '@/components/DynamicCard ';
-import { FAB, Icon, IconButton, Portal, Snackbar } from 'react-native-paper';
+import { FAB, Icon, IconButton, Portal, Provider, Snackbar } from 'react-native-paper';
 import { Colors } from '@/constants/Colors';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
@@ -90,52 +90,54 @@ const UserScreen = ({ title }: UserScreenProps) => {
     );
 
     return (
-        <View style={styles.container}>
-            <View style={styles.content}>
-                <View style={styles.iconAndTextContainer}>
-                    <Icon source="account-multiple" color={'#202020'} size={30} />
-                    <Text style={styles.title}>Usuários</Text>
-                </View>
-                <ScrollView>
-                    <View style={{ padding: 20 }}>
-                        {users.map((user: any, index) => (
-                            <DynamicCard
-                                key={index}
-                                title={user.name}
-                                description={user.email}
-                                hasOptionMenu
-                                menuOptions={['editar', 'excluir']}
-                                onDeletPress={() => showDeleteAlert(user.id)}
-                                onEditPress={() => router.push({ pathname: '/UserForm', params: { title: governmentName, id: governmentId, userId: user.id } })}
-                                onPress={() => router.push({ pathname: '/UserForm', params: { title: governmentName, id: governmentId, userId: user.id } })}
-                            />
-                        ))}
+        <Provider>
+            <View style={styles.container}>
+                <View style={styles.content}>
+                    <View style={styles.iconAndTextContainer}>
+                        <Icon source="account-multiple" color={'#202020'} size={30} />
+                        <Text style={styles.title}>Usuários</Text>
                     </View>
-                </ScrollView>
+                    <ScrollView>
+                        <View style={{ padding: 20 }}>
+                            {users.map((user: any, index) => (
+                                <DynamicCard
+                                    key={index}
+                                    title={user.name}
+                                    description={user.email}
+                                    hasOptionMenu
+                                    menuOptions={['editar', 'excluir']}
+                                    onDeletPress={() => showDeleteAlert(user.id)}
+                                    onEditPress={() => router.push({ pathname: '/UserForm', params: { title: governmentName, id: governmentId, userId: user.id } })}
+                                    onPress={() => router.push({ pathname: '/UserForm', params: { title: governmentName, id: governmentId, userId: user.id } })}
+                                />
+                            ))}
+                        </View>
+                    </ScrollView>
 
-                <Snackbar
-                    visible={visible}
-                    onDismiss={onDismissSnackBar}
-                    duration={1500}
-                    action={{
-                        label: 'Fechar',
-                        onPress: () => {
-                            onDismissSnackBar();
-                        },
-                    }}>
-                    {snackbarMessage}
-                </Snackbar>
+                    <Snackbar
+                        visible={visible}
+                        onDismiss={onDismissSnackBar}
+                        duration={1500}
+                        action={{
+                            label: 'Fechar',
+                            onPress: () => {
+                                onDismissSnackBar();
+                            },
+                        }}>
+                        {snackbarMessage}
+                    </Snackbar>
 
-                <FAB
-                    icon='plus'
-                    onPress={() => {
-                        router.push({ pathname: '/UserForm', params: { title: governmentName, id: governmentId } })
-                    }}
-                    color='#FFFFFF'
-                    style={{ backgroundColor: '#133567', ...styles.addButton }}
-                />
+                    <FAB
+                        icon='plus'
+                        onPress={() => {
+                            router.push({ pathname: '/UserForm', params: { title: governmentName, id: governmentId } })
+                        }}
+                        color='#FFFFFF'
+                        style={{ backgroundColor: '#133567', ...styles.addButton }}
+                    />
+                </View>
             </View>
-        </View>
+        </Provider>
     );
 }
 

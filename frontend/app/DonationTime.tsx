@@ -6,8 +6,8 @@ import { useLocalSearchParams } from "expo-router";
 import axiosInstance from "@/services/axios";
 
 interface Hour {
-  opening: string;
-  closing: string;
+  start: string;
+  end: string;
 }
 
 interface BusinessHour {
@@ -35,7 +35,6 @@ const DonationTime = () => {
     fetchDonationHours();
   }, []);
 
-  console.log('HORAS', businessHours)
     return (
       <Provider>
         <View style={styles.container}>
@@ -45,20 +44,21 @@ const DonationTime = () => {
               <Text style={style.contactTitle}>Horário para doações</Text>
             </View>
             {businessHours ? (
-              businessHours.map((day, index) => (
-                <View key={index} style={style.dayContainer}>
-                  <Text style={style.dayOfWeek}>{day.day_of_week}</Text>
-                  <Text style={style.hours}>
-                    {day.hours.map((hour, idx) => (
-                      <Text key={idx}>
-                        aaa
-                        {hour.opening} às {hour.closing}
-                        {idx < day.hours.length - 1 ? " | " : ""}
-                      </Text>
-                    ))}
-                  </Text>
-                </View>
-              ))
+              businessHours
+                .filter(day => day.hours.length > 0) 
+                .map((day, index) => (
+                  <View key={index} style={style.dayContainer}>
+                    <Text style={style.dayOfWeek}>{day.day_of_week}</Text>
+                    <View style={style.hoursContainer}>
+                      {day.hours.map((hour, idx) => (
+                        <Text key={idx} style={style.hourText}>
+                          {hour.start} às {hour.end}
+                          {idx < day.hours.length - 1 ? " | " : ""}
+                        </Text>
+                      ))}
+                    </View>
+                  </View>
+                ))
             ) : (
               <Text>Carregando...</Text>
             )}
@@ -86,17 +86,23 @@ const style = StyleSheet.create({
     marginLeft: 20
   },
   dayContainer: {
-    marginBottom: 12,
+    padding: 12,
   },
   dayOfWeek: {
     fontSize: 16,
     fontWeight: "bold",
     color: "#000000",
+    marginTop: 10
   },
-  hours: {
-    fontSize: 14,
-    color: "#666666",
-    marginLeft: 16,
+  hoursContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  hourText: {
+    fontSize: 16,
+    color: '#585555',
+    fontWeight: 'semibold',
+    marginTop: 10,
   },
 });
 

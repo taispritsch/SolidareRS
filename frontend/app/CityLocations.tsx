@@ -1,6 +1,6 @@
 import { Header } from "@/components/Header";
-import { Alert, ScrollView, StyleSheet, View } from "react-native";
-import { FAB, Icon, Provider, SegmentedButtons, Text } from "react-native-paper";
+import { Alert, Modal, ScrollView, StyleSheet, View } from "react-native";
+import { ActivityIndicator, Button, FAB, Icon, Provider, SegmentedButtons, Text } from "react-native-paper";
 import { styles } from "./styles"
 import axiosInstance from "@/services/axios";
 import React, { useEffect, useState } from "react";
@@ -12,12 +12,35 @@ import LocationCard from "@/components/LocationCard";
 import CategoriesFilters from "@/components/CategoriesFilters";
 import { CategoriesIcons } from "@/constants/CategoriesIcons";
 
+interface UrgentDonation {
+    id: number;
+    product_id: number; 
+    donation_place_id: number;  
+    product_description: string;
+    parent_category_description: string;
+    urgent: boolean;
+    subcategory_description: string;
+    variations?: Variation[]; 
+}
+
+interface Variation {
+    id: number;
+    name: string,
+    product_id: number,
+    caracteristic_id: number,
+    description: string;
+}
+
 const CityLocations = () => {
     const governmentId = useLocalSearchParams().id;
     const [value, setValue] = React.useState('locais');
     const [places, setPlaces] = React.useState([]);
     const [categories, setCategories] = useState<{ id: number, description: keyof typeof CategoriesIcons, selected: boolean }[]>([]);
     const [donationProducts, setdonationProducts] = useState<{ id: number; description: string; donation_id: number; category_description: string; subcategory_description: string; donation_place_id: number; donation_place_description: string }[]>([]);
+    const [selectedDonation, setSelectedDonation] = useState<UrgentDonation | null>(null); 
+    const [modalVisible, setModalVisible] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [productSizes, setProductSizes] = useState<any[]>([]);
 
     const getCategories = async () => {
         try {
@@ -113,6 +136,58 @@ const CityLocations = () => {
         getProducts(index);
     }
 
+    const fetchProductVariations = async (selectedProduct: any) => {
+        const { id: productId, category_description: category } = selectedProduct;
+    
+        if (productId) {
+            try {
+                if (category === 'Roupas e calçados') {
+                    const response = await axiosInstance.get('products/registered-variations', {
+                        params: { product_ids: [productId] }, 
+                    });
+    
+                    const variationsData = response.data;
+    
+                    const newProductVariations = variationsData.map((variation: any) => ({
+                        id: variation.id,
+                        name: variation.variation.description,
+                        urgency: variation.urgent === 1,
+                    }));
+    
+                    setProductSizes(newProductVariations);
+                } else {
+                    const productData = {
+                        id: selectedProduct.donation_id || selectedProduct.id,
+                        name: selectedProduct.description,
+                        urgency: selectedProduct.urgency || false,
+                    };
+    
+                    setProductSizes([productData]); 
+                }
+            } catch (error) {
+                console.error('Erro ao buscar variações:', error);
+            } finally {
+                setLoading(false);
+            }
+        }
+    };
+
+    const openViewSizesModal = async (product: any) => {
+        const donationData = {
+            ...product,
+            product_description: product.description,
+        };
+    
+        setSelectedDonation(donationData);
+        setModalVisible(true);
+    
+        if (product.category_description === 'Roupas e calçados') {
+            await fetchProductVariations(donationData);
+        } else {
+            setLoading(false);
+        }
+    };
+
     useFocusEffect(
         React.useCallback(() => {
             getPlaces();
@@ -194,6 +269,9 @@ const CityLocations = () => {
                                                     showLocation={true}
                                                     locationId={product.donation_place_id}
                                                     locationName={product.donation_place_description}
+                                                    showButtonTopRight
+                                                    showButtonTopRightText="Ver tamanhos"
+                                                    onPress={() => openViewSizesModal(product)}
                                                 />
                                             ))}
 
@@ -210,6 +288,43 @@ const CityLocations = () => {
                                                 />
                                             ))}
                                     </View>
+                                    {modalVisible && selectedDonation && (
+                                        <Modal
+                                            transparent={true}
+                                            animationType="slide"
+                                            visible={modalVisible}
+                                            onRequestClose={() => setModalVisible(false)}
+                                        >
+                                            <View style={style.modalBackground}>
+                                                <View style={style.modalContent}>
+                                                    <Text style={style.modalTitle}>{selectedDonation.product_description} - {selectedDonation.subcategory_description}</Text>
+                                                    <Text style={{ marginTop: 10, color: '#000E19' }}>Tamanhos</Text>
+                                                    
+                                                    {loading ? (
+                                                        <ActivityIndicator size="large" color="#0000ff" />
+                                                    ) : (
+                                                        productSizes && productSizes.length > 0 ? (
+                                                            <View style={style.sizesContainer}>
+                                                                {productSizes.map((size: Variation) => (
+                                                                    <View key={size.id} style={style.cardContent}>
+                                                                        <Text style={{ color: '#000E19' }}>{size.name}</Text>
+                                                                    </View>
+                                                                ))}
+                                                            </View>
+                                                        ) : (
+                                                            <Text>Nenhum tamanho encontrado.</Text>
+                                                        )
+                                                    )}
+                                                    
+                                                    <View style={style.closeButtonContainer}>
+                                                        <Button mode="outlined" onPress={() => setModalVisible(false)} style={style.closeButton}>
+                                                            <Text style={style.closeButtonText}>Fechar</Text>
+                                                        </Button>
+                                                    </View>
+                                                </View>
+                                            </View>
+                                        </Modal>
+                                    )}
                                 </ScrollView>
                             </View >
                         )}
@@ -275,6 +390,66 @@ const style = StyleSheet.create({
         color: 'black',
         fontSize: 14,
         fontWeight: 'semibold'
+    },
+    modalBackground: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      },
+      modalContent: {
+        backgroundColor: 'white',
+        padding: 20,
+        borderRadius: 10,
+        width: '80%',
+        alignItems: 'flex-start',
+      },
+      modalTitle: {
+        fontSize: 20,
+        fontWeight: 'semibold',
+        marginBottom: 20,
+        textTransform: 'capitalize',
+        color: '#000E19',
+      },
+      modalSubtitle: {
+        textAlign: 'left'
+      },
+      sizesContainer:{
+        flexDirection: 'row', 
+        flexWrap: 'wrap',
+        justifyContent: 'center', 
+        gap: 10,
+        width: '100%', 
+    },
+    cardContent: {
+        borderWidth: 2,
+        borderColor: '#0041A3',
+        borderRadius: 7,
+        marginVertical: 5,
+        backgroundColor: '#FFFFFF',
+        height: 45,
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        alignContent: 'center',
+        padding: 10,
+        color: '#cardContent'
+    },
+    closeButtonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center', 
+        width: '100%', 
+        marginTop: 20,
+    },
+    closeButton: {
+        backgroundColor: 'transparent',
+        borderColor: '#0041A3',
+        borderWidth: 2,
+        width: '50%',
+    },
+    closeButtonText: {
+        color: 'black',
     },
 });
 
