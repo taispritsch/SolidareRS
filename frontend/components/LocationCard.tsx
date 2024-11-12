@@ -6,7 +6,7 @@ import { IconButton, Card } from 'react-native-paper';
 const LocationCard = ({ name, distance, onPress  }: { name: string; distance?: number; onPress: any }) => {
     return (
         <TouchableOpacity onPress={onPress}>
-            <Card style={style.card}>
+            <Card style={style.card} elevation={0}>
                 <View style={style.content}>
                     <View>
                         <Text style={style.name}>{name}</Text>
@@ -43,7 +43,7 @@ const style = StyleSheet.create({
     },
     name: {
         fontSize: 18,
-        fontWeight: 'semibold',
+        fontWeight: 'bold',
         color: '#000',
     },
     distance: {
