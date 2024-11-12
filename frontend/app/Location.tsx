@@ -31,7 +31,7 @@ interface Variation {
 }
 
 const Location = () => {
-    const { id: donationPlaceId, initialTab } = useLocalSearchParams();
+    const { id: donationPlaceId, initialTab, title } = useLocalSearchParams();
     const [value, setValue] = React.useState((initialTab as string) || 'informacao');
     const [categories, setCategories] = useState<{ id: number, description: keyof typeof CategoriesIcons, selected: boolean }[]>([]);
     const [donationProducts, setdonationProducts] = useState<{ id: number; description: string; donation_id: number; category_description: string; subcategory_description: string }[]>([]);
@@ -67,9 +67,9 @@ const Location = () => {
     }
 
     const cardTitles = [
-        { title: "Horário para doações", route: `/DonationTime?id=${donationPlaceId}` },
-        { title: "Horário para voluntários", route: `/VolunteeringTime?id=${donationPlaceId}` },
-        { title: "Contato e Endereço", route: `/ContactAddress?id=${donationPlaceId}` },
+        { title: "Horário para doações", route: `/DonationTime?id=${donationPlaceId}&title=${title}` },
+        { title: "Horário para voluntários", route: `/VolunteeringTime?id=${donationPlaceId}&title=${title}` },
+        { title: "Contato e Endereço", route: `/ContactAddress?id=${donationPlaceId}&title=${title}` },
     ];
 
     const handleCardPress = (route: any) => {

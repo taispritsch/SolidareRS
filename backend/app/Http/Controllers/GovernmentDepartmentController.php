@@ -15,6 +15,8 @@ class GovernmentDepartmentController extends Controller
     public function index()
     {
         $departments = GovernmentDepartment::all();
+
+        logger('Listando todos os órgãos públicos.');
         return response()->json($departments);
     }
 
