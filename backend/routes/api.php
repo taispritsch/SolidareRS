@@ -27,6 +27,8 @@ use App\Http\Controllers\AddressController;
 Route::post('login', [AuthController::class, 'login']);
 Route::post('reset-password', [AuthController::class, 'resetPassword']);
 
+Route::get('government-departments', [GovernmentDepartmentController::class, 'index']);
+
 Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('logout', [AuthController::class, 'logout']);
 
