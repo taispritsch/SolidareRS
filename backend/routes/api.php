@@ -29,6 +29,9 @@ Route::post('reset-password', [AuthController::class, 'resetPassword']);
 
 Route::prefix('community')->group(function () {
     Route::get('government-departments', [GovernmentDepartmentController::class, 'index']);
+    Route::get('donation-places/{donationPlace}', [DonationPlaceController::class, 'show']);
+
+    Route::get('addresses/{id}', [AddressController::class, 'show']);
 });
 
 Route::group(['middleware' => ['auth:sanctum']], function () {

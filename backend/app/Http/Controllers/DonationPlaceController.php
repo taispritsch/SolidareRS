@@ -30,6 +30,7 @@ class DonationPlaceController extends Controller
 
     public function show(DonationPlace $donationPlace)
     {
+        logger('Listando local de doação.', ['local' => $donationPlace]);
         return $donationPlace->load('address.city');
     }
 
