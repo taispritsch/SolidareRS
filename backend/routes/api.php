@@ -12,6 +12,7 @@ use App\Http\Controllers\DonationPlaceController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\VariationController;
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\VolunteerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,6 +33,8 @@ Route::prefix('community')->group(function () {
     Route::get('donation-places/{donationPlace}', [DonationPlaceController::class, 'show']);
 
     Route::get('addresses/{id}', [AddressController::class, 'show']);
+
+    Route::post('volunteers', [VolunteerController::class, 'store']);
 });
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
@@ -50,6 +53,10 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
         Route::get('{governmentDepartment}', [GovernmentDepartmentController::class, 'show']);
         Route::post('', [GovernmentDepartmentController::class, 'store'])->middleware('is.admin');
         Route::put('{governmentDepartment}', [GovernmentDepartmentController::class, 'update']);
+    });
+
+    Route::prefix('volunteers')->group(function () {
+        Route::get('{governmentDepartment}/government-department', [VolunteerController::class, 'index']);
     });
 
     Route::prefix('donation-places')->group(function () {

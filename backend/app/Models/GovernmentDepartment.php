@@ -22,4 +22,9 @@ class GovernmentDepartment extends Model
     {
         return $this->hasMany(GovernmentDepartmentHasUsers::class);
     }
+
+    public function volunteers()
+    {
+        return $this->hasMany(Volunteer::class);
+    }
 }
