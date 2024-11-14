@@ -99,6 +99,7 @@ const UserScreen = ({ title }: UserScreenProps) => {
                     </View>
                     <ScrollView>
                         <View style={{ padding: 20 }}>
+                            {users.length === 0 && <Text style={{ textAlign: 'center' }}>Nenhum usuário cadastrado</Text>}
                             {users.map((user: any, index) => (
                                 <DynamicCard
                                     key={index}

@@ -207,6 +207,7 @@ const DonationScreen = () => {
 
                     <ScrollView>
                         <View style={{ padding: 20, position: 'relative' }}>
+                            {donationProducts.length === 0 && <Text style={{ textAlign: 'center' }}>Nenhum item cadastrado</Text>}
                             {donationProducts
                                 .filter(product => product.category_description === 'Roupas e calçados')
                                 .map((product, index) => (

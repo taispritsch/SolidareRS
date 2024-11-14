@@ -231,6 +231,7 @@ const Location = () => {
 
                                 <ScrollView>
                                     <View style={{ marginBottom: 50 }}>
+                                        {donationProducts.length === 0 && <Text style={{ textAlign: 'center', color: 'black' }}>Nenhum produto cadastrado</Text>}
                                         {donationProducts
                                             .filter(product => product.category_description === 'Roupas e calçados')
                                             .map((product, index) => (

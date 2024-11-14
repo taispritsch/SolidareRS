@@ -230,6 +230,7 @@ const CityLocations = () => {
 
                     <ScrollView style={style.content}>
                          {value === 'locais' ? (
+                            places.length > 0 ? (
                             places.map((place: any) => (
                                 <LocationCard
                                     key={place.id} 
@@ -237,7 +238,10 @@ const CityLocations = () => {
                                     distance={place.distance} 
                                     onPress={() => handlePress(place)}
                                 />
-                            ))
+                            )))
+                            : (
+                                <Text style={{ textAlign: 'center' }}>Nenhum local cadastrado</Text>
+                            )
                         ) : (
                             <View>
                                 <View style={{ marginTop: 10 }}>
@@ -258,6 +262,7 @@ const CityLocations = () => {
 
                                 <ScrollView>
                                     <View style={{ marginBottom: 50 }}>
+                                        {donationProducts.length === 0 && <Text style={{ textAlign: 'center', color: 'black' }}>Nenhum produto cadastrado</Text>}
                                         {donationProducts
                                             .filter(product => product.category_description === 'Roupas e calçados')
                                             .map((product, index) => (

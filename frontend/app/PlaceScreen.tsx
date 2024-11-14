@@ -98,6 +98,7 @@ const PlaceScreen = ({ title }: PlaceScreenProps) => {
                     </View>
                     <ScrollView>
                         <View style={{ padding: 20, position: 'relative' }}>
+                            {places.length === 0 && <Text style={{ textAlign: 'center' }}>Nenhum local cadastrado</Text>}
                             {places.map((place: any, index) => (
                                 <DynamicCard
                                     key={index}
