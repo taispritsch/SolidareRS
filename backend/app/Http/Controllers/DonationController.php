@@ -104,10 +104,14 @@ class DonationController extends Controller
 
     public function removeUrgency(Donation $donation)
     {
+        DB::beginTransaction();
         try {
             $donation->urgent = false;
             $donation->save();
+
+            DB::commit();
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json(['message' => 'Error on updating urgency', 'error' => $e->getMessage()], 500);
         }
 
@@ -118,6 +122,7 @@ class DonationController extends Controller
     {
         $inputs = $request->validated();
 
+        DB::beginTransaction();
         try {
             foreach ($inputs['variations'] as $product) {
                 $hasUrgentVariation = false;
@@ -145,7 +150,10 @@ class DonationController extends Controller
                     ]);
                 }
             }
+
+            DB::commit();
         } catch (\Exception $e) {
+            DB::rollBack();
             return response()->json(['message' => 'Error on create donation'], 500);
         }
 
@@ -297,8 +305,6 @@ class DonationController extends Controller
 
                 $donation->urgent = $donationInput['urgent'] ?? false;
                 $donation->save();
-
-                logger($donation);
             }
 
             DB::commit();
@@ -312,9 +318,14 @@ class DonationController extends Controller
 
     public function destroy(Donation $donation)
     {
+        DB::beginTransaction();
         try {
             $donation->delete();
+
+            DB::commit();
         } catch (\Exception $e) {
+            DB::rollBack();
+
             return response()->json(['message' => 'Error on delete donation'], 500);
         }
 

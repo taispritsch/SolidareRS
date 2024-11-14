@@ -82,8 +82,16 @@ class UserController extends Controller
         if (!$user) {
             return response()->json(['message' => 'User not found'], 404);
         }
+        
+        DB::beginTransaction();
+        try {
+            $user->update($inputs);
 
-        $user->update($inputs);
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
 
         return response()->json($user, 200);
     }

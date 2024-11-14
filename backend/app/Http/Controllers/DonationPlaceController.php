@@ -30,7 +30,6 @@ class DonationPlaceController extends Controller
 
     public function show(DonationPlace $donationPlace)
     {
-        logger('Listando local de doação.', ['local' => $donationPlace]);
         return $donationPlace->load('address.city');
     }
 
@@ -116,7 +115,6 @@ class DonationPlaceController extends Controller
     public function destroy(DonationPlace $donationPlace)
     {
         DB::beginTransaction();
-
         try {
             $donationPlace->businessHours()->delete();
             $donationPlace->donations->each(function ($donation) {
