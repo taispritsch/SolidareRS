@@ -16,7 +16,7 @@ class VolunteerController extends Controller
         return response()->json($volunteers);
     }
 
-    public function store(VolunteerRequest $request, GovernmentDepartment $governmentDepartment)
+    public function store(VolunteerRequest $request)
     {
         $validated = $request->validated();
 
@@ -25,7 +25,7 @@ class VolunteerController extends Controller
             $volunteer = Volunteer::create([
                 'name' => $validated['name'],
                 'phone' => $validated['phone'],
-                'government_department_id' => $governmentDepartment->id,
+                'government_department_id' => $validated['government_department_id'],
             ]);
 
             DB::commit();

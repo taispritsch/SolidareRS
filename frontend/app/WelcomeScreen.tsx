@@ -85,6 +85,11 @@ const WelcomeScreen = () => {
                                 icon="account-multiple"
                                 onPress={() => router.push({ pathname: '/UserScreen', params: { title: governmentName, id: governmentId } })}
                             />
+                            <DynamicCard
+                                title="Voluntários"
+                                icon="hand-heart"
+                                onPress={() => router.push({ pathname: '/VolunteerScreen', params: { title: governmentName, id: governmentId } })}
+                            />
                         </View>
                     </ScrollView>
                     <Snackbar

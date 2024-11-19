@@ -58,6 +58,15 @@ const RootLayout = () => {
             />
 
             <Stack.Screen
+                name="VolunteerScreen"
+                options={({ route }) => ({
+                    ...sharedHeaderStyle,
+                    headerTitle: route.params.title,
+                    headerBackTitleVisible: false,
+                })}
+            />
+
+            <Stack.Screen
                 name="UserForm"
                 options={({ route }) => ({
                     ...sharedHeaderStyle,

@@ -16,6 +16,7 @@ class VolunteerRequest extends FormRequest
         return [
             'name' => 'required|string',
             'phone' => 'required|string',
+            'government_department_id' => 'required|string'
         ];
     }
 }

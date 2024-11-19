@@ -345,7 +345,10 @@ const CityLocations = () => {
                             icon="hand-heart"
                             color="white"
                             onPress={() => {
-                                router.push({ pathname: '/VoluntaryForm' });
+                                router.push({
+                                    pathname: '/VoluntaryForm',
+                                    params: { governmentId }, 
+                                });
                             }}
                         />
                     </View>

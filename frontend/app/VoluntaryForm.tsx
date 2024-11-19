@@ -3,17 +3,47 @@ import { View, Text, StyleSheet, ScrollView, Alert } from "react-native";
 import { Button, Switch, TextInput } from 'react-native-paper';
 import { styles } from "./styles";
 import { Colors } from '../constants/Colors';
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import axiosInstance from '@/services/axios';
 
 const VoluntaryForm = () => {
+    const { governmentId } = useLocalSearchParams();
     const [loading, setLoading] = useState(false);
-    const [description, setDescription] = useState('');
+    const [name, setName] = useState('');
     const [phone, setPhone] = useState('');
-
-    const [descriptionError, setDescriptionError] = useState(false);
+    const [nameError, setNameError] = useState(false);
     const [phoneError, setPhoneError] = useState(false);
 
+    const handleSubmit = async () => {
+        setNameError(!name);
+        setPhoneError(!phone);
+    
+        if (!name || !phone) {
+            Alert.alert("Erro", "Por favor, preencha todos os campos obrigatórios.");
+            return;
+        }
+    
+        setLoading(true);
+    
+        const volunteerData = {
+            name,
+            phone,
+            government_department_id: governmentId,
+        };
+        
+        try {
+            const response = await axiosInstance.post('/community/volunteers', volunteerData);
+    
+            Alert.alert("Sucesso", "Voluntário registrado com sucesso!");
+            setName('');
+            setPhone('');
+        } catch (error) {
+            console.error(error);
+            Alert.alert("Erro", "Ocorreu um erro ao salvar o voluntário. Tente novamente.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const formatPhoneNumber = (text: string) => {
         const cleaned = text.replace(/\D/g, '');
@@ -44,12 +74,12 @@ const VoluntaryForm = () => {
                             mode="outlined"
                             label="Nome*"
                             placeholder="Nome"
-                            value={description}
-                            onChangeText={text => setDescription(text)}
+                            value={name}
+                            onChangeText={text => setName(text)}
                             style={style.textInput}
                             selectionColor={Colors.backgroundButton}
                             activeOutlineColor={Colors.backgroundButton}
-                            error={descriptionError}
+                            error={nameError}
                         />
                         <TextInput
                             mode="outlined"
@@ -72,6 +102,7 @@ const VoluntaryForm = () => {
                         contentStyle={{ height: 50 }}
                         loading={loading}
                         disabled={loading}
+                        onPress={handleSubmit}
                     >
                         Enviar
                     </Button>
