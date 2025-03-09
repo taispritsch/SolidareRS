@@ -16,12 +16,10 @@ const PlaceScreen = ({ title }: PlaceScreenProps) => {
     const governmentName = useLocalSearchParams().title;
     const governmentId = useLocalSearchParams().id;
     const [snackbarMessage, setSnackbarMessage] = useState('');
-
     const { showSnackbar, action } = useLocalSearchParams();
-
     const [places, setPlaces] = React.useState([]);
-
     const [visible, setVisible] = React.useState(false);
+    const [loading, setLoading] = useState(true);
 
     const onDismissSnackBar = () => setVisible(false);
 
@@ -53,6 +51,8 @@ const PlaceScreen = ({ title }: PlaceScreenProps) => {
     }
 
     async function getPlaces() {
+        setLoading(true);
+
         try {
             const response = await axiosInstance.get(`donation-places/${governmentId}/government-department`);
 
@@ -67,6 +67,8 @@ const PlaceScreen = ({ title }: PlaceScreenProps) => {
         } catch (error) {
             console.error('Erro ao enviar a requisição:', error);
             Alert.alert('Erro', 'Não foi possível carregar os locais.');
+        } finally{
+            setLoading(false);
         }
     }
 
@@ -98,18 +100,29 @@ const PlaceScreen = ({ title }: PlaceScreenProps) => {
                     </View>
                     <ScrollView>
                         <View style={{ padding: 20, position: 'relative' }}>
-                            {places.length === 0 && <Text style={{ textAlign: 'center' }}>Nenhum local cadastrado</Text>}
-                            {places.map((place: any, index) => (
-                                <DynamicCard
-                                    key={index}
-                                    title={place.description}
-                                    hasOptionMenu
-                                    menuOptions={['editar', 'excluir']}
-                                    onDeletPress={() => showDeleteAlert(place.id)}
-                                    onEditPress={() => router.push({ pathname: '/PlaceForm', params: { title: governmentName, governmentId: governmentId, id: place.id, mode: 'edit' } })}
-                                    onPress={() => router.push({ pathname: '/PlaceOptionsScreen', params: { title: governmentName, placeName: place.description, placeId: place.id } })}
-                                />
-                            ))}
+                            {loading ? (
+                                <Text style={{ textAlign: 'center' }}>Carregando...</Text>
+                            ) : places.length === 0 ? (
+                                <Text style={{ textAlign: 'center' }}>Nenhum local cadastrado</Text>
+                            ) : (
+                                places.map((place: any, index) => (
+                                    <DynamicCard
+                                        key={index}
+                                        title={place.description}
+                                        hasOptionMenu
+                                        menuOptions={['editar', 'excluir']}
+                                        onDeletPress={() => showDeleteAlert(place.id)}
+                                        onEditPress={() => router.push({ 
+                                            pathname: '/PlaceForm', 
+                                            params: { title: governmentName, governmentId, id: place.id, mode: 'edit' } 
+                                        })}
+                                        onPress={() => router.push({ 
+                                            pathname: '/PlaceOptionsScreen', 
+                                            params: { title: governmentName, placeName: place.description, placeId: place.id } 
+                                        })}
+                                    />
+                                ))
+                            )}
                         </View>
                     </ScrollView>
 

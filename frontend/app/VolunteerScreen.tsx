@@ -45,15 +45,20 @@ const VolunteerScreen = () => {
                     </View>
                     <ScrollView>
                         <View style={{ padding: 20 }}>
-                            {volunteers.length === 0 && <Text style={{ textAlign: 'center' }}>Nenhum voluntário cadastrado</Text>}
-                            {volunteers.map((volunteer, index) => (
-                                <DynamicCard
-                                    key={index}
-                                    title={volunteer.name}
-                                    description={volunteer.phone} 
-                                    notShowButton
-                                />
-                            ))}
+                            {loading ? (
+                                <Text style={{ textAlign: 'center' }}>Carregando...</Text>
+                            ) : volunteers.length === 0 ? (
+                                <Text style={{ textAlign: 'center' }}>Nenhum voluntário cadastrado</Text>
+                            ) : (
+                                volunteers.map((volunteer, index) => (
+                                    <DynamicCard
+                                        key={index} 
+                                        title={volunteer.name}
+                                        description={volunteer.phone} 
+                                        notShowButton
+                                    />
+                                ))
+                            )}
                         </View>
                     </ScrollView>
                 </View>

@@ -16,12 +16,10 @@ const UserScreen = ({ title }: UserScreenProps) => {
     const governmentName = useLocalSearchParams().title;
     const governmentId = useLocalSearchParams().id;
     const [snackbarMessage, setSnackbarMessage] = useState('');
-
     const { showSnackbar, action } = useLocalSearchParams();
-
     const [users, setUsers] = React.useState([]);
-
     const [visible, setVisible] = React.useState(false);
+    const [loadingUsers, setLoadingUsers] = useState(true);
 
     const onDismissSnackBar = () => setVisible(false);
 
@@ -53,6 +51,8 @@ const UserScreen = ({ title }: UserScreenProps) => {
     }
 
     async function getUsers() {
+        setLoadingUsers(true);
+
         try {
             const response = await axiosInstance.get(`users/${governmentId}/government-department`);
 
@@ -68,6 +68,8 @@ const UserScreen = ({ title }: UserScreenProps) => {
         } catch (error) {
             console.error('Erro ao enviar a requisição:', error);
             Alert.alert('Erro', 'Não foi possível carregar os usuários.');
+        } finally{
+            setLoadingUsers(false);
         }
     }
 
@@ -99,19 +101,30 @@ const UserScreen = ({ title }: UserScreenProps) => {
                     </View>
                     <ScrollView>
                         <View style={{ padding: 20 }}>
-                            {users.length === 0 && <Text style={{ textAlign: 'center' }}>Nenhum usuário cadastrado</Text>}
-                            {users.map((user: any, index) => (
-                                <DynamicCard
-                                    key={index}
-                                    title={user.name}
-                                    description={user.email}
-                                    hasOptionMenu
-                                    menuOptions={['editar', 'excluir']}
-                                    onDeletPress={() => showDeleteAlert(user.id)}
-                                    onEditPress={() => router.push({ pathname: '/UserForm', params: { title: governmentName, id: governmentId, userId: user.id } })}
-                                    onPress={() => router.push({ pathname: '/UserForm', params: { title: governmentName, id: governmentId, userId: user.id } })}
-                                />
-                            ))}
+                            {loadingUsers ? (
+                                <Text style={{ textAlign: 'center' }}>Carregando...</Text>
+                            ) : users.length === 0 ? (
+                                <Text style={{ textAlign: 'center' }}>Nenhum usuário cadastrado</Text>
+                            ) : (
+                                users.map((user: any, index) => (
+                                    <DynamicCard
+                                        key={index}
+                                        title={user.name}
+                                        description={user.email}
+                                        hasOptionMenu
+                                        menuOptions={['editar', 'excluir']}
+                                        onDeletPress={() => showDeleteAlert(user.id)}
+                                        onEditPress={() => router.push({ 
+                                            pathname: '/UserForm', 
+                                            params: { title: governmentName, id: governmentId, userId: user.id } 
+                                        })}
+                                        onPress={() => router.push({ 
+                                            pathname: '/UserForm', 
+                                            params: { title: governmentName, id: governmentId, userId: user.id } 
+                                        })}
+                                    />
+                                ))
+                            )}
                         </View>
                     </ScrollView>
 

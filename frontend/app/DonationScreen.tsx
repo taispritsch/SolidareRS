@@ -16,6 +16,7 @@ const DonationScreen = () => {
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const { placeName, showSnackbar, action, donationPlaceId } = useLocalSearchParams();
     const [visible, setVisible] = React.useState(false);
+    const [loading, setLoading] = useState(true);
 
     const [donationProducts, setdonationProducts] = useState<{ id: number; description: string; donation_id: number; category_description: string; subcategory_description: string, urgent: boolean }[]>([]);
 
@@ -62,9 +63,12 @@ const DonationScreen = () => {
 
     const getProducts = async (index?: number) => {
         let categoryFilter = null;
+
         if (index !== undefined) {
             categoryFilter = categories[index] && !categories[index].selected ? categories[index] : null;
         }
+
+        setLoading(true);
 
         try {
             const response = await axiosInstance.get(`donations/${donationPlaceId}/products`, {
@@ -86,7 +90,9 @@ const DonationScreen = () => {
 
             setdonationProducts(products);
         } catch (error) {
-            console.log(error);
+            console.log(error); 
+        } finally{
+            setLoading(false);
         }
     }
 
@@ -207,33 +213,44 @@ const DonationScreen = () => {
 
                     <ScrollView>
                         <View style={{ padding: 20, position: 'relative' }}>
-                            {donationProducts.length === 0 && <Text style={{ textAlign: 'center' }}>Nenhum item cadastrado</Text>}
-                            {donationProducts
-                                .filter(product => product.category_description === 'Roupas e calçados')
-                                .map((product, index) => (
-                                    <DynamicCard
-                                        key={index}
-                                        title={product.description}
-                                        category={product.subcategory_description}
-                                        hasOptionMenu
-                                        menuOptions={['editar', 'editar urgência', 'excluir']}
-                                        onEditPress={() => handleEditDonation(product)}
-                                        onEditUrgencyPress={() => handleEditUrgentDonation(product)}
-                                    />
-                                ))}
+                            {loading ? (
+                                <Text style={{ textAlign: 'center' }}>Carregando...</Text>
+                            ) : (
+                                <>
+                                    {donationProducts.length === 0 ? (
+                                        <Text style={{ textAlign: 'center' }}>Nenhum item cadastrado</Text>
+                                    ) : (
+                                        <>
+                                            {donationProducts
+                                                .filter(product => product.category_description === 'Roupas e calçados')
+                                                .map((product, index) => (
+                                                    <DynamicCard
+                                                        key={index}
+                                                        title={product.description}
+                                                        category={product.subcategory_description}
+                                                        hasOptionMenu
+                                                        menuOptions={['editar', 'editar urgência', 'excluir']}
+                                                        onEditPress={() => handleEditDonation(product)}
+                                                        onEditUrgencyPress={() => handleEditUrgentDonation(product)}
+                                                    />
+                                                ))}
 
-                            {donationProducts
-                                .filter(product => product.category_description !== 'Roupas e calçados')
-                                .map((product, index) => (
-                                    <DynamicCard
-                                        key={index}
-                                        title={product.description}
-                                        hasOptionMenu
-                                        menuOptions={['editar urgência', 'excluir']}
-                                        onDeletPress={() => showDeleteAlert(product.donation_id)}
-                                        onEditUrgencyPress={() => handleEditUrgentDonation(product)}
-                                    />
-                                ))}
+                                            {donationProducts
+                                                .filter(product => product.category_description !== 'Roupas e calçados')
+                                                .map((product, index) => (
+                                                    <DynamicCard
+                                                        key={index}
+                                                        title={product.description}
+                                                        hasOptionMenu
+                                                        menuOptions={['editar urgência', 'excluir']}
+                                                        onDeletPress={() => showDeleteAlert(product.donation_id)}
+                                                        onEditUrgencyPress={() => handleEditUrgentDonation(product)}
+                                                    />
+                                                ))}
+                                        </>
+                                    )}
+                                </>
+                            )}
                         </View>
                     </ScrollView>
 

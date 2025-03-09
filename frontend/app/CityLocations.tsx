@@ -41,6 +41,7 @@ const CityLocations = () => {
     const [modalVisible, setModalVisible] = useState(false);
     const [loading, setLoading] = useState(true);
     const [productSizes, setProductSizes] = useState<any[]>([]);
+    const [loadingProducts, setLoadingProducts] = useState(true);
 
     const getCategories = async () => {
         try {
@@ -63,10 +64,13 @@ const CityLocations = () => {
 
     const getProducts = async (index?: number) => {
         let categoryFilter = null;
+
         if (index !== undefined) {
             categoryFilter = categories[index] && !categories[index].selected ? categories[index] : null;
         }
     
+        setLoadingProducts(true); 
+
         try {
             const response = await axiosInstance.get(`donations/products`, {
                 params: {
@@ -98,11 +102,15 @@ const CityLocations = () => {
             setdonationProducts(products);
         } catch (error) {
             console.log(error);
+        } finally{
+            setLoadingProducts(false);
         }
     }
      
 
     async function getPlaces() {
+        setLoading(true);
+        
         try {
             const response = await axiosInstance.get(`donation-places/${governmentId}/government-department`);
 
@@ -117,6 +125,8 @@ const CityLocations = () => {
         } catch (error) {
             console.error('Erro ao enviar a requisição:', error);
             Alert.alert('Erro', 'Não foi possível carregar os locais.');
+        } finally{
+            setLoading(false);
         }
     }
 
@@ -229,17 +239,19 @@ const CityLocations = () => {
                     />
 
                     <ScrollView style={style.content}>
-                         {value === 'locais' ? (
-                            places.length > 0 ? (
-                            places.map((place: any) => (
-                                <LocationCard
-                                    key={place.id} 
-                                    name={place.description} 
-                                    distance={place.distance} 
-                                    onPress={() => handlePress(place)}
-                                />
-                            )))
-                            : (
+                        {value === 'locais' ? (
+                            loading ? (
+                                <Text style={{ textAlign: 'center' }}>Carregando...</Text>
+                            ) : places.length > 0 ? (
+                                places.map((place: any) => (
+                                    <LocationCard
+                                        key={place.id} 
+                                        name={place.description} 
+                                        distance={place.distance} 
+                                        onPress={() => handlePress(place)}
+                                    />
+                                ))
+                            ) : (
                                 <Text style={{ textAlign: 'center' }}>Nenhum local cadastrado</Text>
                             )
                         ) : (
@@ -262,36 +274,43 @@ const CityLocations = () => {
 
                                 <ScrollView>
                                     <View style={{ marginBottom: 50 }}>
-                                        {donationProducts.length === 0 && <Text style={{ textAlign: 'center', color: 'black' }}>Nenhum produto cadastrado</Text>}
-                                        {donationProducts
-                                            .filter(product => product.category_description === 'Roupas e calçados')
-                                            .map((product, index) => (
-                                                <DynamicCard
-                                                    key={index}
-                                                    title={product.description}
-                                                    category={product.subcategory_description}
-                                                    notShowButton={true}
-                                                    showLocation={true}
-                                                    locationId={product.donation_place_id}
-                                                    locationName={product.donation_place_description}
-                                                    showButtonTopRight
-                                                    showButtonTopRightText="Ver tamanhos"
-                                                    onPress={() => openViewSizesModal(product)}
-                                                />
-                                            ))}
+                                        {loadingProducts ? (
+                                            <Text style={{ textAlign: 'center', color: 'black' }}>Carregando...</Text>
+                                        ) : donationProducts.length === 0 ? (
+                                            <Text style={{ textAlign: 'center', color: 'black' }}>Nenhum produto cadastrado</Text>
+                                        ) : (
+                                            <>
+                                                {donationProducts
+                                                    .filter(product => product.category_description === 'Roupas e calçados')
+                                                    .map((product, index) => (
+                                                        <DynamicCard
+                                                            key={index}
+                                                            title={product.description}
+                                                            category={product.subcategory_description}
+                                                            notShowButton={true}
+                                                            showLocation={true}
+                                                            locationId={product.donation_place_id}
+                                                            locationName={product.donation_place_description}
+                                                            showButtonTopRight
+                                                            showButtonTopRightText="Ver tamanhos"
+                                                            onPress={() => openViewSizesModal(product)}
+                                                        />
+                                                    ))}
 
-                                        {donationProducts
-                                            .filter(product => product.category_description !== 'Roupas e calçados')
-                                            .map((product, index) => (
-                                                <DynamicCard
-                                                    key={index}
-                                                    title={product.description}
-                                                    notShowButton={true}
-                                                    showLocation={true}
-                                                    locationId={product.donation_place_id}
-                                                    locationName={product.donation_place_description}
-                                                />
-                                            ))}
+                                                {donationProducts
+                                                    .filter(product => product.category_description !== 'Roupas e calçados')
+                                                    .map((product, index) => (
+                                                        <DynamicCard
+                                                            key={index} 
+                                                            title={product.description}
+                                                            notShowButton={true}
+                                                            showLocation={true}
+                                                            locationId={product.donation_place_id}
+                                                            locationName={product.donation_place_description}
+                                                        />
+                                                    ))}
+                                            </>
+                                        )}
                                     </View>
                                     {modalVisible && selectedDonation && (
                                         <Modal
@@ -347,7 +366,7 @@ const CityLocations = () => {
                             onPress={() => {
                                 router.push({
                                     pathname: '/VoluntaryForm',
-                                    params: { governmentId }, 
+                                    params: { governmentId, title: 'Voluntarie-se' }, 
                                 });
                             }}
                         />
