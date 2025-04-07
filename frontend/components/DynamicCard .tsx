@@ -119,7 +119,7 @@ const DynamicCard: React.FC<DynamicCardProps> = ({
           {hasOptionMenu && (
             <View style={{ zIndex: 999, elevation: 999 }}>
               <Menu
-                contentStyle={{ backgroundColor: '#FFFFFF', zIndex: 999, elevation: 999, position: 'absolute' }}
+                contentStyle={{ backgroundColor: '#FFFFFF', zIndex: 999, elevation: 999, position: 'absolute', bottom: -60 }}
                 style={{ width: 150, height: 100, position: 'absolute' }}
                 visible={visible}
                 onDismiss={closeMenu}

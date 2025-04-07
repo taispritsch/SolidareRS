@@ -5,21 +5,29 @@
     "scheme": "frontend",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "image": "./assets/images/logo.png",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/logo.png",
+      "image": "../assets/images/logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#133567"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "Precisamos da sua localização para mostrar cidades próximas à você.",
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/logo.png",
         "backgroundColor": "#133567"
-      }
+      },
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ],
+      "package": "com.taispritsch.frontend"
     },
     "web": {
       "bundler": "metro",
@@ -28,10 +36,26 @@
     },
     "plugins": [
       "expo-router",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Precisamos da sua localização para melhorar sua experiência!",
+          "locationAlwaysPermission": "Este aplicativo usa sua localização mesmo quando fechado.",
+          "locationWhenInUsePermission": "Precisamos da sua localização para mostrar informações relevantes."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "60d37de4-28cf-47c6-b341-5f3f03a4be78"
+      }
     }
   }
 }

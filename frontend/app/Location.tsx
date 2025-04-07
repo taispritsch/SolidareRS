@@ -1,5 +1,5 @@
 import { Header } from "@/components/Header";
-import { Alert, ScrollView, StyleSheet, View, Modal } from "react-native";
+import { Alert, ScrollView, StyleSheet, View, Modal, Platform } from "react-native";
 import { ActivityIndicator, Button, Icon, Provider, SegmentedButtons, Text } from "react-native-paper";
 import { styles } from "./styles"
 import axiosInstance from "@/services/axios";
@@ -49,7 +49,9 @@ const Location = () => {
 
     const getCategories = async () => {
         try {
-            const response = await axiosInstance.get('categories');
+            const response = await axiosInstance.get('community');
+
+            console.log('aaaaaaaaa', response)
 
             const categories = response.data.map((category: { id: number; description: keyof typeof CategoriesIcons }) => {
                 return {
@@ -83,7 +85,7 @@ const Location = () => {
         }
     
         try {
-            const response = await axiosInstance.get(`donations/${donationPlaceId}/products`, {
+            const response = await axiosInstance.get(`/community/${donationPlaceId}/products`, {
                 params: {
                     category_id: categoryFilter ? categoryFilter.id : null
                 }
@@ -177,6 +179,7 @@ const Location = () => {
             <View style={styles.content}>
                 <SafeAreaView>
                     <SegmentedButtons
+                        style={style.buttons}
                         value={value}
                         onValueChange={setValue}
                         buttons={[
@@ -231,7 +234,7 @@ const Location = () => {
 
                                 <ScrollView>
                                     <View style={{ marginBottom: 50 }}>
-                                        {donationProducts.length === 0 && <Text style={{ textAlign: 'center', color: 'black' }}>Nenhum produto cadastrado</Text>}
+                                        {donationProducts.length === 0 && <Text style={{ textAlign: 'center', color: 'black' }}>Nenhum produto cadastradoooo</Text>}
                                         {donationProducts
                                             .filter(product => product.category_description === 'Roupas e calçados')
                                             .map((product, index) => (
@@ -306,6 +309,9 @@ const Location = () => {
 };
 
 const style = StyleSheet.create({
+    buttons:{
+        paddingTop: Platform.OS === 'ios' ? 16 : 40,
+    },
     content: {
         padding: 16,
     },

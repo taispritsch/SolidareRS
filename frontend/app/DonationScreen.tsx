@@ -10,6 +10,7 @@ import { FAB, IconButton, Menu, Portal, Provider, Snackbar } from 'react-native-
 import { CategoriesIcons } from '@/constants/CategoriesIcons';
 import CategoriesFilters from '@/components/CategoriesFilters';
 import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
+import ShimmerPlaceholder from 'react-native-shimmer-placeholder';
 
 const DonationScreen = () => {
     const openMenu = () => setVisible(true);
@@ -44,7 +45,7 @@ const DonationScreen = () => {
 
     const getCategories = async () => {
         try {
-            const response = await axiosInstance.get('categories');
+            const response = await axiosInstance.get('categories-auth');
 
             const categories = response.data.map((category: { id: number; description: keyof typeof CategoriesIcons }) => {
                 return {
@@ -214,7 +215,22 @@ const DonationScreen = () => {
                     <ScrollView>
                         <View style={{ padding: 20, position: 'relative' }}>
                             {loading ? (
-                                <Text style={{ textAlign: 'center' }}>Carregando...</Text>
+                                <View style={{ alignItems: 'flex-start', marginVertical: 20 }}>
+                                    <ShimmerPlaceholder
+                                    style={{ 
+                                        height: 40,
+                                        width: "50%", 
+                                        marginBottom: 10, 
+                                        borderRadius: 8 
+                                    }} />
+                                    <ShimmerPlaceholder 
+                                    style={{ 
+                                        height: 20,
+                                        width: "80%", 
+                                        marginBottom: 10, 
+                                        borderRadius: 8 
+                                    }} />
+                                </View>
                             ) : (
                                 <>
                                     {donationProducts.length === 0 ? (

@@ -1,5 +1,5 @@
 import { Header } from "@/components/Header";
-import { Alert, Modal, ScrollView, StyleSheet, View } from "react-native";
+import { Alert, Modal, Platform, ScrollView, StyleSheet, View } from "react-native";
 import { ActivityIndicator, Button, FAB, Icon, Provider, SegmentedButtons, Text } from "react-native-paper";
 import { styles } from "./styles"
 import axiosInstance from "@/services/axios";
@@ -11,6 +11,7 @@ import { Colors } from "@/constants/Colors";
 import LocationCard from "@/components/LocationCard";
 import CategoriesFilters from "@/components/CategoriesFilters";
 import { CategoriesIcons } from "@/constants/CategoriesIcons";
+import ShimmerPlaceholder from "react-native-shimmer-placeholder";
 
 interface UrgentDonation {
     id: number;
@@ -42,10 +43,11 @@ const CityLocations = () => {
     const [loading, setLoading] = useState(true);
     const [productSizes, setProductSizes] = useState<any[]>([]);
     const [loadingProducts, setLoadingProducts] = useState(true);
+     const { lat, lon } = useLocalSearchParams();
 
     const getCategories = async () => {
         try {
-            const response = await axiosInstance.get('categories');
+            const response = await axiosInstance.get('community');
 
             const categories = response.data.map((category: { id: number; description: keyof typeof CategoriesIcons }) => {
                 return {
@@ -72,7 +74,7 @@ const CityLocations = () => {
         setLoadingProducts(true); 
 
         try {
-            const response = await axiosInstance.get(`donations/products`, {
+            const response = await axiosInstance.get(`community/products`, {
                 params: {
                     government_department_id: governmentId,
                     category_id: categoryFilter ? categoryFilter.id : null
@@ -112,8 +114,13 @@ const CityLocations = () => {
         setLoading(true);
         
         try {
-            const response = await axiosInstance.get(`donation-places/${governmentId}/government-department`);
-
+            const response = await axiosInstance.get(`community/${governmentId}/government-department`, {
+                params: {
+                    lat,
+                    lon
+                },
+            });
+            
             const array = response.data.map((item: any) => {
                 return {
                     id: item.id,
@@ -124,7 +131,7 @@ const CityLocations = () => {
             setPlaces(array);
         } catch (error) {
             console.error('Erro ao enviar a requisição:', error);
-            Alert.alert('Erro', 'Não foi possível carregar os locais.');
+            Alert.alert('Erro', 'Não foi possível carregar os locais dessa cidade');
         } finally{
             setLoading(false);
         }
@@ -212,6 +219,7 @@ const CityLocations = () => {
             <View style={styles.content}>
                 <SafeAreaView>
                     <SegmentedButtons
+                        style={style.buttons}
                         value={value}
                         onValueChange={setValue}
                         buttons={[
@@ -241,7 +249,26 @@ const CityLocations = () => {
                     <ScrollView style={style.content}>
                         {value === 'locais' ? (
                             loading ? (
-                                <Text style={{ textAlign: 'center' }}>Carregando...</Text>
+                                <View style={{ alignItems: 'center', marginVertical: 20 }}>
+                                    <ShimmerPlaceholder style={{ 
+                                        height: 60,
+                                        width: "100%", 
+                                        marginBottom: 10, 
+                                        borderRadius: 8 
+                                    }} />
+                                    <ShimmerPlaceholder style={{ 
+                                        height: 60,
+                                        width: "100%", 
+                                        marginBottom: 10, 
+                                        borderRadius: 8 
+                                    }} />
+                                    <ShimmerPlaceholder style={{ 
+                                        height: 60,
+                                        width: "100%", 
+                                        marginBottom: 10, 
+                                        borderRadius: 8 
+                                    }} />
+                                </View>
                             ) : places.length > 0 ? (
                                 places.map((place: any) => (
                                     <LocationCard
@@ -252,7 +279,7 @@ const CityLocations = () => {
                                     />
                                 ))
                             ) : (
-                                <Text style={{ textAlign: 'center' }}>Nenhum local cadastrado</Text>
+                                <Text style={{ textAlign: 'center', marginTop: 30, color: '#000E19', fontSize: 16 }}>Nenhum local cadastrado</Text>
                             )
                         ) : (
                             <View>
@@ -275,9 +302,28 @@ const CityLocations = () => {
                                 <ScrollView>
                                     <View style={{ marginBottom: 50 }}>
                                         {loadingProducts ? (
-                                            <Text style={{ textAlign: 'center', color: 'black' }}>Carregando...</Text>
+                                            <View style={{ alignItems: 'center', marginVertical: 20 }}>
+                                            <ShimmerPlaceholder style={{ 
+                                                height: 60,
+                                                width: "100%", 
+                                                marginBottom: 10, 
+                                                borderRadius: 8 
+                                            }} />
+                                            <ShimmerPlaceholder style={{ 
+                                                height: 60,
+                                                width: "100%", 
+                                                marginBottom: 10, 
+                                                borderRadius: 8 
+                                            }} />
+                                            <ShimmerPlaceholder style={{ 
+                                                height: 60,
+                                                width: "100%", 
+                                                marginBottom: 10, 
+                                                borderRadius: 8 
+                                            }} />
+                                        </View>
                                         ) : donationProducts.length === 0 ? (
-                                            <Text style={{ textAlign: 'center', color: 'black' }}>Nenhum produto cadastrado</Text>
+                                            <Text style={{ textAlign: 'center', marginTop: 30, color: '#000E19', fontSize: 16 }}>Nenhum produto cadastrado</Text>
                                         ) : (
                                             <>
                                                 {donationProducts
@@ -379,6 +425,9 @@ const CityLocations = () => {
 };
 
 const style = StyleSheet.create({
+    buttons:{
+        paddingTop: Platform.OS === 'ios' ? 16 : 40,
+    },
     content: {
         padding: 16,
     },

@@ -14,7 +14,12 @@ const CategoriesFilters: React.FC<CategoriesFiltersProps> = ({
 }) => {
 
     return (
-        <Card style={[styles.card, category.selected ? { backgroundColor: '#0041A3', borderWidth: 2, borderColor: '#0041A3'} : {}]} onPress={onPress} >
+        <Card style={[
+        styles.card, 
+        category.selected ? { backgroundColor: '#0041A3' } : { backgroundColor : '#FFFFFF' }
+
+
+    ]} onPress={onPress} >
             <View style={styles.cardContent}>
                 <View style={[
                     styles.cardContentTitle
@@ -50,7 +55,6 @@ const styles = StyleSheet.create({
         height: 90,
         padding: 10,
         display: 'flex',
-        backgroundColor: '#fff',
     },
     cardContent: {
         display: 'flex',

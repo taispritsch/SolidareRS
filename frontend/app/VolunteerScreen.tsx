@@ -5,6 +5,7 @@ import { FAB, Icon, Provider,  } from 'react-native-paper';
 import DynamicCard from '@/components/DynamicCard ';
 import axiosInstance from '@/services/axios';
 import { useLocalSearchParams } from 'expo-router';
+import ShimmerPlaceholder from 'react-native-shimmer-placeholder';
 
 interface Volunteer {
     id: number;
@@ -46,7 +47,22 @@ const VolunteerScreen = () => {
                     <ScrollView>
                         <View style={{ padding: 20 }}>
                             {loading ? (
-                                <Text style={{ textAlign: 'center' }}>Carregando...</Text>
+                                <View style={{ alignItems: 'flex-start', marginVertical: 20 }}>
+                                    <ShimmerPlaceholder
+                                    style={{ 
+                                        height: 40,
+                                        width: "50%", 
+                                        marginBottom: 10, 
+                                        borderRadius: 8 
+                                    }} />
+                                    <ShimmerPlaceholder 
+                                    style={{ 
+                                        height: 20,
+                                        width: "80%", 
+                                        marginBottom: 10, 
+                                        borderRadius: 8 
+                                    }} />
+                                </View>
                             ) : volunteers.length === 0 ? (
                                 <Text style={{ textAlign: 'center' }}>Nenhum voluntário cadastrado</Text>
                             ) : (

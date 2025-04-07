@@ -13,6 +13,8 @@ use App\Services\CreateDonationPlaceService;
 use App\Services\CreateNewBusinessHoursService;
 use App\Services\UpdateDonationPlaceService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Http\Request;
 
 class DonationPlaceController extends Controller
 {
@@ -23,10 +25,69 @@ class DonationPlaceController extends Controller
         private CreateNewBusinessHoursService $createNewBusinessHoursService
     ) {}
 
-    public function getAllPlacesByGovernmentDepartment(GovernmentDepartment $governmentDepartment)
+    /*public function getAllPlacesByGovernmentDepartment(GovernmentDepartment $governmentDepartment)
     {
         return DonationPlace::where('government_department_id', $governmentDepartment->id)->get();
+    }*/
+
+    public function getAllPlacesByGovernmentDepartment(GovernmentDepartment $governmentDepartment, Request $request)
+    {
+        $latitude = $request->query('lat');
+        $longitude = $request->query('lon');
+
+        if (!$latitude || !$longitude) {
+            return response()->json(DonationPlace::where('government_department_id', $governmentDepartment->id)->get());
+        }
+
+        $googleApiKey = env('GOOGLE_MAPS_API_KEY');
+
+        $places = DonationPlace::where('government_department_id', $governmentDepartment->id)->get()->map(function ($place) use ($latitude, $longitude, $googleApiKey) {
+        
+        if (!$place->latitude || !$place->longitude) {
+            $endereco = "{$place->address->street}, {$place->address->number}, {$place->address->city->name}, Brasil";
+
+            $response = Http::get("https://maps.googleapis.com/maps/api/geocode/json", [
+                'address' => $endereco,
+                'key' => $googleApiKey,
+            ]);
+
+            \Log::info('Resposta da API do Google Maps', ['response' => $response->json()]);
+
+            if ($response->successful() && count($response->json()['results']) > 0) {
+                $location = $response->json()['results'][0]['geometry']['location'];
+                $place->latitude = $location['lat'];
+                $place->longitude = $location['lng'];
+            } else {
+                $place->distance = PHP_INT_MAX;
+                return $place;
+            }
+        }
+
+        $place->distance = $this->calcularDistancia($latitude, $longitude, $place->latitude, $place->longitude);
+        return $place;
+        });
+
+        $sortedPlaces = $places->sortBy('distance')->values();
+
+        return response()->json($sortedPlaces);
     }
+
+    private function calcularDistancia($lat1, $lon1, $lat2, $lon2)
+    {
+        $earthRadius = 6371; 
+
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLon = deg2rad($lon2 - $lon1);
+
+        $a = sin($dLat / 2) * sin($dLat / 2) +
+            cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+            sin($dLon / 2) * sin($dLon / 2);
+
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        return $earthRadius * $c;
+    }
+
 
     public function show(DonationPlace $donationPlace)
     {

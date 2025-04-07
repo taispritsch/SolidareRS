@@ -4,6 +4,7 @@ import { styles } from "./styles"
 import React, { useEffect, useState } from "react";
 import { useLocalSearchParams } from "expo-router";
 import axiosInstance from "@/services/axios";
+import ShimmerPlaceholder from "react-native-shimmer-placeholder";
 
 interface Hour {
   start: string;
@@ -22,7 +23,7 @@ const VolunteeringTime = () => {
 
   async function fetchDonationHours() {
     try {
-      const response = await axiosInstance.get(`/donation-places/${placeId}/business-hours`);
+      const response = await axiosInstance.get(`/community/${placeId}/business-hours`);
       const donationHours = response.data.volunteer.filter((item: BusinessHour) => item.type === "volunteer");
       console.log('aaaaa', response)
 
@@ -63,7 +64,22 @@ const VolunteeringTime = () => {
                 </View>
               ))
           ) : (
-            <Text>Carregando...</Text>
+            <View style={{ alignItems: 'flex-start', marginVertical: 20 }}>
+                <ShimmerPlaceholder 
+                  style={{ 
+                    height: 40,
+                    width: "50%", 
+                    marginBottom: 10, 
+                    borderRadius: 8 
+                  }} />
+                <ShimmerPlaceholder 
+                  style={{ 
+                    height: 20,
+                    width: "80%", 
+                    marginBottom: 10, 
+                    borderRadius: 8 
+                  }} />
+                </View>
           )}
         </View>
       </View>

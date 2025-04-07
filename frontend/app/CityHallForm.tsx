@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Alert, Platform } from "react-native";
 import { Button, TextInput } from 'react-native-paper';
 import { styles } from "./styles";
 import { Colors } from '../constants/Colors';
@@ -330,6 +330,7 @@ const style = StyleSheet.create({
         gap: 20,
         paddingHorizontal: 20,
         paddingTop: 40,
+        paddingBottom: Platform.OS === 'ios' ? 16 : 40,
     },
     textInput: {
         flex: 1

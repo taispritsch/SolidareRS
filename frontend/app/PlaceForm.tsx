@@ -36,7 +36,7 @@ const PlaceForm = () => {
 
     async function getDonationPlaces() {
         try {
-            const response = await axiosInstance.get(`donation-places/${id}`);
+            const response = await axiosInstance.get(`donation-places-auth/${id}`);
 
             setDescription(response.data.description);
             setZipCode(response.data.address.zip_code || '');

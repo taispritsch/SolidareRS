@@ -20,7 +20,7 @@ const HomeScreen = () => {
 
   async function getGovernmentDepartments() {
     try {
-      const response = await axiosInstance.get('government-departments');
+      const response = await axiosInstance.get('government-departments-auth');
 
       const array = response.data.map((item: any) => {
         return {

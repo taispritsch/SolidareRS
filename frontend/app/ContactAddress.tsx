@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import axiosInstance from "@/services/axios";
 import { useLocalSearchParams } from "expo-router";
 import MapView, { Marker } from 'react-native-maps';
+import ShimmerPlaceholder from "react-native-shimmer-placeholder";
 
 
 interface PlaceData {
@@ -28,7 +29,7 @@ const ContactAddress = () => {
 
   async function fetchPlaceData() {
     try {
-      const response = await axiosInstance.get(`community/donation-places/${placeId}`);
+      const response = await axiosInstance.get(`/community/${placeId}`);
       setPlaceData(response.data);
 
       if (response.data.address_id) {
@@ -42,7 +43,7 @@ const ContactAddress = () => {
 
   async function fetchAddressData(addressId: number) {
     try {
-      const response = await axiosInstance.get(`community/addresses/${addressId}`);
+      const response = await axiosInstance.get(`/community/addresses/${addressId}`);
       setAddressData(response.data);
 
       const coordinate = await fetch(`https://brasilapi.com.br/api/cep/v2/${response.data.zip_code}`);
@@ -81,7 +82,22 @@ const ContactAddress = () => {
               <Text style={style.phone}>{placeData.phone || "Contato não disponível"}</Text>
             </View>
           ) : (
-            <Text>Carregando...</Text>
+            <View style={{ alignItems: 'flex-start', marginVertical: 20 }}>
+                <ShimmerPlaceholder
+                  style={{ 
+                    height: 40,
+                    width: "50%", 
+                    marginBottom: 10, 
+                    borderRadius: 8 
+                  }} />
+                <ShimmerPlaceholder 
+                  style={{ 
+                    height: 20,
+                    width: "80%", 
+                    marginBottom: 10, 
+                    borderRadius: 8 
+                  }} />
+                </View>
           )}
           <View style={style.contact}>
             <IconButton
@@ -119,7 +135,22 @@ const ContactAddress = () => {
                 </View>
             </View>
           ) : (
-            <Text>Carregando endereço...</Text>
+            <View style={{ alignItems: 'flex-start', marginVertical: 20 }}>
+                <ShimmerPlaceholder 
+                  style={{ 
+                    height: 40,
+                    width: "50%", 
+                    marginBottom: 10, 
+                    borderRadius: 8 
+                  }} />
+                <ShimmerPlaceholder 
+                  style={{ 
+                    height: 20,
+                    width: "80%", 
+                    marginBottom: 10, 
+                    borderRadius: 8 
+                  }} />
+                </View>
           )}
         </View>
       </View>

@@ -44,7 +44,7 @@ const BusinessHourScreen = () => {
         setLoading(true);
 
         try {
-            const response = await axiosInstance.get(`donation-places/${donationPlaceId}/business-hours`);
+            const response = await axiosInstance.get(`donation-places-auth/${donationPlaceId}/business-hours`);
 
             if (response.data.donation) {
                 setBusinessHourDonation(response.data.donation);

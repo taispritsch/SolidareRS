@@ -13,6 +13,9 @@ const sharedHeaderStyle = {
         fontSize: 20,
     },
     headerTitleAlign: 'center',
+    headerBackTitleVisible: false, 
+    headerBackTitle: '-',
+    headerBackTitleStyle: { fontSize: 1 },
 };
 
 const RootLayout = () => {
@@ -179,6 +182,8 @@ const RootLayout = () => {
                 ...sharedHeaderStyle,
                 headerTitle: route.params.title,
                 headerBackTitleVisible: false,
+                headerBackTitle: '-',
+                headerBackTitleStyle: { fontSize: 1 },
             })}
             />
 
@@ -186,6 +191,8 @@ const RootLayout = () => {
                 ...sharedHeaderStyle,
                 headerTitle: route.params.title,
                 headerBackTitleVisible: false,
+                headerBackTitle: '-',
+                headerBackTitleStyle: { fontSize: 1 },
             })}
             />
 
@@ -214,6 +221,7 @@ const RootLayout = () => {
                 ...sharedHeaderStyle,
                 headerTitle: route.params.title,
                 headerBackTitleVisible: false,
+                headerBackImage: () => null
             })}
             />
 

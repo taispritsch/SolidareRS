@@ -25,7 +25,7 @@ const DonationItemForm = () => {
     const getItemsByCategory = async () => {
         try {
             const response = await axiosInstance.get(
-                `categories/${category.id}/products/${donationPlaceId}`
+                `categories-auth/${category.id}/products/${donationPlaceId}`
             );
 
             const products = response.data.map((product: {

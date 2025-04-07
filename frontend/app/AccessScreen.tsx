@@ -1,12 +1,38 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image } from "react-native";
+import React, { useCallback, useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Image, Alert, ScrollView } from "react-native";
 import { Colors } from '@/constants/Colors';
 import { Button } from 'react-native-paper';
-import { router } from 'expo-router';
+import { router, useFocusEffect, useNavigation } from 'expo-router';
+import * as Location from 'expo-location';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const AccessScreen = () => {
+    const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+
+    useFocusEffect(
+        useCallback(() => {
+            const requestLocationPermission = async () => {
+                let { status } = await Location.requestForegroundPermissionsAsync();
+    
+                if (status !== "granted") {
+                    console.warn("Permissão de localização negada.");
+                    return;
+                }
+
+                let locationData = await Location.getCurrentPositionAsync({});
+                setLocation({
+                    latitude: locationData.coords.latitude,
+                    longitude: locationData.coords.longitude,
+                });
+            };
+    
+            requestLocationPermission();
+        }, [])
+    );
+    
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.safeArea}>
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
             <Image source={require('@/assets/images/logo.png')} style={styles.logo} />
             <Text style={styles.title}>SolidareRS</Text>
             <Text style={styles.subtitle}>Conectando solidariedade e esperança</Text>
@@ -17,7 +43,19 @@ const AccessScreen = () => {
                     buttonColor={Colors.backgroundHeader}
                     contentStyle={styles.primaryButtonContent}
                     style={styles.primaryButton}
-                    onPress={() => router.push('/HomeScreenCommunity')}
+                    onPress={() => {
+                        if (location) {
+                            router.push({
+                                pathname: "/HomeScreenCommunity",
+                                params: {
+                                    lat: location.latitude,
+                                    lon: location.longitude,
+                                },
+                            });
+                        } else {
+                            router.push({pathname: "/HomeScreenCommunity"});
+                        }
+                    }}
                 >
                     Acessar
                 </Button>
@@ -27,7 +65,7 @@ const AccessScreen = () => {
                     textColor={Colors.backgroundHeader}
                     style={styles.secondaryButton}
                     contentStyle={styles.secondaryButtonContent}
-                    onPress={() => router.push('/LoginScreen')}
+                    onPress={() => router.replace('/LoginScreen')}
                 >
                     <View style={styles.secondaryButtonTextContainer}>
                         <Text>Acessar como</Text>
@@ -35,17 +73,22 @@ const AccessScreen = () => {
                     </View>
                 </Button>
             </View>
-        </View>
+        </ScrollView>
+        </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
+    safeArea: {
         flex: 1,
+        backgroundColor: '#9EC3FF',
+    },
+    scrollContainer: {
+        flexGrow: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#9EC3FF', 
         padding: 16,
+        backgroundColor: '#9EC3FF',
     },
     logo: {
         width: 324,

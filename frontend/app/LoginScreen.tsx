@@ -53,13 +53,12 @@ const LoginScreen = () => {
 
             await SecureStore.setItemAsync('token', data.token);
 
-
             if (data.user.is_admin) {
-                router.push({ pathname: '/HomeScreen', params: { userName: data.user.name } });
+                router.replace({ pathname: '/HomeScreen', params: { userName: data.user.name } });
             } else {
                 const governmentDepartment = data.user.government_department_has_users[0].government_department;
 
-                router.push({ pathname: '/WelcomeScreen', params: { title: governmentDepartment.name, id: governmentDepartment.id, userName: data.user.name } });
+                router.replace({ pathname: '/WelcomeScreen', params: { title: governmentDepartment.name, id: governmentDepartment.id, userName: data.user.name } });
             }
 
             setLoading(false);
@@ -144,6 +143,7 @@ const LoginScreen = () => {
                             contentStyle={{ height: 50 }}
                             loading={loading}
                             disabled={loading}
+                            textColor='white'
                         >
                             {loading ? 'Aguarde, estamos fazendo login...' : 'Entrar'}
                         </Button>
@@ -201,6 +201,7 @@ const style = StyleSheet.create({
     },
     loginButton: {
         marginTop: 40,
+        color: 'white'
     }
 
 });

@@ -7,6 +7,7 @@ import { ActivityIndicator, Button, FAB, Portal, Provider, Snackbar } from 'reac
 import { styles } from './styles';
 import CategoriesFilters from '@/components/CategoriesFilters';
 import { CategoriesIcons } from '@/constants/CategoriesIcons';
+import ShimmerPlaceholder from 'react-native-shimmer-placeholder';
 
 interface UrgentDonation {
     id: number;
@@ -50,7 +51,7 @@ const UrgentDonationScreen = () => {
         }
 
         try {
-            const response = await axiosInstance.get('/donations/urgent', {
+            const response = await axiosInstance.get('/donations-auth/urgent', {
                 params: {
                     category_id: categoryFilter ? categoryFilter.id : null
                 }
@@ -69,7 +70,7 @@ const UrgentDonationScreen = () => {
         setModalVisible(true);
 
         try {
-            const response = await axiosInstance.get('products/registered-urgent-variations', {
+            const response = await axiosInstance.get('products-auth/registered-urgent-variations', {
                 params: { product_ids: [donation.product_id] },
             });
 
@@ -90,7 +91,7 @@ const UrgentDonationScreen = () => {
 
     const getCategories = async () => {
         try {
-            const response = await axiosInstance.get('categories');
+            const response = await axiosInstance.get('categories-auth');
 
             const categories = response.data.map((category: { id: number; description: keyof typeof CategoriesIcons }) => {
                 return {
@@ -145,7 +146,22 @@ const UrgentDonationScreen = () => {
                     <ScrollView>
                         <View style={{ padding: 20 }}>
                             {loading ? (
-                                <Text>Carregando...</Text>
+                                <View style={{ alignItems: 'flex-start', marginVertical: 20 }}>
+                                    <ShimmerPlaceholder
+                                    style={{ 
+                                        height: 40,
+                                        width: "50%", 
+                                        marginBottom: 10, 
+                                        borderRadius: 8 
+                                    }} />
+                                    <ShimmerPlaceholder 
+                                    style={{ 
+                                        height: 20,
+                                        width: "80%", 
+                                        marginBottom: 10, 
+                                        borderRadius: 8 
+                                    }} />
+                                </View>
                             ) : urgentDonations.length > 0 ? (
                                 <>
                                     {urgentDonations

@@ -9,23 +9,26 @@
             background: #FFFFFF;
             border: #133567 solid 1px;
             border-radius: 16px;
-            height: 1000px;
+            height: 100px;
             font-family: "Barlow", sans-serif;
         }
 
         .header {
-            height: 215px;
+            height: 115px;
             background-color: #133567;
             border-top-left-radius: 16px;
             border-top-right-radius: 16px;
             border: #133567 solid 1px;
+            display: flex;
+            justify-content: center; 
+            align-items: center; 
+            padding-top: 40px;
         }
 
         .header-content {
-            margin-left: 40px;
-            height: 100%;
             display: flex;
             align-items: center;
+            justify-content: center;
         }
 
         img {
@@ -141,7 +144,7 @@
 <body class="card">
     <header class="header">
         <div class="header-content">
-            <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('images/maos-segurando-coracao.png'))) }}" alt="SolidareRS" width="50" height="50">
+            <img src="{{ asset('public/images/maos-segurando-coracao.png') }}" alt="SolidareRS" width="80" height="80">
             <h1 class="header-title"> Bem-vindo ao SolidareRS</h1>
         </div>
     </header>

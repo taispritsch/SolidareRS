@@ -62,7 +62,7 @@ const UserForm = () => {
         try {
             onLoading();
 
-            await axiosInstance.put(`users/${userId}`, data);
+            await axiosInstance.put(`users-auth/${userId}`, data);
 
             router.back();
             router.setParams({ showSnackbar: 'true', action: 'edit' });
@@ -89,7 +89,7 @@ const UserForm = () => {
         try {
             onLoading();
 
-            await axiosInstance.post('users', data);
+            await axiosInstance.post('users-auth', data);
 
             router.back();
             router.setParams({ showSnackbar: 'true', action: 'create' });
@@ -103,7 +103,7 @@ const UserForm = () => {
 
     async function getUser() {
         try {
-            const response = await axiosInstance.get(`users/${userId}`);
+            const response = await axiosInstance.get(`users-auth/${userId}`);
 
             const data = response.data;
 

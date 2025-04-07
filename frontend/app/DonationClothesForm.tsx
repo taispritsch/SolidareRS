@@ -38,7 +38,7 @@ const DonationClothesForm = () => {
     const getCategoriesClothes = async () => {
         try {
             const response = await axiosInstance.get(
-                `categories/${category.id}/subcategories`
+                `categories-auth/${category.id}/subcategories`
             );
 
             const subcategories = response.data.map((subcategory: {
@@ -62,7 +62,7 @@ const DonationClothesForm = () => {
         try {
             const productIds = products.filter((product) => product.selected).map((product) => product.id);
             const response = await axiosInstance.get(
-                'products/variations',
+                'products-auth/variations',
                 {
                     params: {
                         product_ids: productIds
@@ -149,7 +149,7 @@ const DonationClothesForm = () => {
         try {
             const subCategoryId = subcategories.find((subcategory) => subcategory.selected)?.id;
             const response = await axiosInstance.get(
-                `categories/${subCategoryId}/products/${donationPlaceId}`
+                `categories-auth/${subCategoryId}/products/${donationPlaceId}`
             );
 
             const products = response.data.map((product: {
@@ -262,7 +262,7 @@ const DonationClothesForm = () => {
         };
 
         try {
-            await axiosInstance.post('donations/clothes', data);
+            await axiosInstance.post('donations-auth/clothes', data);
 
             router.navigate({ pathname: '/DonationScreen', params: { title: placeName, donationPlaceId: donationPlaceId, placeName: placeName, showSnackbar: 'true' } });
 

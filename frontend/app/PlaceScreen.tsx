@@ -7,6 +7,7 @@ import { Colors } from '@/constants/Colors';
 import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import axiosInstance from '@/services/axios';
+import ShimmerPlaceholder from 'react-native-shimmer-placeholder';
 
 interface PlaceScreenProps {
     title: string;
@@ -54,7 +55,7 @@ const PlaceScreen = ({ title }: PlaceScreenProps) => {
         setLoading(true);
 
         try {
-            const response = await axiosInstance.get(`donation-places/${governmentId}/government-department`);
+            const response = await axiosInstance.get(`donation-places-auth/${governmentId}/government-department`);
 
             const array = response.data.map((item: any) => {
                 return {
@@ -101,7 +102,22 @@ const PlaceScreen = ({ title }: PlaceScreenProps) => {
                     <ScrollView>
                         <View style={{ padding: 20, position: 'relative' }}>
                             {loading ? (
-                                <Text style={{ textAlign: 'center' }}>Carregando...</Text>
+                                <View style={{ alignItems: 'flex-start', marginVertical: 20 }}>
+                                    <ShimmerPlaceholder
+                                    style={{ 
+                                        height: 40,
+                                        width: "50%", 
+                                        marginBottom: 10, 
+                                        borderRadius: 8 
+                                    }} />
+                                    <ShimmerPlaceholder 
+                                    style={{ 
+                                        height: 20,
+                                        width: "80%", 
+                                        marginBottom: 10, 
+                                        borderRadius: 8 
+                                    }} />
+                                </View>
                             ) : places.length === 0 ? (
                                 <Text style={{ textAlign: 'center' }}>Nenhum local cadastrado</Text>
                             ) : (
