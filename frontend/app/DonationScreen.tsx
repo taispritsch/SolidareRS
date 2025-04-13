@@ -72,7 +72,7 @@ const DonationScreen = () => {
         setLoading(true);
 
         try {
-            const response = await axiosInstance.get(`donations/${donationPlaceId}/products`, {
+            const response = await axiosInstance.get(`donations-auth/${donationPlaceId}/products`, {
                 params: {
                     category_id: categoryFilter ? categoryFilter.id : null
                 }
@@ -179,7 +179,7 @@ const DonationScreen = () => {
 
     async function deleteProduct(id: number) {
         try {
-            await axiosInstance.delete(`donations/${id}`);
+            await axiosInstance.delete(`donations-auth/${id}`);
 
             getProducts();
         } catch (error) {
