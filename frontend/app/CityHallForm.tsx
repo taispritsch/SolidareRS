@@ -29,7 +29,7 @@ const CityHallForm = () => {
 
     async function getGovernmentDepartment() {
         try {
-            const response = await axiosInstance.get(`government-departments/${id}`);
+            const response = await axiosInstance.get(`government-departments-auth/${id}`);
 
             setName(response.data.name);
             setPhone(response.data.phone || '');
@@ -183,8 +183,8 @@ const CityHallForm = () => {
         try {
             const method = mode === 'edit' ? 'PUT' : 'POST';
             const url = mode === 'edit'
-                ? `government-departments/${id}`
-                : 'government-departments';
+                ? `government-departments-auth/${id}`
+                : 'government-departments-auth';
 
             
             await axiosInstance({
