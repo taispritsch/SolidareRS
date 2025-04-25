@@ -34,6 +34,7 @@ Route::prefix('community')->group(function () {
     Route::post('volunteers', [VolunteerController::class, 'store']);
     Route::get('/products', [DonationController::class, 'getAllProducts']);
     Route::get('{donationPlace}/products', [DonationController::class, 'getProductsByDonationPlace']);
+    Route::get('/urgent', [DonationController::class, 'getUrgentDonations']); 
     Route::get('{governmentDepartment}/government-department', [DonationPlaceController::class, 'getAllPlacesByGovernmentDepartment']);
     Route::get('{donationPlace}/business-hours', [DonationPlaceController::class, 'getBusinessHours']);
     Route::get('{donationPlace}', [DonationPlaceController::class, 'show']);
