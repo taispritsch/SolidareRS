@@ -39,6 +39,7 @@ Route::prefix('community')->group(function () {
     Route::get('{donationPlace}/business-hours', [DonationPlaceController::class, 'getBusinessHours']);
     Route::get('{donationPlace}', [DonationPlaceController::class, 'show']);
     Route::get('', [CategoryController::class, 'index']);
+    Route::get('registered-variations', [ProductController::class, 'getRegisteredVariations']); 
 });
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
