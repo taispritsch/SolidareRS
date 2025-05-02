@@ -31,6 +31,7 @@ Route::post('reset-password', [AuthController::class, 'resetPassword']);
 Route::prefix('community')->group(function () {
     Route::get('government-departments', [GovernmentDepartmentController::class, 'index']);
     Route::get('addresses/{id}', [AddressController::class, 'show']);
+    Route::get('registered-variations', [ProductController::class, 'getRegisteredVariations']); 
     Route::post('volunteers', [VolunteerController::class, 'store']);
     Route::get('/products', [DonationController::class, 'getAllProducts']);
     Route::get('{donationPlace}/products', [DonationController::class, 'getProductsByDonationPlace']);
@@ -39,7 +40,6 @@ Route::prefix('community')->group(function () {
     Route::get('{donationPlace}/business-hours', [DonationPlaceController::class, 'getBusinessHours']);
     Route::get('{donationPlace}', [DonationPlaceController::class, 'show']);
     Route::get('', [CategoryController::class, 'index']);
-    Route::get('registered-variations', [ProductController::class, 'getRegisteredVariations']); 
 });
 
 Route::group(['middleware' => ['auth:sanctum']], function () {
