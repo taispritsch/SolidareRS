@@ -3,7 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 
 // Create an axios instance
 const axiosInstance = axios.create({
-    baseURL: process.env.EXPO_PUBLIC_ENDPOINT_API,
+    baseURL: 'https://solidarers.com/api',
     headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Alert, KeyboardAvoidingView, Platform } from "react-native";
 import { Button, Switch, TextInput } from 'react-native-paper';
 import { styles } from "./styles";
 import { Colors } from '../constants/Colors';
@@ -200,8 +200,8 @@ const PlaceForm = () => {
         try {
             const method = mode === 'edit' ? 'PUT' : 'POST';
             const url = mode === 'edit'
-                ? `donation-places/${id}`
-                : 'donation-places';
+                ? `donation-places-auth/${id}`
+                : 'donation-places-auth';
 
 
             await axiosInstance({
@@ -226,115 +226,121 @@ const PlaceForm = () => {
                 <Text style={style.title}>
                     {mode === 'edit' ? 'Editando local' : 'Novo local'}
                 </Text>
-                <ScrollView>
-                    <View style={style.form}>
-                        <TextInput
-                            mode="outlined"
-                            label="Nome*"
-                            placeholder="Nome"
-                            value={description}
-                            onChangeText={text => setDescription(text)}
-                            style={style.textInput}
-                            selectionColor={Colors.backgroundButton}
-                            activeOutlineColor={Colors.backgroundButton}
-                            error={descriptionError}
-                        />
-                        <TextInput
-                            mode="outlined"
-                            label="Celular*"
-                            placeholder="Celular"
-                            value={phone}
-                            keyboardType="numeric"
-                            onChangeText={text => setPhone(formatPhoneNumber(text))}
-                            style={style.textInput}
-                            activeOutlineColor={Colors.backgroundButton}
-                            error={phoneError}
-                        />
-                        <TextInput
-                            mode="outlined"
-                            label="CEP*"
-                            placeholder="CEP"
-                            value={zip_code}
-                            onChangeText={handleCepChange}
-                            style={style.textInput}
-                            activeOutlineColor={Colors.backgroundButton}
-                            keyboardType="numeric"
-                            maxLength={9}
-                            error={zipCodeError}
-                        />
-                        <TextInput
-                            mode="outlined"
-                            label="Cidade*"
-                            placeholder="Cidade"
-                            value={city}
-                            editable={false}
-                            style={style.textInput}
-                            activeOutlineColor={Colors.backgroundButton}
-                            error={cityError}
-                        />
-                        <TextInput
-                            mode="outlined"
-                            label="Rua*"
-                            placeholder="Rua"
-                            value={street}
-                            onChangeText={text => setStreet(text)}
-                            style={style.textInput}
-                            activeOutlineColor={Colors.backgroundButton}
-                            error={streetError}
-                        />
-                        <TextInput
-                            mode="outlined"
-                            label="Bairro*"
-                            placeholder="Bairro"
-                            value={neighborhood}
-                            onChangeText={text => setNeighborhood(text)}
-                            style={style.textInput}
-                            activeOutlineColor={Colors.backgroundButton}
-                            error={neighborhoodError}
-                        />
-
-                        <View style={style.block}>
+                    <KeyboardAvoidingView
+                        style={{ flex: 1 }}
+                        behavior={Platform.OS === "ios" ? "padding" : "position"}
+                        keyboardVerticalOffset={110}
+                    >
+                    <ScrollView keyboardShouldPersistTaps="handled">
+                        <View style={style.form}>
                             <TextInput
                                 mode="outlined"
-                                label="Número*"
-                                placeholder="Número"
+                                label="Nome*"
+                                placeholder="Nome"
+                                value={description}
+                                onChangeText={text => setDescription(text)}
+                                style={style.textInput}
+                                selectionColor={Colors.backgroundButton}
+                                activeOutlineColor={Colors.backgroundButton}
+                                error={descriptionError}
+                            />
+                            <TextInput
+                                mode="outlined"
+                                label="Celular*"
+                                placeholder="Celular"
+                                value={phone}
                                 keyboardType="numeric"
-                                value={number}
-                                onChangeText={text => setNumber(text)}
+                                onChangeText={text => setPhone(formatPhoneNumber(text))}
                                 style={style.textInput}
                                 activeOutlineColor={Colors.backgroundButton}
-                                error={numberError}
+                                error={phoneError}
                             />
                             <TextInput
                                 mode="outlined"
-                                label="Complemento"
-                                placeholder="Complemento"
-                                value={complement}
-                                onChangeText={text => setComplement(text)}
+                                label="CEP*"
+                                placeholder="CEP"
+                                value={zip_code}
+                                onChangeText={handleCepChange}
                                 style={style.textInput}
                                 activeOutlineColor={Colors.backgroundButton}
+                                keyboardType="numeric"
+                                maxLength={9}
+                                error={zipCodeError}
                             />
-                        </View>
+                            <TextInput
+                                mode="outlined"
+                                label="Cidade*"
+                                placeholder="Cidade"
+                                value={city}
+                                editable={false}
+                                style={style.textInput}
+                                activeOutlineColor={Colors.backgroundButton}
+                                error={cityError}
+                            />
+                            <TextInput
+                                mode="outlined"
+                                label="Rua*"
+                                placeholder="Rua"
+                                value={street}
+                                onChangeText={text => setStreet(text)}
+                                style={style.textInput}
+                                activeOutlineColor={Colors.backgroundButton}
+                                error={streetError}
+                            />
+                            <TextInput
+                                mode="outlined"
+                                label="Bairro*"
+                                placeholder="Bairro"
+                                value={neighborhood}
+                                onChangeText={text => setNeighborhood(text)}
+                                style={style.textInput}
+                                activeOutlineColor={Colors.backgroundButton}
+                                error={neighborhoodError}
+                            />
 
-                        <View style={{ justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row' }}>
-                            <Text style={{ fontSize: 14, fontWeight: 500 }}>Aceita doações</Text>
-                            <Switch
-                                value={acceptsDonations}
-                                onValueChange={onToggleSwitchDonations}
-                                color={Colors.backgroundButton}
-                            />
-                        </View>
-                        <View style={{ justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row' }}>
-                            <Text style={{ fontSize: 14, fontWeight: 500 }}>Aceita voluntários</Text>
-                            <Switch
-                                value={acceptsVolunteers}
-                                onValueChange={onToggleSwitchVolunteers}
-                                color={Colors.backgroundButton}
-                            />
-                        </View>
+                            <View style={style.block}>
+                                <TextInput
+                                    mode="outlined"
+                                    label="Número*"
+                                    placeholder="Número"
+                                    keyboardType="numeric"
+                                    value={number}
+                                    onChangeText={text => setNumber(text)}
+                                    style={style.textInput}
+                                    activeOutlineColor={Colors.backgroundButton}
+                                    error={numberError}
+                                />
+                                <TextInput
+                                    mode="outlined"
+                                    label="Complemento"
+                                    placeholder="Complemento"
+                                    value={complement}
+                                    onChangeText={text => setComplement(text)}
+                                    style={style.textInput}
+                                    activeOutlineColor={Colors.backgroundButton}
+                                />
+                            </View>
 
-                    </View>
-                </ScrollView>
+                            <View style={{ justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row' }}>
+                                <Text style={{ fontSize: 14, fontWeight: 500 }}>Aceita doações</Text>
+                                <Switch
+                                    value={acceptsDonations}
+                                    onValueChange={onToggleSwitchDonations}
+                                    color={Colors.backgroundButton}
+                                />
+                            </View>
+                            <View style={{ justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row' }}>
+                                <Text style={{ fontSize: 14, fontWeight: 500 }}>Aceita voluntários</Text>
+                                <Switch
+                                    value={acceptsVolunteers}
+                                    onValueChange={onToggleSwitchVolunteers}
+                                    color={Colors.backgroundButton}
+                                />
+                            </View>
+
+                        </View>
+                    </ScrollView>
+                </KeyboardAvoidingView>
                 <View style={style.button}>
                     <Button
                         mode="contained"

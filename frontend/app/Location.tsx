@@ -51,8 +51,6 @@ const Location = () => {
         try {
             const response = await axiosInstance.get('community');
 
-            console.log('aaaaaaaaa', response)
-
             const categories = response.data.map((category: { id: number; description: keyof typeof CategoriesIcons }) => {
                 return {
                     id: category.id,
@@ -61,7 +59,15 @@ const Location = () => {
                 }
             });
 
-            setCategories(categories);
+            const urgentCategory = {
+                id: 999,
+                description: 'Itens Urgentes',
+                selected: false
+            };
+    
+            const allCategories = [urgentCategory, ...categories];
+    
+            setCategories(allCategories);
 
         } catch (error) {
             console.log(error);
@@ -85,28 +91,56 @@ const Location = () => {
         }
     
         try {
-            const response = await axiosInstance.get(`/community/${donationPlaceId}/products`, {
-                params: {
-                    category_id: categoryFilter ? categoryFilter.id : null
-                }
-            });
+            const response = await axiosInstance.get(`/community/${donationPlaceId}/products`);
+            
+            const products = response.data.map((product: any) => ({
+                id: product.id,
+                description: product.description,
+                donation_id: product.donation_id,
+                category_description: product.category_description,
+                subcategory_description: product.subcategory_description,
+                urgent: product.urgent === 1, 
+                product_description: product.description,
+            }));
     
-            const products = response.data.map((product: { id: number; description: string; donation_id: number; category_description: string; subcategory_description: string }) => {
-                return {
-                    id: product.id,
-                    description: product.description,
-                    donation_id: product.donation_id,
-                    category_description: product.category_description,
-                    subcategory_description: product.subcategory_description,
-                    product_description: product.description 
-                }
-            });
+            let filteredProducts = products;
     
-            setdonationProducts(products);
+            if (index !== undefined && categories[index]) {
+                const selectedCategory = categories[index];
+    
+                if (selectedCategory.description === 'Itens Urgentes') {
+                    // Mostra apenas os itens urgentes (sem duplicação)
+                    filteredProducts = products
+                        .filter((p: UrgentDonation) => p.urgent)
+                        .filter((value: any, index: any, self: any) =>
+                            index === self.findIndex((v: any) =>
+                                v.description === value.description &&
+                                v.subcategory_description === value.subcategory_description
+                            )
+                        );
+                } else {
+                    // Filtra por categoria específica
+                    filteredProducts = products.filter((product: any) =>
+                        product.category_description === selectedCategory.description
+                    );
+                }
+            } else {
+                // Quando nenhum filtro está selecionado, apenas remove duplicidades
+                const seen = new Set();
+                filteredProducts = products.filter((product: any) => {
+                    const key = `${product.description}-${product.subcategory_description}`;
+                    if (seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                });
+            }
+            setdonationProducts(filteredProducts);
+    
         } catch (error) {
             console.log(error);
         }
     }
+    
 
     const selectCategory = (index: number) => {
         const newCategories = categories.map((category, i) => {
@@ -115,10 +149,16 @@ const Location = () => {
                 selected: i === index ? !category.selected : false
             }
         });
-
+    
         setCategories(newCategories);
-        getProducts(index);
+    
+        if (categories[index].selected) {
+            getProducts();
+        } else {
+            getProducts(index);
+        }
     }
+    
 
     const fetchProductVariations = async (selectedProduct: any) => {
         const { id: productId, category_description: category } = selectedProduct;
@@ -126,7 +166,7 @@ const Location = () => {
         if (productId) {
             try {
                 if (category === 'Roupas e calçados') {
-                    const response = await axiosInstance.get('products/registered-variations', {
+                    const response = await axiosInstance.get('/community/registered-variations', {
                         params: { product_ids: [productId] }, 
                     });
     
@@ -233,8 +273,8 @@ const Location = () => {
                                 </ScrollView>
 
                                 <ScrollView>
-                                    <View style={{ marginBottom: 50 }}>
-                                        {donationProducts.length === 0 && <Text style={{ textAlign: 'center', color: 'black' }}>Nenhum produto cadastradoooo</Text>}
+                                    <View style={{ marginBottom: 150 }}>
+                                        {donationProducts.length === 0 && <Text style={{ textAlign: 'center', color: 'black', marginTop: 30 }}>Nenhum produto cadastrado</Text>}
                                         {donationProducts
                                             .filter(product => product.category_description === 'Roupas e calçados')
                                             .map((product, index) => (
@@ -260,7 +300,6 @@ const Location = () => {
                                             ))}
                                     </View>
                                 </ScrollView>
-
                             </View >
                         )}
                     </ScrollView>

@@ -66,8 +66,6 @@ class GovernmentDepartmentController extends Controller
         return $earthRadius * $c;
     }
 
-
-
     public function store(GovernmentDepartmentRequest $request)
     {
         $inputs = $request->validated();

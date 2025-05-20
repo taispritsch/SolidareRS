@@ -42,7 +42,7 @@ const UserScreen = ({ title }: UserScreenProps) => {
 
     async function deleteUser(id: BigInteger) {
         try {
-            await axiosInstance.delete(`users/${id}`);
+            await axiosInstance.delete(`users-auth/${id}`);
 
             getUsers();
         } catch (error) {

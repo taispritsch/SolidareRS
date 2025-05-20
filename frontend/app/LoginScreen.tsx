@@ -36,6 +36,7 @@ const LoginScreen = () => {
     };
 
     const handleLogin = async () => {
+        
         if (!validateFields()) {
             Alert.alert('Erro', 'Por favor, preencha todos os campos.');
             return;

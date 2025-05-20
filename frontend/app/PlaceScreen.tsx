@@ -42,7 +42,7 @@ const PlaceScreen = ({ title }: PlaceScreenProps) => {
 
     async function deletePlace(id: BigInteger) {
         try {
-            await axiosInstance.delete(`donation-places/${id}`);
+            await axiosInstance.delete(`donation-places-auth/${id}`);
 
             getPlaces();
         } catch (error) {

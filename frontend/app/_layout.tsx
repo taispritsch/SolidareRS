@@ -20,7 +20,11 @@ const sharedHeaderStyle = {
 
 const RootLayout = () => {
     return (
-        <Stack>
+        <Stack  screenOptions={{
+            contentStyle: {
+                backgroundColor: "#133567", 
+            },
+        }}>
             <Stack.Screen name="index" options={
                 {
                     headerShown: false

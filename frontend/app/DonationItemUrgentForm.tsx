@@ -60,7 +60,7 @@ const DonationItemUrgentForm = () => {
         if (productIds.length > 0) {
             try {
                 if (category === 'Roupas e calçados') {
-                    const response = await axiosInstance.get('products/registered-variations', {
+                    const response = await axiosInstance.get('products-auth/registered-variations', {
                         params: { product_ids: productIds },
                     });
 
@@ -118,11 +118,11 @@ const DonationItemUrgentForm = () => {
                 }));
 
                 if (selectedProductsArray[0].parentCategory === 'Roupas e calçados') {
-                    await axiosInstance.put('donations/update-urgency-clothes', {
+                    await axiosInstance.put('donations-auth/update-urgency-clothes', {
                         ...productVariationsData,
                     });
                 } else {
-                    await axiosInstance.put('donations/update-urgency', {
+                    await axiosInstance.put('donations-auth/update-urgency', {
                         ...productVariationsData
                     });
                 }
@@ -134,7 +134,7 @@ const DonationItemUrgentForm = () => {
                     params: { title: placeName, donationPlaceId: donationPlaceId, placeName: placeName, showSnackbar: 'true' }
                 });
             } else {
-                await axiosInstance.post('donations', data);
+                await axiosInstance.post('donations-auth', data);
 
                 setLoading(false);
 
@@ -195,7 +195,7 @@ const DonationItemUrgentForm = () => {
 
     async function deleteVariation(donationItemId: number, productId: any) {
         try {
-            await axiosInstance.delete(`products/variations/${donationItemId}`);
+            await axiosInstance.delete(`products-auth/variations/${donationItemId}`);
 
             if (productVariations && productVariations.length > 1) {
                 fetchProductVariations();

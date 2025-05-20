@@ -18,7 +18,7 @@ class BusinessHourRequest extends FormRequest
             'donation.*.day_of_week' => 'required|string',
             'donation.*.hours' => 'nullable|array',
             'donation.*.type' => 'required|string|in:donation,volunteer',
-            'volunteer' => 'required|array',
+            'volunteer' => 'required_without:donation|array',
             'volunteer.*.day_of_week' => 'required|string',
             'volunteer.*.hours' => 'nullable|array',
             'volunteer.*.type' => 'required|string|in:donation,volunteer'

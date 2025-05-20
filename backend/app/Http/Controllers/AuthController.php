@@ -20,6 +20,7 @@ class AuthController extends Controller
 
         DB::beginTransaction();
         try {
+            \Log::info('Tentativa de login:', $request->all());
             $user = User::where('email', $inputs['email'])->first();
 
             if (!$user || !Hash::check($inputs['password'], $user->password)) {

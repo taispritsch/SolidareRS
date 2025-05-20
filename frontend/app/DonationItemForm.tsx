@@ -115,7 +115,11 @@ const DonationItemForm = () => {
                     </ScrollView>
                     <View style={{ padding: 20, alignItems: 'flex-end' }}>
                         <TouchableOpacity
-                            style={style.nextStepContainer}
+                            style={[
+                                style.nextStepContainer,
+                                { opacity: products.some(product => product.selected) ? 1 : 0.5 }
+                            ]}
+                            disabled={!products.some(product => product.selected)}
                             onPress={() => {
                                 const selectedProductIds = products
                                     .filter(product => product.selected)

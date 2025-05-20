@@ -13,6 +13,7 @@ export function Header(){
 
 const styles = StyleSheet.create({
   header: {
+    width: '100%',
     display: 'flex',
     justifyContent: 'space-between',
     flexDirection: 'row', 
@@ -35,6 +36,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
+    marginLeft: 20,
   },
 
 });

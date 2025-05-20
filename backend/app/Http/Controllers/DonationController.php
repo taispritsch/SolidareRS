@@ -73,6 +73,7 @@ class DonationController extends Controller
         $inputs = $request->all();
 
         $category = $inputs['category_id'] ?? null;
+        $donationPlaceId = $inputs['donation_place_id'] ?? null; // Recebe o ID do local
 
         $urgentDonations = Donation::where('urgent', true)
             ->with(['product', 'donationPlace'])
@@ -87,6 +88,10 @@ class DonationController extends Controller
                 'parent_category.description as parent_category_description'
             );
 
+        if (isset($donationPlaceId)) {
+            $urgentDonations = $urgentDonations->where('donations.donation_place_id', $donationPlaceId);
+        }
+
         if (isset($category)) {
             $category = Category::find($category);
 
@@ -100,7 +105,6 @@ class DonationController extends Controller
 
         return response()->json($urgentDonations->get());
     }
-
 
     public function removeUrgency(Donation $donation)
     {

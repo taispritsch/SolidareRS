@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert, Platform } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Alert, Platform, KeyboardAvoidingView } from "react-native";
 import { Button, TextInput } from 'react-native-paper';
 import { styles } from "./styles";
 import { Colors } from '../constants/Colors';
@@ -209,97 +209,103 @@ const CityHallForm = () => {
                 <Text style={style.title}>
                     {mode === 'edit' ? 'Editando órgão público' : 'Adicionando órgão público'}
                 </Text>
-                <ScrollView>
-                    <View style={style.form}>
-                        <TextInput
-                            mode="outlined"
-                            label="Nome*"
-                            placeholder="Nome"
-                            value={name}
-                            onChangeText={text => setName(text)}
-                            style={style.textInput}
-                            selectionColor={Colors.backgroundButton}
-                            activeOutlineColor={Colors.backgroundButton}
-                            error={nameError}
-                        />
-                        <TextInput
-                            mode="outlined"
-                            label="Celular*"
-                            placeholder="Celular"
-                            value={phone}
-                            keyboardType="numeric"
-                            onChangeText={text => setPhone(formatPhoneNumber(text))}
-                            style={style.textInput}
-                            activeOutlineColor={Colors.backgroundButton}
-                            error={phoneError}
-                        />
-                        <TextInput
-                            mode="outlined"
-                            label="CEP*"
-                            placeholder="CEP"
-                            value={zip_code}
-                            onChangeText={handleCepChange}
-                            style={style.textInput}
-                            activeOutlineColor={Colors.backgroundButton}
-                            keyboardType="numeric"
-                            maxLength={9}
-                            error={cepError}
-                        />
-                        <TextInput
-                            mode="outlined"
-                            label="Cidade*"
-                            placeholder="Cidade"
-                            value={city}
-                            editable={false}
-                            style={style.textInput}
-                            activeOutlineColor={Colors.backgroundButton}
-                            error={cityError}
-                        />
-                        <TextInput
-                            mode="outlined"
-                            label="Rua*"
-                            placeholder="Rua"
-                            value={street}
-                            onChangeText={text => setRua(text)}
-                            style={style.textInput}
-                            activeOutlineColor={Colors.backgroundButton}
-                            error={streetError}
-                        />
-                        <TextInput
-                            mode="outlined"
-                            label="Bairro*"
-                            placeholder="Bairro"
-                            value={neighborhood}
-                            onChangeText={text => setBairro(text)}
-                            style={style.textInput}
-                            activeOutlineColor={Colors.backgroundButton}
-                            error={neighborhoodError}
-                        />
-
-                        <View style={style.block}>
+                <KeyboardAvoidingView
+                    style={{ flex: 1 }}
+                    behavior={Platform.OS === "ios" ? "padding" : "position"}
+                    keyboardVerticalOffset={110}
+                >
+                    <ScrollView keyboardShouldPersistTaps="handled">
+                        <View style={style.form}>
                             <TextInput
                                 mode="outlined"
-                                label="Número*"
-                                placeholder="Número"
+                                label="Nome*"
+                                placeholder="Nome"
+                                value={name}
+                                onChangeText={text => setName(text)}
+                                style={style.textInput}
+                                selectionColor={Colors.backgroundButton}
+                                activeOutlineColor={Colors.backgroundButton}
+                                error={nameError}
+                            />
+                            <TextInput
+                                mode="outlined"
+                                label="Celular*"
+                                placeholder="Celular"
+                                value={phone}
                                 keyboardType="numeric"
-                                value={number}
-                                onChangeText={text => setNumero(text)}
+                                onChangeText={text => setPhone(formatPhoneNumber(text))}
                                 style={style.textInput}
                                 activeOutlineColor={Colors.backgroundButton}
-                                error={numberError}
+                                error={phoneError}
                             />
                             <TextInput
                                 mode="outlined"
-                                label="Complemento"
-                                placeholder="Complemento"
-                                value={complemento}
-                                onChangeText={text => setComplemento(text)}
+                                label="CEP*"
+                                placeholder="CEP"
+                                value={zip_code}
+                                onChangeText={handleCepChange}
                                 style={style.textInput}
                                 activeOutlineColor={Colors.backgroundButton}
+                                keyboardType="numeric"
+                                maxLength={9}
+                                error={cepError}
                             />
+                            <TextInput
+                                mode="outlined"
+                                label="Cidade*"
+                                placeholder="Cidade"
+                                value={city}
+                                editable={false}
+                                style={style.textInput}
+                                activeOutlineColor={Colors.backgroundButton}
+                                error={cityError}
+                            />
+                            <TextInput
+                                mode="outlined"
+                                label="Rua*"
+                                placeholder="Rua"
+                                value={street}
+                                onChangeText={text => setRua(text)}
+                                style={style.textInput}
+                                activeOutlineColor={Colors.backgroundButton}
+                                error={streetError}
+                            />
+                            <TextInput
+                                mode="outlined"
+                                label="Bairro*"
+                                placeholder="Bairro"
+                                value={neighborhood}
+                                onChangeText={text => setBairro(text)}
+                                style={style.textInput}
+                                activeOutlineColor={Colors.backgroundButton}
+                                error={neighborhoodError}
+                            />
+
+                            <View style={style.block}>
+                                <TextInput
+                                    mode="outlined"
+                                    label="Número*"
+                                    placeholder="Número"
+                                    keyboardType="numeric"
+                                    value={number}
+                                    onChangeText={text => setNumero(text)}
+                                    style={style.textInput}
+                                    activeOutlineColor={Colors.backgroundButton}
+                                    error={numberError}
+                                />
+                                <TextInput
+                                    mode="outlined"
+                                    label="Complemento"
+                                    placeholder="Complemento"
+                                    value={complemento}
+                                    onChangeText={text => setComplemento(text)}
+                                    style={style.textInput}
+                                    activeOutlineColor={Colors.backgroundButton}
+                                />
+                            </View>
                         </View>
-                    </View>
-                </ScrollView>
+                    </ScrollView>
+                </KeyboardAvoidingView>
                 <View style={style.button}>
                     <Button
                         mode="contained"

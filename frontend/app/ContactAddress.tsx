@@ -7,7 +7,6 @@ import { useLocalSearchParams } from "expo-router";
 import MapView, { Marker } from 'react-native-maps';
 import ShimmerPlaceholder from "react-native-shimmer-placeholder";
 
-
 interface PlaceData {
   phone: string;
   description: string;
@@ -25,7 +24,8 @@ const ContactAddress = () => {
   const { id: placeId } = useLocalSearchParams();
   const [placeData, setPlaceData] = useState<PlaceData | null>(null);
   const [addressData, setAddressData] = useState<AddressData | null>(null);
-  const [position, setPosition] = useState({ latitude: 0, longitude: 0 });
+  const [position, setPosition] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [mapError, setMapError] = useState(false);
 
   async function fetchPlaceData() {
     try {
@@ -45,22 +45,31 @@ const ContactAddress = () => {
     try {
       const response = await axiosInstance.get(`/community/addresses/${addressId}`);
       setAddressData(response.data);
-
-      const coordinate = await fetch(`https://brasilapi.com.br/api/cep/v2/${response.data.zip_code}`);
-
-      const data = await coordinate.json();
-
-      setPosition({
-        latitude: parseFloat(data.location.coordinates.latitude),
-        longitude: parseFloat(data.location.coordinates.longitude)
-      });
-
+  
+      const fullAddress = `${response.data.street}, ${response.data.number}, ${response.data.neighborhood}, ${response.data.zip_code}, Brasil`;
+      const encoded = encodeURIComponent(fullAddress);
+      const googleApiKey = "AIzaSyBgme7TN9CCSkA3cUmE1SspvWHJSMvU2Fc";
+      const googleUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encoded}&key=${googleApiKey}`;
+  
+      const googleRes = await fetch(googleUrl);
+      const googleData = await googleRes.json();
+  
+      if (googleData.status === "OK" && googleData.results.length > 0) {
+        const location = googleData.results[0].geometry.location;
+        setPosition({
+          latitude: location.lat,
+          longitude: location.lng
+        });
+      } else {
+        throw new Error("Google Maps não retornou coordenadas");
+      }
+  
     } catch (error) {
-      console.error("Erro ao buscar o endereço:", error);
-      Alert.alert("Erro", "Não foi possível carregar as informações do endereço.");
+      console.error("Erro ao buscar o endereço ou coordenadas:", error);
+      setMapError(true);
     }
   }
-
+   
   useEffect(() => {
     fetchPlaceData();
   }, []);
@@ -107,32 +116,38 @@ const ContactAddress = () => {
             />
             <Text style={style.contactTItle}>Endereço</Text>
           </View>
-          {addressData && position.latitude !== 0 ? (
+          {addressData ? (
             <View>
               <Text style={style.addressText}>
                 {`${addressData.street}, n°${addressData.number} - ${addressData.neighborhood}, ${addressData.zip_code}`}
               </Text>
 
-              <View style={{ flex: 1, marginTop: 20 }}>
-                  < MapView
-                    style={{ height: 300, width: '100%' }}
-                    initialRegion={{
-                      latitude: position.latitude,
-                      longitude: position.longitude,
-                      latitudeDelta: 0.0922,
-                      longitudeDelta: 0.0421
-                    }}
-                  >
-                    <Marker
-                      coordinate={{
+              {!mapError && position ? (
+                <View style={{ flex: 1, marginTop: 20 }}>
+                    < MapView
+                      style={{ height: 300, width: '100%' }}
+                      initialRegion={{
                         latitude: position.latitude,
-                        longitude: position.longitude
+                        longitude: position.longitude,
+                        latitudeDelta: 0.0922,
+                        longitudeDelta: 0.0421
                       }}
-                      title={placeData?.description}
-                      description="Local de doação"
-                    />
-                  </MapView>
-                </View>
+                    >
+                      <Marker
+                        coordinate={{
+                          latitude: position.latitude,
+                          longitude: position.longitude
+                        }}
+                        title={placeData?.description}
+                        description="Local de doação"
+                      />
+                    </MapView>
+                  </View>
+              ) : (
+                <Text style={{ marginTop: 20, color: "#999", fontStyle: "italic" }}>
+                  Não foi possível carregar o mapa com o endereço indicado.
+                </Text>
+              )}
             </View>
           ) : (
             <View style={{ alignItems: 'flex-start', marginVertical: 20 }}>

@@ -129,6 +129,9 @@ const styles = StyleSheet.create({
     },
     secondaryButtonContent: {
         height: 60,
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexDirection: 'column',
     },
     secondaryButtonTextContainer: {
         flexDirection: 'column',

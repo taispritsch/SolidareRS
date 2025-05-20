@@ -57,8 +57,15 @@ const CityLocations = () => {
                 }
             });
 
-            setCategories(categories);
-
+            const urgentCategory = {
+                id: 999,
+                description: 'Itens Urgentes',
+                selected: false
+            };
+    
+            const allCategories = [urgentCategory, ...categories];
+    
+            setCategories(allCategories);
         } catch (error) {
             console.log(error);
         }
@@ -66,7 +73,6 @@ const CityLocations = () => {
 
     const getProducts = async (index?: number) => {
         let categoryFilter = null;
-
         if (index !== undefined) {
             categoryFilter = categories[index] && !categories[index].selected ? categories[index] : null;
         }
@@ -89,6 +95,7 @@ const CityLocations = () => {
                 subcategory_description: string; 
                 donation_place_id: number;
                 donation_place_description: string 
+                urgent: number
             }) => {
                 return {
                     id: product.id,
@@ -97,11 +104,44 @@ const CityLocations = () => {
                     category_description: product.category_description,
                     subcategory_description: product.subcategory_description,
                     donation_place_id: product.donation_place_id,
-                    donation_place_description: product.donation_place_description 
+                    donation_place_description: product.donation_place_description,
+                    urgent: product.urgent === 1
                 }
             });
     
-            setdonationProducts(products);
+            let filteredProducts = products;
+    
+            if (index !== undefined && categories[index]) {
+                const selectedCategory = categories[index];
+    
+                if (selectedCategory.description === 'Itens Urgentes') {
+                    // Exibe apenas os urgentes, sem duplicação
+                    filteredProducts = products
+                        .filter((product: any) => product.urgent)
+                        .filter((value: any, index: any, self: any) =>
+                            index === self.findIndex((v: any) =>
+                                v.description === value.description &&
+                                v.subcategory_description === value.subcategory_description
+                            )
+                        );
+                } else {
+                    // Filtra pela categoria normal
+                    filteredProducts = products.filter(
+                        (product: any) => product.category_description === selectedCategory.description
+                    );
+                }
+            } else {
+                // Nenhum filtro: remove os urgentes e deduplica por descrição + subcategoria
+                const seen = new Set();
+                filteredProducts = products.filter((product: any) => {
+                    const key = `${product.description}-${product.subcategory_description}`;
+                    if (product.urgent || seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                });
+            }
+    
+            setdonationProducts(filteredProducts);
         } catch (error) {
             console.log(error);
         } finally{
@@ -109,7 +149,6 @@ const CityLocations = () => {
         }
     }
      
-
     async function getPlaces() {
         setLoading(true);
         
@@ -159,7 +198,7 @@ const CityLocations = () => {
         if (productId) {
             try {
                 if (category === 'Roupas e calçados') {
-                    const response = await axiosInstance.get('products/registered-variations', {
+                    const response = await axiosInstance.get('/community/registered-variations', {
                         params: { product_ids: [productId] }, 
                     });
     
@@ -300,7 +339,7 @@ const CityLocations = () => {
                                 </ScrollView>
 
                                 <ScrollView>
-                                    <View style={{ marginBottom: 50 }}>
+                                    <View style={{ marginBottom: 150 }}>
                                         {loadingProducts ? (
                                             <View style={{ alignItems: 'center', marginVertical: 20 }}>
                                             <ShimmerPlaceholder style={{ 

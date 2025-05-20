@@ -71,7 +71,7 @@ const BusinessHourScreen = () => {
         setLoading(true);
 
         try {
-            await axiosInstance.put(`donation-places/${donationPlaceId}/business-hours`, {
+            await axiosInstance.put(`donation-places-auth/${donationPlaceId}/business-hours`, {
                 donation: businessHourDonation,
                 volunteer: volunteerSameAsDonation ? businessHourDonation : businessHourVolunteer,
             });

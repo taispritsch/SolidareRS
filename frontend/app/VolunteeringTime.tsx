@@ -25,8 +25,6 @@ const VolunteeringTime = () => {
     try {
       const response = await axiosInstance.get(`/community/${placeId}/business-hours`);
       const donationHours = response.data.volunteer.filter((item: BusinessHour) => item.type === "volunteer");
-      console.log('aaaaa', response)
-
 
       setBusinessHours(donationHours);
     } catch (error) {
@@ -48,38 +46,34 @@ const VolunteeringTime = () => {
             <Text style={style.contactTitle}>Horário para voluntários</Text>
           </View>
           {businessHours ? (
-            businessHours
-              .filter(day => day.hours.length > 0) 
-              .map((day, index) => (
-                <View key={index} style={style.dayContainer}>
-                  <Text style={style.dayOfWeek}>{day.day_of_week}</Text>
-                  <View style={style.hoursContainer}>
-                    {day.hours.map((hour, idx) => (
-                      <Text key={idx} style={style.hourText}>
-                        {hour.start} às {hour.end}
-                        {idx < day.hours.length - 1 ? " | " : ""}
-                      </Text>
-                    ))}
+            businessHours.some(day => day.hours.length > 0) ? (
+              businessHours
+                .filter(day => day.hours.length > 0)
+                .map((day, index) => (
+                  <View key={index} style={style.dayContainer}>
+                    <Text style={style.dayOfWeek}>{day.day_of_week}</Text>
+                    <View style={style.hoursContainer}>
+                      {day.hours.map((hour, idx) => (
+                        <Text key={idx} style={style.hourText}>
+                          {hour.start} às {hour.end}
+                          {idx < day.hours.length - 1 ? " | " : ""}
+                        </Text>
+                      ))}
+                    </View>
                   </View>
-                </View>
-              ))
+                ))
+            ) : (
+              <Text style={{color: '#000E19', fontSize: 16, textAlign: 'center', marginTop: 30}}>Este local não possui horário para voluntariado</Text>
+            )
           ) : (
             <View style={{ alignItems: 'flex-start', marginVertical: 20 }}>
-                <ShimmerPlaceholder 
-                  style={{ 
-                    height: 40,
-                    width: "50%", 
-                    marginBottom: 10, 
-                    borderRadius: 8 
-                  }} />
-                <ShimmerPlaceholder 
-                  style={{ 
-                    height: 20,
-                    width: "80%", 
-                    marginBottom: 10, 
-                    borderRadius: 8 
-                  }} />
-                </View>
+              <ShimmerPlaceholder 
+                style={{ height: 40, width: "50%", marginBottom: 10, borderRadius: 8 }} 
+              />
+              <ShimmerPlaceholder 
+                style={{ height: 20, width: "80%", marginBottom: 10, borderRadius: 8 }} 
+              />
+            </View>
           )}
         </View>
       </View>

@@ -36,6 +36,8 @@ const UrgentDonationScreen = () => {
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedDonation, setSelectedDonation] = useState<UrgentDonation | null>(null); 
     const [productSizes, setProductSizes] = useState([]);
+    const { donationPlaceId } = useLocalSearchParams();
+    
 
     const [categories, setCategories] = useState<{ id: number, description: keyof typeof CategoriesIcons, selected: boolean }[]>([]);
 
@@ -51,9 +53,10 @@ const UrgentDonationScreen = () => {
         }
 
         try {
-            const response = await axiosInstance.get('/donations-auth/urgent', {
+            const response = await axiosInstance.get('donations-auth/urgent', {
                 params: {
-                    category_id: categoryFilter ? categoryFilter.id : null
+                    category_id: categoryFilter ? categoryFilter.id : null,
+                    donation_place_id: donationPlaceId 
                 }
             });
 
@@ -63,8 +66,8 @@ const UrgentDonationScreen = () => {
         } finally {
             setLoading(false);
         }
-    };   
-
+    };
+  
     const openViewSizesModal = async (donation: UrgentDonation) => {
         setSelectedDonation(donation);
         setModalVisible(true);

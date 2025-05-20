@@ -248,6 +248,7 @@ const DonationScreen = () => {
                                                         menuOptions={['editar', 'editar urgência', 'excluir']}
                                                         onEditPress={() => handleEditDonation(product)}
                                                         onEditUrgencyPress={() => handleEditUrgentDonation(product)}
+                                                        onDeletPress={() => showDeleteAlert(product.donation_id)}
                                                     />
                                                 ))}
 

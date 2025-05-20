@@ -346,8 +346,12 @@ const DonationClothesForm = () => {
                             </View>
                             <View style={{ paddingRight: 10, alignItems: 'flex-end' }}>
                                 <TouchableOpacity
-                                    style={style.nextStepContainer}
+                                     style={[
+                                    style.nextStepContainer,
+                                    { opacity: products.some(product => product.selected) ? 1 : 0.5 }
+                                ]}
                                     onPress={nextStep}
+                                    disabled={!products.some(product => product.selected)}
                                 >
                                     <Text style={style.nextStepText}>Próximo passo</Text>
                                     <Text style={style.iconText}>››</Text>
@@ -416,8 +420,12 @@ const DonationClothesForm = () => {
                             </View>
                             <View style={{  }}>
                                 <TouchableOpacity
-                                    style={style.nextStepContainer}
+                                     style={[
+                                        style.nextStepContainer,
+                                        { opacity: products.some(product => product.selected) ? 1 : 0.5 }
+                                    ]}
                                     onPress={nextStep}
+                                    disabled={!products.some(product => product.selected)}
                                 >
                                     <Text style={style.nextStepText}>Próximo passo</Text>
                                     <Text style={style.iconText}>››</Text>
